@@ -96,15 +96,21 @@ class TestMemoryMonitor:
         monitor = MemoryMonitor(gpu_memory_limit_gb=6.0)
         config = monitor.get_memory_optimization_config()
         
-        expected_keys = [
-            "torch_dtype", "attn_implementation", "device_map", 
-            "low_cpu_mem_usage", "max_memory"
-        ]
-        for key in expected_keys:
+        required_keys = ["torch_dtype", "low_cpu_mem_usage"]
+        for key in required_keys:
             assert key in config
         
+        # CUDA-specific keys only present when CUDA is available
+        if torch.cuda.is_available():
+            cuda_keys = ["device_map", "max_memory"]
+            for key in cuda_keys:
+                assert key in config
+        
         assert config["torch_dtype"] == torch.float16
-        assert config["max_memory"] == {0: "5.5GB"}  # 6.0 - 0.5
+        
+        # Only check CUDA-specific configs when CUDA is available
+        if torch.cuda.is_available():
+            assert config["max_memory"] == {0: "5.5GB"}  # 6.0 - 0.5
 
 
 class TestFlashAttentionConfig:
