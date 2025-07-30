@@ -1,0 +1,109 @@
+# Model configurations for MT-bench evaluation
+# Each model has specific settings for optimal performance
+
+models:
+  gpt2-large:
+    model_path: "gpt2-large"
+    model_family: "gpt2"
+    estimated_memory_gb: 1.5
+    max_new_tokens: 512
+    temperature: 0.7
+    top_p: 0.9
+    use_flash_attention: false  # GPT-2 doesn't support Flash Attention
+    gradient_checkpointing: false  # Small enough to not need it
+    quantization: false
+
+  llama-3.2-1b:
+    model_path: "meta-llama/Llama-3.2-1B-Instruct"
+    model_family: "llama"
+    estimated_memory_gb: 2.0
+    max_new_tokens: 512
+    temperature: 0.7
+    top_p: 0.9
+    use_flash_attention: true
+    gradient_checkpointing: true
+    quantization: false
+
+  llama-3.2-3b:
+    model_path: "meta-llama/Llama-3.2-3B-Instruct"
+    model_family: "llama"
+    estimated_memory_gb: 6.0
+    max_new_tokens: 512
+    temperature: 0.7
+    top_p: 0.9
+    use_flash_attention: true
+    gradient_checkpointing: true
+    quantization: false  # Enable if memory issues
+
+  phi-3-mini:
+    model_path: "microsoft/Phi-3-mini-4k-instruct"
+    model_family: "phi"
+    estimated_memory_gb: 2.5
+    max_new_tokens: 512
+    temperature: 0.7
+    top_p: 0.9
+    use_flash_attention: true
+    gradient_checkpointing: true
+    quantization: false
+    trust_remote_code: true
+
+  qwen2.5-3b:
+    model_path: "Qwen/Qwen2.5-3B-Instruct"
+    model_family: "qwen"
+    estimated_memory_gb: 6.0
+    max_new_tokens: 512
+    temperature: 0.7
+    top_p: 0.9
+    use_flash_attention: true
+    gradient_checkpointing: true
+    quantization: false
+    trust_remote_code: true
+
+  gemma-2b:
+    model_path: "google/gemma-2b-it"
+    model_family: "gemma"
+    estimated_memory_gb: 4.0
+    max_new_tokens: 512
+    temperature: 0.7
+    top_p: 0.9
+    use_flash_attention: true
+    gradient_checkpointing: true
+    quantization: false
+
+# Global optimization settings
+optimization:
+  rtx_3060:
+    memory_limit_gb: 6.0
+    enable_memory_fraction: true
+    memory_fraction: 0.95
+    cuda_alloc_conf: "max_split_size_mb:128"
+  
+  colab_t4:
+    memory_limit_gb: 15.0
+    enable_memory_fraction: false
+    cuda_alloc_conf: "max_split_size_mb:256"
+
+# Prompt templates for different model families
+prompt_templates:
+  gpt2:
+    template: "{instruction}"
+    system_prompt: false
+
+  llama:
+    template: "<s>[INST] {instruction} [/INST]"
+    system_prompt: false
+    multi_turn_template: "<s>[INST] {history}\n\n{instruction} [/INST]"
+
+  phi:
+    template: "<|user|>\n{instruction}<|end|>\n<|assistant|>\n"
+    system_prompt: true
+    system_template: "<|system|>\nYou are a helpful AI assistant.<|end|>\n"
+
+  qwen:
+    template: "<|im_start|>user\n{instruction}<|im_end|>\n<|im_start|>assistant\n"
+    system_prompt: true
+    system_template: "<|im_start|>system\nYou are a helpful assistant.<|im_end|>\n"
+
+  gemma:
+    template: "<start_of_turn>user\n{instruction}<end_of_turn>\n<start_of_turn>model\n"
+    system_prompt: false

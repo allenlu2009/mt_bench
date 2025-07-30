@@ -1,0 +1,8 @@
+MT-BENCH EVALUATION SUMMARY REPORT
+==================================================
+
+Models Evaluated: 1
+
+SINGLE MODEL EVALUATION:
+Model: gpt2
+Score: 1.00

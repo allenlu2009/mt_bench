@@ -1,0 +1,40 @@
+# MT-bench Evaluation System - Google Colab Requirements
+# Optimized for Colab's T4 GPU environment
+
+# Note: Some packages may already be installed in Colab
+# Core ML libraries (Colab often has these)
+torch>=2.0.0
+transformers>=4.36.0
+accelerate>=0.24.1
+
+# Flash Attention 2 - may need compilation in Colab
+flash-attn>=2.4.0
+
+# Quantization support
+bitsandbytes>=0.41.0
+
+# OpenAI for judge
+openai>=1.0.0
+
+# HTTP and async
+tenacity>=8.2.0
+aiohttp>=3.8.0
+
+# Data processing (usually available in Colab)
+pandas>=2.0.0
+
+# Progress bars
+tqdm>=4.65.0
+
+# System monitoring
+psutil>=5.9.0
+
+# File handling
+pyyaml>=6.0
+
+# Optional performance packages
+sentencepiece>=0.1.99
+
+# Colab-specific optimizations
+# These help with Colab's environment
+ipywidgets>=8.0.0  # For interactive widgets

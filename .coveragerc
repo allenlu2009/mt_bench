@@ -1,0 +1,37 @@
+# Coverage configuration for MT-bench evaluation system
+
+[run]
+source = src
+omit = 
+    */tests/*
+    */venv/*
+    */.*
+    */setup.py
+    */conftest.py
+
+[report]
+# Coverage reporting options
+show_missing = True
+skip_covered = False
+sort = Cover
+precision = 2
+
+# Exclude lines from coverage
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    if self.debug:
+    if settings.DEBUG
+    raise AssertionError
+    raise NotImplementedError
+    if 0:
+    if __name__ == .__main__.:
+    class .*\bProtocol\):
+    @(abc\.)?abstractmethod
+
+[html]
+directory = htmlcov
+title = MT-bench Coverage Report
+
+[xml]
+output = coverage.xml

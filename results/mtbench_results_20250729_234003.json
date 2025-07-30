@@ -1,0 +1,97 @@
+{
+  "model_results": [
+    {
+      "model_name": "gpt2",
+      "total_questions": 1,
+      "total_responses": 2,
+      "overall_score": {
+        "mean": 1.5,
+        "std": 0.5,
+        "median": 1.5,
+        "min": 1.0,
+        "max": 2.0,
+        "percentile_25": 1.25,
+        "percentile_75": 1.75
+      },
+      "category_breakdown": {
+        "writing": {
+          "mean": 1.5,
+          "std": 0.5,
+          "count": 2,
+          "min": 1.0,
+          "max": 2.0
+        }
+      },
+      "turn_breakdown": {
+        "turn_1": {
+          "mean": 1.0,
+          "std": 0.0,
+          "count": 1,
+          "min": 1.0,
+          "max": 1.0
+        },
+        "turn_2": {
+          "mean": 2.0,
+          "std": 0.0,
+          "count": 1,
+          "min": 2.0,
+          "max": 2.0
+        },
+        "consistency": {
+          "turn1_vs_turn2_correlation": 0.0,
+          "mean_difference": 1.0
+        }
+      },
+      "performance_metrics": {
+        "average_total_time": 9.897547721862793,
+        "average_turn_time": 4.9487738609313965,
+        "peak_memory_usage_gb": 0.0,
+        "average_memory_usage_gb": 0.0,
+        "total_conversations": 1,
+        "total_turns": 2
+      },
+      "score_distribution": {
+        "0-2": 1,
+        "2-4": 1,
+        "4-6": 0,
+        "6-8": 0,
+        "8-10": 0
+      },
+      "evaluation_time_seconds": 17.69684910774231
+    }
+  ],
+  "comparison": {
+    "model_count": 1,
+    "overall_ranking": [
+      {
+        "model": "gpt2",
+        "score": 1.5
+      }
+    ],
+    "score_statistics": {
+      "highest_score": 1.5,
+      "lowest_score": 1.5,
+      "score_range": 0.0,
+      "average_score": 1.5
+    },
+    "single_model": true,
+    "note": "Single model evaluation - no comparison available"
+  },
+  "judge_stats": {
+    "total_requests": 2,
+    "recent_requests_per_minute": 2,
+    "current_rate_limit": 10,
+    "judge_model": "gpt-4.1-nano"
+  },
+  "summary_report": "MT-BENCH EVALUATION SUMMARY REPORT\n==================================================\n\nModels Evaluated: 1\n\nSINGLE MODEL EVALUATION:\nModel: gpt2\nScore: 1.50\n",
+  "metadata": {
+    "start_time": 1753803585.53926,
+    "end_time": 1753803603.428226,
+    "models_evaluated": [
+      "gpt2"
+    ],
+    "judge_model": "gpt-4.1-nano",
+    "total_questions": 1,
+    "memory_limit_gb": 6.0
+  }
+}

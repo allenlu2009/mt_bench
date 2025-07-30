@@ -1,0 +1,142 @@
+# Evaluation configuration for MT-bench
+# Settings for judge, evaluation parameters, and output formats
+
+# Judge configuration
+judge:
+  model: "gpt-4.1-nano"
+  temperature: 0.2
+  max_tokens: 1000
+  top_p: 1.0
+  rate_limit_requests_per_second: 10
+  max_retries: 5
+  retry_wait_min_seconds: 4
+  retry_wait_max_seconds: 60
+
+# MT-bench dataset configuration
+dataset:
+  source_url: "https://raw.githubusercontent.com/lm-sys/FastChat/main/fastchat/llm_judge/data/mt_bench/question.jsonl"
+  cache_dir: "data"
+  expected_questions: 80
+  expected_categories: 8
+  force_download: false
+
+# Categories in MT-bench
+categories:
+  - "writing"
+  - "roleplay"
+  - "reasoning"
+  - "math"
+  - "coding"
+  - "extraction"
+  - "stem"
+  - "humanities"
+
+# Evaluation parameters
+evaluation:
+  # Conversation settings
+  turns_per_question: 2
+  validate_conversation_format: true
+  
+  # Generation settings
+  generation_timeout_seconds: 120
+  max_generation_retries: 3
+  
+  # Memory monitoring
+  log_memory_usage: true
+  memory_check_interval: 10  # Check every N questions
+  cleanup_between_models: true
+  
+  # Progress tracking
+  show_progress_bar: true
+  log_detailed_timing: true
+
+# Output configuration
+output:
+  formats:
+    - "json"
+    - "csv"
+    - "summary_txt"
+  
+  export_settings:
+    include_raw_responses: true
+    include_judge_reasoning: true
+    include_conversation_history: true
+    include_performance_metrics: true
+    include_memory_stats: true
+  
+  file_naming:
+    timestamp_format: "%Y%m%d_%H%M%S"
+    prefix: "mtbench_results"
+
+# Logging configuration
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  file: "mtbench_evaluation.log"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+  # Reduce noise from external libraries
+  library_levels:
+    urllib3: "WARNING"
+    transformers: "WARNING" 
+    torch: "WARNING"
+
+# Performance tuning
+performance:
+  # Async settings
+  max_concurrent_judgments: 10
+  judge_semaphore_limit: 10
+  
+  # Memory optimization
+  cleanup_frequency: 5  # Clean up every N questions
+  force_gc_frequency: 10  # Force garbage collection every N questions
+  
+  # Generation optimization
+  use_generation_cache: false  # Don't cache responses for reproducibility
+  batch_size: 1  # Process one question at a time to manage memory
+
+# Testing and development settings
+development:
+  # Quick testing
+  max_questions_debug: 5
+  test_models:
+    - "gpt2-large"
+  
+  # Mock settings for testing without API calls
+  enable_mock_judge: false
+  mock_judge_score_range: [3.0, 9.0]
+  
+  # Validation settings
+  strict_validation: true
+  fail_on_invalid_response: false
+
+# Hardware-specific optimizations
+hardware:
+  rtx_3060:
+    memory_limit_gb: 6.0
+    recommended_models:
+      - "gpt2-large"
+      - "llama-3.2-1b"
+      - "phi-3-mini"
+      - "qwen2.5-3b"  # With quantization if needed
+      - "gemma-2b"
+    
+    optimization_flags:
+      - "enable_flash_attention"
+      - "enable_gradient_checkpointing"
+      - "use_fp16"
+      - "limit_memory_fraction"
+  
+  colab_t4:
+    memory_limit_gb: 15.0
+    recommended_models:
+      - "gpt2-large"
+      - "llama-3.2-1b"
+      - "llama-3.2-3b"
+      - "phi-3-mini"
+      - "qwen2.5-3b"
+      - "gemma-2b"
+    
+    optimization_flags:
+      - "enable_flash_attention"
+      - "enable_gradient_checkpointing"
+      - "use_fp16"

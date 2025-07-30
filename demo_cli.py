@@ -1,0 +1,96 @@
+#!/usr/bin/env python3
+"""
+Demo script showing MT-bench CLI functionality.
+
+This script demonstrates various CLI commands without actually running evaluations
+(which would require OpenAI API key and take significant time).
+"""
+
+import subprocess
+import os
+import sys
+from pathlib import Path
+
+def run_command(cmd, description=""):
+    """Run a command and show output."""
+    print(f"\n{'='*60}")
+    print(f"🔧 {description}")
+    print(f"Command: {' '.join(cmd)}")
+    print("="*60)
+    
+    try:
+        # Ensure we're in the right directory and environment
+        env = os.environ.copy()
+        result = subprocess.run(
+            cmd, 
+            cwd=Path(__file__).parent,
+            capture_output=True, 
+            text=True,
+            env=env
+        )
+        
+        if result.returncode == 0:
+            print("✅ SUCCESS")
+            if result.stdout:
+                print("\nOutput:")
+                print(result.stdout)
+        else:
+            print("❌ ERROR")
+            if result.stderr:
+                print("\nError:")
+                print(result.stderr)
+            if result.stdout:
+                print("\nOutput:")
+                print(result.stdout)
+                
+    except Exception as e:
+        print(f"❌ Exception: {e}")
+
+
+def main():
+    """Main demo function."""
+    print("🚀 MT-bench CLI Demonstration")
+    print("This demo shows CLI functionality without running full evaluations")
+    
+    # Check if we're in a virtual environment
+    if not os.environ.get('VIRTUAL_ENV') and not sys.prefix != sys.base_prefix:
+        print("\n⚠️  Warning: Not in virtual environment!")
+        print("Please run: source .venv/bin/activate")
+        return
+    
+    # Demo commands
+    commands = [
+        {
+            "cmd": ["python", "-m", "src.cli", "--help"],
+            "desc": "Show CLI help and usage examples"
+        },
+        {
+            "cmd": ["python", "-m", "src.cli", "--list-models"],
+            "desc": "List all available models with memory requirements"
+        },
+        {
+            "cmd": ["python", "-m", "src.cli", "--models", "gpt2-large"],
+            "desc": "Test model validation (should show warning about invalid model)"
+        },
+        {
+            "cmd": ["python", "-m", "src.cli", "--models", "llama-3.2-3b", "--memory-limit", "4.0"],
+            "desc": "Test memory limit validation (should warn about insufficient memory)"
+        }
+    ]
+    
+    # Run demo commands
+    for cmd_info in commands:
+        run_command(cmd_info["cmd"], cmd_info["desc"])
+    
+    print(f"\n{'='*60}")
+    print("📋 To run actual evaluations, you need:")
+    print("1. Set OpenAI API key: export OPENAI_API_KEY='your-key-here'")
+    print("2. Run a test evaluation:")
+    print("   python -m src.cli --models gpt2-large --max-questions 5")
+    print("3. Run full evaluation:")
+    print("   python -m src.cli --models gpt2-large llama-3.2-1b")
+    print("="*60)
+
+
+if __name__ == "__main__":
+    main()

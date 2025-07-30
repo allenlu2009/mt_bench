@@ -1,0 +1,622 @@
+2025-07-29 23:11:52,997 - __main__ - INFO - Applied RTX 3060 optimizations
+2025-07-29 23:11:52,998 - __main__ - ERROR - Evaluation failed: No valid models found after filtering
+2025-07-29 23:11:55,482 - __main__ - INFO - Applied RTX 3060 optimizations
+2025-07-29 23:11:55,482 - __main__ - ERROR - Evaluation failed: No valid models found after filtering
+2025-07-29 23:13:56,735 - __main__ - INFO - Applied RTX 3060 optimizations
+2025-07-29 23:13:56,735 - __main__ - INFO - Validated models: ['gpt2-large']
+2025-07-29 23:13:56,735 - src.models.model_manager - INFO - ModelManager initialized on cpu
+2025-07-29 23:13:56,955 - src.evaluation.judge_client - INFO - JudgeClient initialized with model: gpt-4.1-nano
+2025-07-29 23:13:56,955 - src.evaluation.conversation_handler - INFO - ConversationHandler initialized
+2025-07-29 23:13:56,955 - src.utils.results_analyzer - INFO - ResultsAnalyzer initialized
+2025-07-29 23:13:56,955 - src.evaluation.mtbench_evaluator - INFO - MTBenchEvaluator initialized for models: ['gpt2-large']
+2025-07-29 23:13:56,955 - __main__ - INFO - Starting MT-bench evaluation for 1 models
+2025-07-29 23:13:56,955 - src.evaluation.mtbench_evaluator - INFO - Starting full MT-bench evaluation
+2025-07-29 23:13:56,956 - src.utils.data_loader - INFO - Downloading MT-bench dataset from official repository
+2025-07-29 23:13:57,717 - src.utils.data_loader - INFO - MT-bench dataset cached to data/mt_bench_questions.jsonl
+2025-07-29 23:13:57,719 - src.utils.data_loader - INFO - Loaded 80 MT-bench questions
+2025-07-29 23:13:57,719 - src.utils.data_loader - INFO - Dataset validation passed: 80 questions, 8 categories
+2025-07-29 23:13:57,719 - src.evaluation.mtbench_evaluator - INFO - Evaluating model: gpt2-large
+2025-07-29 23:13:57,719 - src.evaluation.mtbench_evaluator - INFO - Starting evaluation of gpt2-large
+2025-07-29 23:13:57,719 - src.models.model_manager - INFO - Loading model: gpt2-large (gpt2-large)
+2025-07-29 23:13:57,720 - src.evaluation.mtbench_evaluator - ERROR - Failed to evaluate gpt2-large: float division by zero
+2025-07-29 23:13:57,720 - src.evaluation.mtbench_evaluator - ERROR - Evaluation failed: float division by zero
+2025-07-29 23:13:57,720 - src.evaluation.conversation_handler - INFO - Cleaned up 0 conversation sessions
+2025-07-29 23:13:57,720 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:13:57,720 - __main__ - ERROR - Evaluation failed: float division by zero
+2025-07-29 23:13:57,799 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:14:34,689 - __main__ - INFO - Applied RTX 3060 optimizations
+2025-07-29 23:14:34,689 - __main__ - INFO - Validated models: ['gpt2-large']
+2025-07-29 23:14:34,689 - src.models.model_manager - INFO - ModelManager initialized on cpu
+2025-07-29 23:14:34,798 - src.evaluation.judge_client - INFO - JudgeClient initialized with model: gpt-4.1-nano
+2025-07-29 23:14:34,798 - src.evaluation.conversation_handler - INFO - ConversationHandler initialized
+2025-07-29 23:14:34,798 - src.utils.results_analyzer - INFO - ResultsAnalyzer initialized
+2025-07-29 23:14:34,798 - src.evaluation.mtbench_evaluator - INFO - MTBenchEvaluator initialized for models: ['gpt2-large']
+2025-07-29 23:14:34,798 - __main__ - INFO - Starting MT-bench evaluation for 1 models
+2025-07-29 23:14:34,798 - src.evaluation.mtbench_evaluator - INFO - Starting full MT-bench evaluation
+2025-07-29 23:14:34,799 - src.utils.data_loader - INFO - Loaded 80 MT-bench questions
+2025-07-29 23:14:34,799 - src.utils.data_loader - INFO - Dataset validation passed: 80 questions, 8 categories
+2025-07-29 23:14:34,799 - src.evaluation.mtbench_evaluator - INFO - Evaluating model: gpt2-large
+2025-07-29 23:14:34,799 - src.evaluation.mtbench_evaluator - INFO - Starting evaluation of gpt2-large
+2025-07-29 23:14:34,799 - src.models.model_manager - INFO - Loading model: gpt2-large (gpt2-large)
+2025-07-29 23:14:34,799 - src.evaluation.mtbench_evaluator - ERROR - Failed to evaluate gpt2-large: float division by zero
+2025-07-29 23:14:34,799 - src.evaluation.mtbench_evaluator - ERROR - Evaluation failed: float division by zero
+2025-07-29 23:14:34,799 - src.evaluation.conversation_handler - INFO - Cleaned up 0 conversation sessions
+2025-07-29 23:14:34,799 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:14:34,799 - __main__ - ERROR - Evaluation failed: float division by zero
+2025-07-29 23:14:34,859 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:15:20,572 - __main__ - INFO - Applied RTX 3060 optimizations
+2025-07-29 23:15:20,572 - __main__ - INFO - Validated models: ['gpt2-large']
+2025-07-29 23:15:20,573 - src.models.model_manager - INFO - ModelManager initialized on cpu
+2025-07-29 23:15:20,664 - src.evaluation.judge_client - INFO - JudgeClient initialized with model: gpt-4.1-nano
+2025-07-29 23:15:20,664 - src.evaluation.conversation_handler - INFO - ConversationHandler initialized
+2025-07-29 23:15:20,664 - src.utils.results_analyzer - INFO - ResultsAnalyzer initialized
+2025-07-29 23:15:20,664 - src.evaluation.mtbench_evaluator - INFO - MTBenchEvaluator initialized for models: ['gpt2-large']
+2025-07-29 23:15:20,664 - __main__ - INFO - Starting MT-bench evaluation for 1 models
+2025-07-29 23:15:20,664 - src.evaluation.mtbench_evaluator - INFO - Starting full MT-bench evaluation
+2025-07-29 23:15:20,666 - src.utils.data_loader - INFO - Loaded 80 MT-bench questions
+2025-07-29 23:15:20,666 - src.utils.data_loader - INFO - Dataset validation passed: 80 questions, 8 categories
+2025-07-29 23:15:20,666 - src.evaluation.mtbench_evaluator - INFO - Evaluating model: gpt2-large
+2025-07-29 23:15:20,666 - src.evaluation.mtbench_evaluator - INFO - Starting evaluation of gpt2-large
+2025-07-29 23:15:20,666 - src.models.model_manager - INFO - Loading model: gpt2-large (gpt2-large)
+2025-07-29 23:15:20,666 - src.evaluation.mtbench_evaluator - ERROR - Failed to evaluate gpt2-large: float division by zero
+2025-07-29 23:15:20,666 - src.evaluation.mtbench_evaluator - ERROR - Evaluation failed: float division by zero
+2025-07-29 23:15:20,667 - src.evaluation.conversation_handler - INFO - Cleaned up 0 conversation sessions
+2025-07-29 23:15:20,667 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:15:20,667 - __main__ - ERROR - Evaluation failed: float division by zero
+2025-07-29 23:15:20,725 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:18:05,995 - __main__ - INFO - Applied RTX 3060 optimizations
+2025-07-29 23:18:05,995 - __main__ - INFO - Validated models: ['gpt2-large']
+2025-07-29 23:18:05,995 - src.models.model_manager - INFO - ModelManager initialized on cpu
+2025-07-29 23:18:06,084 - src.evaluation.judge_client - INFO - JudgeClient initialized with model: gpt-4.1-nano
+2025-07-29 23:18:06,084 - src.evaluation.conversation_handler - INFO - ConversationHandler initialized
+2025-07-29 23:18:06,084 - src.utils.results_analyzer - INFO - ResultsAnalyzer initialized
+2025-07-29 23:18:06,084 - src.evaluation.mtbench_evaluator - INFO - MTBenchEvaluator initialized for models: ['gpt2-large']
+2025-07-29 23:18:06,084 - __main__ - INFO - Starting MT-bench evaluation for 1 models
+2025-07-29 23:18:06,084 - __main__ - INFO - Limited to 2 questions for testing
+2025-07-29 23:18:06,084 - src.evaluation.mtbench_evaluator - INFO - Starting full MT-bench evaluation
+2025-07-29 23:18:06,085 - src.utils.data_loader - INFO - Loaded 80 MT-bench questions
+2025-07-29 23:18:06,085 - src.utils.data_loader - INFO - Dataset validation passed: 80 questions, 8 categories
+2025-07-29 23:18:06,085 - src.evaluation.mtbench_evaluator - INFO - Limited to 2 questions for testing
+2025-07-29 23:18:06,085 - src.evaluation.mtbench_evaluator - INFO - Evaluating model: gpt2-large
+2025-07-29 23:18:06,085 - src.evaluation.mtbench_evaluator - INFO - Starting evaluation of gpt2-large
+2025-07-29 23:18:06,085 - src.models.model_manager - INFO - Loading model: gpt2-large (gpt2-large)
+2025-07-29 23:18:06,085 - src.models.model_manager - INFO - [Before model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.1%
+2025-07-29 23:18:07,054 - src.models.model_manager - INFO - Tokenizer loaded, vocab size: 50257
+2025-07-29 23:18:11,238 - src.models.model_manager - ERROR - Failed to load model gpt2-large: Using a `device_map`, `tp_plan`, `torch.device` context manager or setting `torch.set_default_device(device)` requires `accelerate`. You can install it with `pip install accelerate`
+2025-07-29 23:18:11,239 - src.evaluation.mtbench_evaluator - ERROR - Failed to evaluate gpt2-large: Using a `device_map`, `tp_plan`, `torch.device` context manager or setting `torch.set_default_device(device)` requires `accelerate`. You can install it with `pip install accelerate`
+2025-07-29 23:18:11,239 - src.evaluation.mtbench_evaluator - ERROR - Evaluation failed: Using a `device_map`, `tp_plan`, `torch.device` context manager or setting `torch.set_default_device(device)` requires `accelerate`. You can install it with `pip install accelerate`
+2025-07-29 23:18:11,239 - src.evaluation.conversation_handler - INFO - Cleaned up 0 conversation sessions
+2025-07-29 23:18:11,239 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:18:11,239 - __main__ - ERROR - Evaluation failed: Using a `device_map`, `tp_plan`, `torch.device` context manager or setting `torch.set_default_device(device)` requires `accelerate`. You can install it with `pip install accelerate`
+2025-07-29 23:18:11,341 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:18:28,948 - __main__ - INFO - Applied RTX 3060 optimizations
+2025-07-29 23:18:28,948 - __main__ - INFO - Validated models: ['gpt2-large']
+2025-07-29 23:18:28,948 - src.models.model_manager - INFO - ModelManager initialized on cpu
+2025-07-29 23:18:29,041 - src.evaluation.judge_client - INFO - JudgeClient initialized with model: gpt-4.1-nano
+2025-07-29 23:18:29,041 - src.evaluation.conversation_handler - INFO - ConversationHandler initialized
+2025-07-29 23:18:29,041 - src.utils.results_analyzer - INFO - ResultsAnalyzer initialized
+2025-07-29 23:18:29,041 - src.evaluation.mtbench_evaluator - INFO - MTBenchEvaluator initialized for models: ['gpt2-large']
+2025-07-29 23:18:29,041 - __main__ - INFO - Starting MT-bench evaluation for 1 models
+2025-07-29 23:18:29,041 - __main__ - INFO - Limited to 2 questions for testing
+2025-07-29 23:18:29,041 - src.evaluation.mtbench_evaluator - INFO - Starting full MT-bench evaluation
+2025-07-29 23:18:29,043 - src.utils.data_loader - INFO - Loaded 80 MT-bench questions
+2025-07-29 23:18:29,043 - src.utils.data_loader - INFO - Dataset validation passed: 80 questions, 8 categories
+2025-07-29 23:18:29,043 - src.evaluation.mtbench_evaluator - INFO - Limited to 2 questions for testing
+2025-07-29 23:18:29,043 - src.evaluation.mtbench_evaluator - INFO - Evaluating model: gpt2-large
+2025-07-29 23:18:29,043 - src.evaluation.mtbench_evaluator - INFO - Starting evaluation of gpt2-large
+2025-07-29 23:18:29,043 - src.models.model_manager - INFO - Loading model: gpt2-large (gpt2-large)
+2025-07-29 23:18:29,043 - src.models.model_manager - INFO - [Before model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 84.9%
+2025-07-29 23:18:29,948 - src.models.model_manager - INFO - Tokenizer loaded, vocab size: 50257
+2025-07-29 23:21:48,998 - __main__ - INFO - Applied RTX 3060 optimizations
+2025-07-29 23:21:48,998 - __main__ - INFO - Validated models: ['gpt2-large']
+2025-07-29 23:21:48,998 - src.models.model_manager - INFO - ModelManager initialized on cpu
+2025-07-29 23:21:49,098 - src.evaluation.judge_client - INFO - JudgeClient initialized with model: gpt-4.1-nano
+2025-07-29 23:21:49,099 - src.evaluation.conversation_handler - INFO - ConversationHandler initialized
+2025-07-29 23:21:49,099 - src.utils.results_analyzer - INFO - ResultsAnalyzer initialized
+2025-07-29 23:21:49,099 - src.evaluation.mtbench_evaluator - INFO - MTBenchEvaluator initialized for models: ['gpt2-large']
+2025-07-29 23:21:49,099 - __main__ - INFO - Starting MT-bench evaluation for 1 models
+2025-07-29 23:21:49,099 - __main__ - INFO - Limited to 2 questions for testing
+2025-07-29 23:21:49,099 - src.evaluation.mtbench_evaluator - INFO - Starting full MT-bench evaluation
+2025-07-29 23:21:49,100 - src.utils.data_loader - INFO - Loaded 80 MT-bench questions
+2025-07-29 23:21:49,100 - src.utils.data_loader - INFO - Dataset validation passed: 80 questions, 8 categories
+2025-07-29 23:21:49,100 - src.evaluation.mtbench_evaluator - INFO - Limited to 2 questions for testing
+2025-07-29 23:21:49,100 - src.evaluation.mtbench_evaluator - INFO - Evaluating model: gpt2-large
+2025-07-29 23:21:49,100 - src.evaluation.mtbench_evaluator - INFO - Starting evaluation of gpt2-large
+2025-07-29 23:21:49,100 - src.models.model_manager - INFO - Loading model: gpt2-large (gpt2-large)
+2025-07-29 23:21:49,100 - src.models.model_manager - INFO - [Before model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 84.5%
+2025-07-29 23:21:50,338 - src.models.model_manager - INFO - Tokenizer loaded, vocab size: 50257
+2025-07-29 23:22:25,412 - src.evaluation.conversation_handler - INFO - Cleaned up 0 conversation sessions
+2025-07-29 23:22:25,414 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:22:25,414 - __main__ - INFO - Evaluation interrupted by user
+2025-07-29 23:22:34,277 - __main__ - INFO - Applied RTX 3060 optimizations
+2025-07-29 23:22:34,277 - __main__ - ERROR - Evaluation failed: No valid models found after filtering
+2025-07-29 23:23:45,099 - __main__ - INFO - Applied RTX 3060 optimizations
+2025-07-29 23:23:45,100 - __main__ - INFO - Validated models: ['gpt2']
+2025-07-29 23:23:45,100 - src.models.model_manager - INFO - ModelManager initialized on cpu
+2025-07-29 23:23:45,187 - src.evaluation.judge_client - INFO - JudgeClient initialized with model: gpt-4.1-nano
+2025-07-29 23:23:45,188 - src.evaluation.conversation_handler - INFO - ConversationHandler initialized
+2025-07-29 23:23:45,188 - src.utils.results_analyzer - INFO - ResultsAnalyzer initialized
+2025-07-29 23:23:45,188 - src.evaluation.mtbench_evaluator - INFO - MTBenchEvaluator initialized for models: ['gpt2']
+2025-07-29 23:23:45,188 - __main__ - INFO - Starting MT-bench evaluation for 1 models
+2025-07-29 23:23:45,188 - __main__ - INFO - Limited to 2 questions for testing
+2025-07-29 23:23:45,188 - src.evaluation.mtbench_evaluator - INFO - Starting full MT-bench evaluation
+2025-07-29 23:23:45,189 - src.utils.data_loader - INFO - Loaded 80 MT-bench questions
+2025-07-29 23:23:45,189 - src.utils.data_loader - INFO - Dataset validation passed: 80 questions, 8 categories
+2025-07-29 23:23:45,189 - src.evaluation.mtbench_evaluator - INFO - Limited to 2 questions for testing
+2025-07-29 23:23:45,189 - src.evaluation.mtbench_evaluator - INFO - Evaluating model: gpt2
+2025-07-29 23:23:45,189 - src.evaluation.mtbench_evaluator - INFO - Starting evaluation of gpt2
+2025-07-29 23:23:45,189 - src.models.model_manager - INFO - Loading model: gpt2 (gpt2)
+2025-07-29 23:23:45,189 - src.models.model_manager - INFO - [Before model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.1%
+2025-07-29 23:23:46,229 - src.models.model_manager - INFO - Tokenizer loaded, vocab size: 50257
+2025-07-29 23:23:47,113 - src.models.model_manager - ERROR - Failed to load model gpt2: FlashAttention2 has been toggled on, but it cannot be used due to the following error: the package flash_attn seems to be not installed. Please refer to the documentation of https://huggingface.co/docs/transformers/perf_infer_gpu_one#flashattention-2 to install Flash Attention 2.
+2025-07-29 23:23:47,113 - src.evaluation.mtbench_evaluator - ERROR - Failed to evaluate gpt2: FlashAttention2 has been toggled on, but it cannot be used due to the following error: the package flash_attn seems to be not installed. Please refer to the documentation of https://huggingface.co/docs/transformers/perf_infer_gpu_one#flashattention-2 to install Flash Attention 2.
+2025-07-29 23:23:47,113 - src.evaluation.mtbench_evaluator - ERROR - Evaluation failed: FlashAttention2 has been toggled on, but it cannot be used due to the following error: the package flash_attn seems to be not installed. Please refer to the documentation of https://huggingface.co/docs/transformers/perf_infer_gpu_one#flashattention-2 to install Flash Attention 2.
+2025-07-29 23:23:47,113 - src.evaluation.conversation_handler - INFO - Cleaned up 0 conversation sessions
+2025-07-29 23:23:47,114 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:23:47,114 - __main__ - ERROR - Evaluation failed: FlashAttention2 has been toggled on, but it cannot be used due to the following error: the package flash_attn seems to be not installed. Please refer to the documentation of https://huggingface.co/docs/transformers/perf_infer_gpu_one#flashattention-2 to install Flash Attention 2.
+2025-07-29 23:23:47,181 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:24:35,725 - __main__ - INFO - Applied RTX 3060 optimizations
+2025-07-29 23:24:35,725 - __main__ - INFO - Validated models: ['gpt2']
+2025-07-29 23:24:35,725 - src.models.model_manager - INFO - ModelManager initialized on cpu
+2025-07-29 23:24:35,830 - src.evaluation.judge_client - INFO - JudgeClient initialized with model: gpt-4.1-nano
+2025-07-29 23:24:35,830 - src.evaluation.conversation_handler - INFO - ConversationHandler initialized
+2025-07-29 23:24:35,830 - src.utils.results_analyzer - INFO - ResultsAnalyzer initialized
+2025-07-29 23:24:35,830 - src.evaluation.mtbench_evaluator - INFO - MTBenchEvaluator initialized for models: ['gpt2']
+2025-07-29 23:24:35,830 - __main__ - INFO - Starting MT-bench evaluation for 1 models
+2025-07-29 23:24:35,830 - __main__ - INFO - Limited to 2 questions for testing
+2025-07-29 23:24:35,830 - src.evaluation.mtbench_evaluator - INFO - Starting full MT-bench evaluation
+2025-07-29 23:24:35,831 - src.utils.data_loader - INFO - Loaded 80 MT-bench questions
+2025-07-29 23:24:35,831 - src.utils.data_loader - INFO - Dataset validation passed: 80 questions, 8 categories
+2025-07-29 23:24:35,831 - src.evaluation.mtbench_evaluator - INFO - Limited to 2 questions for testing
+2025-07-29 23:24:35,831 - src.evaluation.mtbench_evaluator - INFO - Evaluating model: gpt2
+2025-07-29 23:24:35,831 - src.evaluation.mtbench_evaluator - INFO - Starting evaluation of gpt2
+2025-07-29 23:24:35,831 - src.models.model_manager - INFO - Loading model: gpt2 (gpt2)
+2025-07-29 23:24:35,831 - src.models.model_manager - INFO - [Before model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.2%
+2025-07-29 23:24:36,810 - src.models.model_manager - INFO - Tokenizer loaded, vocab size: 50257
+2025-07-29 23:24:41,511 - src.models.model_manager - INFO - [After model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.1%
+2025-07-29 23:24:41,512 - src.models.model_manager - INFO - Successfully loaded gpt2
+2025-07-29 23:24:41,512 - src.evaluation.mtbench_evaluator - INFO - [Loaded gpt2] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.1%
+2025-07-29 23:24:41,525 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.2%
+2025-07-29 23:24:41,573 - src.models.model_manager - ERROR - Generation failed: Placeholder storage has not been allocated on MPS device!
+2025-07-29 23:24:41,573 - src.evaluation.mtbench_evaluator - ERROR - Error processing question 81: Placeholder storage has not been allocated on MPS device!
+2025-07-29 23:24:41,573 - src.evaluation.mtbench_evaluator - ERROR - Failed to process question 81: Placeholder storage has not been allocated on MPS device!
+2025-07-29 23:24:41,573 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 85.9%
+2025-07-29 23:24:41,576 - src.models.model_manager - ERROR - Generation failed: Placeholder storage has not been allocated on MPS device!
+2025-07-29 23:24:41,576 - src.evaluation.mtbench_evaluator - ERROR - Error processing question 82: Placeholder storage has not been allocated on MPS device!
+2025-07-29 23:24:41,576 - src.evaluation.mtbench_evaluator - ERROR - Failed to process question 82: Placeholder storage has not been allocated on MPS device!
+2025-07-29 23:24:41,576 - src.evaluation.mtbench_evaluator - INFO - Judging responses for gpt2
+2025-07-29 23:24:41,576 - src.evaluation.judge_client - INFO - Judging 0 responses with gpt-4.1-nano
+2025-07-29 23:24:41,576 - src.evaluation.mtbench_evaluator - INFO - Judged 0 responses for gpt2
+2025-07-29 23:24:41,577 - src.evaluation.mtbench_evaluator - INFO - Completed evaluation of gpt2 in 5.7s
+2025-07-29 23:24:41,577 - src.evaluation.mtbench_evaluator - ERROR - Failed to evaluate gpt2: 'overall_score'
+2025-07-29 23:24:41,577 - src.evaluation.mtbench_evaluator - ERROR - Evaluation failed: 'overall_score'
+2025-07-29 23:24:41,577 - src.evaluation.conversation_handler - INFO - Cleaned up 0 conversation sessions
+2025-07-29 23:24:41,577 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:24:41,577 - src.models.model_manager - INFO - Cleaning up model: gpt2
+2025-07-29 23:24:41,767 - __main__ - ERROR - Evaluation failed: 'overall_score'
+2025-07-29 23:24:41,838 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:25:03,367 - __main__ - INFO - Applied RTX 3060 optimizations
+2025-07-29 23:25:03,367 - __main__ - INFO - Validated models: ['gpt2']
+2025-07-29 23:25:03,367 - src.models.model_manager - INFO - ModelManager initialized on cpu
+2025-07-29 23:25:03,459 - src.evaluation.judge_client - INFO - JudgeClient initialized with model: gpt-4.1-nano
+2025-07-29 23:25:03,459 - src.evaluation.conversation_handler - INFO - ConversationHandler initialized
+2025-07-29 23:25:03,459 - src.utils.results_analyzer - INFO - ResultsAnalyzer initialized
+2025-07-29 23:25:03,459 - src.evaluation.mtbench_evaluator - INFO - MTBenchEvaluator initialized for models: ['gpt2']
+2025-07-29 23:25:03,459 - __main__ - INFO - Starting MT-bench evaluation for 1 models
+2025-07-29 23:25:03,459 - __main__ - INFO - Limited to 2 questions for testing
+2025-07-29 23:25:03,459 - src.evaluation.mtbench_evaluator - INFO - Starting full MT-bench evaluation
+2025-07-29 23:25:03,460 - src.utils.data_loader - INFO - Loaded 80 MT-bench questions
+2025-07-29 23:25:03,460 - src.utils.data_loader - INFO - Dataset validation passed: 80 questions, 8 categories
+2025-07-29 23:25:03,460 - src.evaluation.mtbench_evaluator - INFO - Limited to 2 questions for testing
+2025-07-29 23:25:03,460 - src.evaluation.mtbench_evaluator - INFO - Evaluating model: gpt2
+2025-07-29 23:25:03,460 - src.evaluation.mtbench_evaluator - INFO - Starting evaluation of gpt2
+2025-07-29 23:25:03,460 - src.models.model_manager - INFO - Loading model: gpt2 (gpt2)
+2025-07-29 23:25:03,460 - src.models.model_manager - INFO - [Before model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 75.9%
+2025-07-29 23:25:04,577 - src.models.model_manager - INFO - Tokenizer loaded, vocab size: 50257
+2025-07-29 23:25:08,717 - src.models.model_manager - INFO - [After model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.6%
+2025-07-29 23:25:08,718 - src.models.model_manager - INFO - Successfully loaded gpt2
+2025-07-29 23:25:08,718 - src.evaluation.mtbench_evaluator - INFO - [Loaded gpt2] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.6%
+2025-07-29 23:25:08,728 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.4%
+2025-07-29 23:25:46,822 - __main__ - INFO - Applied RTX 3060 optimizations
+2025-07-29 23:25:46,822 - __main__ - INFO - Validated models: ['gpt2']
+2025-07-29 23:25:46,822 - src.models.model_manager - INFO - ModelManager initialized on cpu
+2025-07-29 23:25:46,909 - src.evaluation.judge_client - INFO - JudgeClient initialized with model: gpt-4.1-nano
+2025-07-29 23:25:46,910 - src.evaluation.conversation_handler - INFO - ConversationHandler initialized
+2025-07-29 23:25:46,910 - src.utils.results_analyzer - INFO - ResultsAnalyzer initialized
+2025-07-29 23:25:46,910 - src.evaluation.mtbench_evaluator - INFO - MTBenchEvaluator initialized for models: ['gpt2']
+2025-07-29 23:25:46,910 - __main__ - INFO - Starting MT-bench evaluation for 1 models
+2025-07-29 23:25:46,910 - __main__ - INFO - Limited to 1 questions for testing
+2025-07-29 23:25:46,910 - src.evaluation.mtbench_evaluator - INFO - Starting full MT-bench evaluation
+2025-07-29 23:25:46,911 - src.utils.data_loader - INFO - Loaded 80 MT-bench questions
+2025-07-29 23:25:46,911 - src.utils.data_loader - INFO - Dataset validation passed: 80 questions, 8 categories
+2025-07-29 23:25:46,911 - src.evaluation.mtbench_evaluator - INFO - Limited to 1 questions for testing
+2025-07-29 23:25:46,911 - src.evaluation.mtbench_evaluator - INFO - Evaluating model: gpt2
+2025-07-29 23:25:46,911 - src.evaluation.mtbench_evaluator - INFO - Starting evaluation of gpt2
+2025-07-29 23:25:46,911 - src.models.model_manager - INFO - Loading model: gpt2 (gpt2)
+2025-07-29 23:25:46,911 - src.models.model_manager - INFO - [Before model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 80.0%
+2025-07-29 23:25:47,867 - src.models.model_manager - INFO - Tokenizer loaded, vocab size: 50257
+2025-07-29 23:25:47,867 - src.models.model_manager - ERROR - Failed to load model gpt2: 'device_map'
+2025-07-29 23:25:47,867 - src.evaluation.mtbench_evaluator - ERROR - Failed to evaluate gpt2: 'device_map'
+2025-07-29 23:25:47,867 - src.evaluation.mtbench_evaluator - ERROR - Evaluation failed: 'device_map'
+2025-07-29 23:25:47,867 - src.evaluation.conversation_handler - INFO - Cleaned up 0 conversation sessions
+2025-07-29 23:25:47,867 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:25:47,867 - __main__ - ERROR - Evaluation failed: 'device_map'
+2025-07-29 23:25:47,929 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:26:27,029 - __main__ - INFO - Applied RTX 3060 optimizations
+2025-07-29 23:26:27,029 - __main__ - INFO - Validated models: ['gpt2']
+2025-07-29 23:26:27,029 - src.models.model_manager - INFO - ModelManager initialized on cpu
+2025-07-29 23:26:27,127 - src.evaluation.judge_client - INFO - JudgeClient initialized with model: gpt-4.1-nano
+2025-07-29 23:26:27,127 - src.evaluation.conversation_handler - INFO - ConversationHandler initialized
+2025-07-29 23:26:27,127 - src.utils.results_analyzer - INFO - ResultsAnalyzer initialized
+2025-07-29 23:26:27,127 - src.evaluation.mtbench_evaluator - INFO - MTBenchEvaluator initialized for models: ['gpt2']
+2025-07-29 23:26:27,127 - __main__ - INFO - Starting MT-bench evaluation for 1 models
+2025-07-29 23:26:27,127 - __main__ - INFO - Limited to 1 questions for testing
+2025-07-29 23:26:27,127 - src.evaluation.mtbench_evaluator - INFO - Starting full MT-bench evaluation
+2025-07-29 23:26:27,129 - src.utils.data_loader - INFO - Loaded 80 MT-bench questions
+2025-07-29 23:26:27,129 - src.utils.data_loader - INFO - Dataset validation passed: 80 questions, 8 categories
+2025-07-29 23:26:27,129 - src.evaluation.mtbench_evaluator - INFO - Limited to 1 questions for testing
+2025-07-29 23:26:27,129 - src.evaluation.mtbench_evaluator - INFO - Evaluating model: gpt2
+2025-07-29 23:26:27,129 - src.evaluation.mtbench_evaluator - INFO - Starting evaluation of gpt2
+2025-07-29 23:26:27,129 - src.models.model_manager - INFO - Loading model: gpt2 (gpt2)
+2025-07-29 23:26:27,129 - src.models.model_manager - INFO - [Before model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 83.4%
+2025-07-29 23:26:28,149 - src.models.model_manager - INFO - Tokenizer loaded, vocab size: 50257
+2025-07-29 23:26:30,958 - src.models.model_manager - INFO - [After model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.6%
+2025-07-29 23:26:30,959 - src.models.model_manager - INFO - Successfully loaded gpt2
+2025-07-29 23:26:30,959 - src.evaluation.mtbench_evaluator - INFO - [Loaded gpt2] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.6%
+2025-07-29 23:26:30,971 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.7%
+2025-07-29 23:26:34,393 - src.models.model_manager - ERROR - Generation failed: 'dict' object has no attribute 'input_ids'
+2025-07-29 23:26:34,394 - src.evaluation.mtbench_evaluator - ERROR - Error processing question 81: 'dict' object has no attribute 'input_ids'
+2025-07-29 23:26:34,394 - src.evaluation.mtbench_evaluator - ERROR - Failed to process question 81: 'dict' object has no attribute 'input_ids'
+2025-07-29 23:26:34,395 - src.evaluation.mtbench_evaluator - INFO - Judging responses for gpt2
+2025-07-29 23:26:34,395 - src.evaluation.judge_client - INFO - Judging 0 responses with gpt-4.1-nano
+2025-07-29 23:26:34,395 - src.evaluation.mtbench_evaluator - INFO - Judged 0 responses for gpt2
+2025-07-29 23:26:34,396 - src.evaluation.mtbench_evaluator - INFO - Completed evaluation of gpt2 in 7.3s
+2025-07-29 23:26:34,396 - src.evaluation.mtbench_evaluator - ERROR - Failed to evaluate gpt2: 'overall_score'
+2025-07-29 23:26:34,396 - src.evaluation.mtbench_evaluator - ERROR - Evaluation failed: 'overall_score'
+2025-07-29 23:26:34,396 - src.evaluation.conversation_handler - INFO - Cleaned up 0 conversation sessions
+2025-07-29 23:26:34,396 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:26:34,396 - src.models.model_manager - INFO - Cleaning up model: gpt2
+2025-07-29 23:26:34,508 - __main__ - ERROR - Evaluation failed: 'overall_score'
+2025-07-29 23:26:34,582 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:26:57,118 - __main__ - INFO - Applied RTX 3060 optimizations
+2025-07-29 23:26:57,120 - __main__ - INFO - Validated models: ['gpt2']
+2025-07-29 23:26:57,120 - src.models.model_manager - INFO - ModelManager initialized on cpu
+2025-07-29 23:26:57,210 - src.evaluation.judge_client - INFO - JudgeClient initialized with model: gpt-4.1-nano
+2025-07-29 23:26:57,210 - src.evaluation.conversation_handler - INFO - ConversationHandler initialized
+2025-07-29 23:26:57,210 - src.utils.results_analyzer - INFO - ResultsAnalyzer initialized
+2025-07-29 23:26:57,210 - src.evaluation.mtbench_evaluator - INFO - MTBenchEvaluator initialized for models: ['gpt2']
+2025-07-29 23:26:57,210 - __main__ - INFO - Starting MT-bench evaluation for 1 models
+2025-07-29 23:26:57,210 - __main__ - INFO - Limited to 1 questions for testing
+2025-07-29 23:26:57,210 - src.evaluation.mtbench_evaluator - INFO - Starting full MT-bench evaluation
+2025-07-29 23:26:57,211 - src.utils.data_loader - INFO - Loaded 80 MT-bench questions
+2025-07-29 23:26:57,211 - src.utils.data_loader - INFO - Dataset validation passed: 80 questions, 8 categories
+2025-07-29 23:26:57,211 - src.evaluation.mtbench_evaluator - INFO - Limited to 1 questions for testing
+2025-07-29 23:26:57,211 - src.evaluation.mtbench_evaluator - INFO - Evaluating model: gpt2
+2025-07-29 23:26:57,211 - src.evaluation.mtbench_evaluator - INFO - Starting evaluation of gpt2
+2025-07-29 23:26:57,211 - src.models.model_manager - INFO - Loading model: gpt2 (gpt2)
+2025-07-29 23:26:57,211 - src.models.model_manager - INFO - [Before model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 84.3%
+2025-07-29 23:26:58,388 - src.models.model_manager - INFO - Tokenizer loaded, vocab size: 50257
+2025-07-29 23:27:00,978 - src.models.model_manager - INFO - [After model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.4%
+2025-07-29 23:27:00,978 - src.models.model_manager - INFO - Successfully loaded gpt2
+2025-07-29 23:27:00,978 - src.evaluation.mtbench_evaluator - INFO - [Loaded gpt2] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.4%
+2025-07-29 23:27:00,990 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.5%
+2025-07-29 23:27:19,040 - src.models.model_manager - INFO - [After generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 83.5%
+2025-07-29 23:27:19,040 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 83.5%
+2025-07-29 23:27:37,343 - src.models.model_manager - INFO - [After generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 84.4%
+2025-07-29 23:27:37,347 - src.evaluation.mtbench_evaluator - INFO - Judging responses for gpt2
+2025-07-29 23:27:37,347 - src.evaluation.judge_client - INFO - Judging 2 responses with gpt-4.1-nano
+2025-07-29 23:27:40,661 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-07-29 23:27:41,249 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-07-29 23:27:41,255 - src.evaluation.mtbench_evaluator - INFO - Judged 2 responses for gpt2
+2025-07-29 23:27:41,267 - src.evaluation.mtbench_evaluator - INFO - Completed evaluation of gpt2 in 44.1s
+2025-07-29 23:27:41,267 - src.evaluation.mtbench_evaluator - INFO - Average score: 1.50
+2025-07-29 23:27:41,268 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:27:41,268 - src.models.model_manager - INFO - Cleaning up model: gpt2
+2025-07-29 23:27:41,493 - src.evaluation.mtbench_evaluator - INFO - Aggregating results from all models
+2025-07-29 23:27:41,493 - src.evaluation.mtbench_evaluator - ERROR - Evaluation failed: 'model_count'
+2025-07-29 23:27:41,493 - src.evaluation.conversation_handler - INFO - Cleaned up 0 conversation sessions
+2025-07-29 23:27:41,493 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:27:41,493 - __main__ - ERROR - Evaluation failed: 'model_count'
+2025-07-29 23:27:41,566 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:28:13,456 - __main__ - INFO - Applied RTX 3060 optimizations
+2025-07-29 23:28:13,456 - __main__ - INFO - Validated models: ['gpt2']
+2025-07-29 23:28:13,456 - src.models.model_manager - INFO - ModelManager initialized on cpu
+2025-07-29 23:28:13,558 - src.evaluation.judge_client - INFO - JudgeClient initialized with model: gpt-4.1-nano
+2025-07-29 23:28:13,558 - src.evaluation.conversation_handler - INFO - ConversationHandler initialized
+2025-07-29 23:28:13,558 - src.utils.results_analyzer - INFO - ResultsAnalyzer initialized
+2025-07-29 23:28:13,558 - src.evaluation.mtbench_evaluator - INFO - MTBenchEvaluator initialized for models: ['gpt2']
+2025-07-29 23:28:13,558 - __main__ - INFO - Starting MT-bench evaluation for 1 models
+2025-07-29 23:28:13,558 - __main__ - INFO - Limited to 2 questions for testing
+2025-07-29 23:28:13,558 - src.evaluation.mtbench_evaluator - INFO - Starting full MT-bench evaluation
+2025-07-29 23:28:13,559 - src.utils.data_loader - INFO - Loaded 80 MT-bench questions
+2025-07-29 23:28:13,559 - src.utils.data_loader - INFO - Dataset validation passed: 80 questions, 8 categories
+2025-07-29 23:28:13,559 - src.evaluation.mtbench_evaluator - INFO - Limited to 2 questions for testing
+2025-07-29 23:28:13,559 - src.evaluation.mtbench_evaluator - INFO - Evaluating model: gpt2
+2025-07-29 23:28:13,559 - src.evaluation.mtbench_evaluator - INFO - Starting evaluation of gpt2
+2025-07-29 23:28:13,559 - src.models.model_manager - INFO - Loading model: gpt2 (gpt2)
+2025-07-29 23:28:13,559 - src.models.model_manager - INFO - [Before model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 84.9%
+2025-07-29 23:28:14,548 - src.models.model_manager - INFO - Tokenizer loaded, vocab size: 50257
+2025-07-29 23:28:17,298 - src.models.model_manager - INFO - [After model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.5%
+2025-07-29 23:28:17,299 - src.models.model_manager - INFO - Successfully loaded gpt2
+2025-07-29 23:28:17,299 - src.evaluation.mtbench_evaluator - INFO - [Loaded gpt2] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.5%
+2025-07-29 23:28:17,316 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.5%
+2025-07-29 23:28:20,735 - src.models.model_manager - INFO - [After generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 84.8%
+2025-07-29 23:28:20,736 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 84.8%
+2025-07-29 23:28:34,331 - src.models.model_manager - INFO - [After generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 84.6%
+2025-07-29 23:28:34,333 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 84.6%
+2025-07-29 23:28:39,683 - src.models.model_manager - INFO - [After generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 84.5%
+2025-07-29 23:28:39,683 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 84.5%
+2025-07-29 23:28:50,265 - src.models.model_manager - INFO - [After generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 83.0%
+2025-07-29 23:28:50,266 - src.evaluation.mtbench_evaluator - INFO - Judging responses for gpt2
+2025-07-29 23:28:50,266 - src.evaluation.judge_client - INFO - Judging 4 responses with gpt-4.1-nano
+2025-07-29 23:28:52,409 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-07-29 23:28:52,731 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-07-29 23:28:53,085 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-07-29 23:28:53,475 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-07-29 23:28:53,479 - src.evaluation.mtbench_evaluator - INFO - Judged 4 responses for gpt2
+2025-07-29 23:28:53,501 - src.evaluation.mtbench_evaluator - INFO - Completed evaluation of gpt2 in 39.9s
+2025-07-29 23:28:53,501 - src.evaluation.mtbench_evaluator - INFO - Average score: 1.50
+2025-07-29 23:28:53,501 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:28:53,501 - src.models.model_manager - INFO - Cleaning up model: gpt2
+2025-07-29 23:28:53,712 - src.evaluation.mtbench_evaluator - INFO - Aggregating results from all models
+2025-07-29 23:28:53,712 - src.evaluation.mtbench_evaluator - ERROR - Evaluation failed: 'model_count'
+2025-07-29 23:28:53,712 - src.evaluation.conversation_handler - INFO - Cleaned up 0 conversation sessions
+2025-07-29 23:28:53,712 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:28:53,712 - __main__ - ERROR - Evaluation failed: 'model_count'
+2025-07-29 23:28:53,785 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:35:59,151 - __main__ - INFO - Applied RTX 3060 optimizations
+2025-07-29 23:35:59,151 - __main__ - INFO - Validated models: ['gpt2']
+2025-07-29 23:35:59,151 - src.models.model_manager - INFO - ModelManager initialized on cpu
+2025-07-29 23:35:59,239 - src.evaluation.judge_client - INFO - JudgeClient initialized with model: gpt-4.1-nano
+2025-07-29 23:35:59,239 - src.evaluation.conversation_handler - INFO - ConversationHandler initialized
+2025-07-29 23:35:59,239 - src.utils.results_analyzer - INFO - ResultsAnalyzer initialized
+2025-07-29 23:35:59,239 - src.evaluation.mtbench_evaluator - INFO - MTBenchEvaluator initialized for models: ['gpt2']
+2025-07-29 23:35:59,239 - __main__ - INFO - Starting MT-bench evaluation for 1 models
+2025-07-29 23:35:59,239 - __main__ - INFO - Limited to 1 questions for testing
+2025-07-29 23:35:59,239 - src.evaluation.mtbench_evaluator - INFO - Starting full MT-bench evaluation
+2025-07-29 23:35:59,240 - src.utils.data_loader - INFO - Loaded 80 MT-bench questions
+2025-07-29 23:35:59,240 - src.utils.data_loader - INFO - Dataset validation passed: 80 questions, 8 categories
+2025-07-29 23:35:59,240 - src.evaluation.mtbench_evaluator - INFO - Limited to 1 questions for testing
+2025-07-29 23:35:59,240 - src.evaluation.mtbench_evaluator - INFO - Evaluating model: gpt2
+2025-07-29 23:35:59,240 - src.evaluation.mtbench_evaluator - INFO - Starting evaluation of gpt2
+2025-07-29 23:35:59,240 - src.models.model_manager - INFO - Loading model: gpt2 (gpt2)
+2025-07-29 23:35:59,241 - src.models.model_manager - INFO - [Before model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.3%
+2025-07-29 23:36:00,378 - src.models.model_manager - INFO - Tokenizer loaded, vocab size: 50257
+2025-07-29 23:36:03,203 - src.models.model_manager - INFO - [After model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.3%
+2025-07-29 23:36:03,204 - src.models.model_manager - INFO - Successfully loaded gpt2
+2025-07-29 23:36:03,204 - src.evaluation.mtbench_evaluator - INFO - [Loaded gpt2] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.3%
+2025-07-29 23:36:03,220 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.4%
+2025-07-29 23:36:11,722 - src.models.model_manager - INFO - [After generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 83.3%
+2025-07-29 23:36:11,723 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 83.3%
+2025-07-29 23:36:26,843 - src.models.model_manager - INFO - [After generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 82.6%
+2025-07-29 23:36:26,844 - src.evaluation.mtbench_evaluator - INFO - Judging responses for gpt2
+2025-07-29 23:36:26,844 - src.evaluation.judge_client - INFO - Judging 2 responses with gpt-4.1-nano
+2025-07-29 23:36:29,125 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-07-29 23:36:29,155 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-07-29 23:36:29,156 - src.evaluation.mtbench_evaluator - INFO - Judged 2 responses for gpt2
+2025-07-29 23:36:29,164 - src.evaluation.mtbench_evaluator - INFO - Completed evaluation of gpt2 in 29.9s
+2025-07-29 23:36:29,164 - src.evaluation.mtbench_evaluator - INFO - Average score: 1.00
+2025-07-29 23:36:29,164 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:36:29,164 - src.models.model_manager - INFO - Cleaning up model: gpt2
+2025-07-29 23:36:29,340 - src.evaluation.mtbench_evaluator - INFO - Aggregating results from all models
+2025-07-29 23:36:29,340 - src.evaluation.mtbench_evaluator - INFO - Results aggregation completed
+2025-07-29 23:36:29,340 - src.evaluation.mtbench_evaluator - INFO - Full MT-bench evaluation completed successfully
+2025-07-29 23:36:29,340 - src.evaluation.conversation_handler - INFO - Cleaned up 0 conversation sessions
+2025-07-29 23:36:29,340 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:36:29,341 - src.utils.results_analyzer - INFO - Results exported to results/mtbench_results_20250729_233629.json
+2025-07-29 23:36:29,347 - src.utils.results_analyzer - INFO - Results exported to results/mtbench_results_20250729_233629.csv
+2025-07-29 23:36:29,347 - src.evaluation.mtbench_evaluator - INFO - Results exported to results
+2025-07-29 23:36:29,348 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:39:45,448 - __main__ - INFO - Applied RTX 3060 optimizations
+2025-07-29 23:39:45,448 - __main__ - INFO - Validated models: ['gpt2']
+2025-07-29 23:39:45,449 - src.models.model_manager - INFO - ModelManager initialized on cpu
+2025-07-29 23:39:45,539 - src.evaluation.judge_client - INFO - JudgeClient initialized with model: gpt-4.1-nano
+2025-07-29 23:39:45,539 - src.evaluation.conversation_handler - INFO - ConversationHandler initialized
+2025-07-29 23:39:45,539 - src.utils.results_analyzer - INFO - ResultsAnalyzer initialized
+2025-07-29 23:39:45,539 - src.evaluation.mtbench_evaluator - INFO - MTBenchEvaluator initialized for models: ['gpt2']
+2025-07-29 23:39:45,539 - __main__ - INFO - Starting MT-bench evaluation for 1 models
+2025-07-29 23:39:45,539 - __main__ - INFO - Limited to 1 questions for testing
+2025-07-29 23:39:45,539 - src.evaluation.mtbench_evaluator - INFO - Starting full MT-bench evaluation
+2025-07-29 23:39:45,540 - src.utils.data_loader - INFO - Loaded 80 MT-bench questions
+2025-07-29 23:39:45,540 - src.utils.data_loader - INFO - Dataset validation passed: 80 questions, 8 categories
+2025-07-29 23:39:45,540 - src.evaluation.mtbench_evaluator - INFO - Limited to 1 questions for testing
+2025-07-29 23:39:45,540 - src.evaluation.mtbench_evaluator - INFO - Evaluating model: gpt2
+2025-07-29 23:39:45,540 - src.evaluation.mtbench_evaluator - INFO - Starting evaluation of gpt2
+2025-07-29 23:39:45,540 - src.models.model_manager - INFO - Loading model: gpt2 (gpt2)
+2025-07-29 23:39:45,540 - src.models.model_manager - INFO - [Before model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.4%
+2025-07-29 23:39:46,550 - src.models.model_manager - INFO - Tokenizer loaded, vocab size: 50257
+2025-07-29 23:39:49,471 - src.models.model_manager - INFO - [After model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.4%
+2025-07-29 23:39:49,472 - src.models.model_manager - INFO - Successfully loaded gpt2
+2025-07-29 23:39:49,472 - src.evaluation.mtbench_evaluator - INFO - [Loaded gpt2] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.4%
+2025-07-29 23:39:49,485 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.5%
+2025-07-29 23:39:52,958 - src.models.model_manager - INFO - [After generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 83.7%
+2025-07-29 23:39:52,960 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 83.7%
+2025-07-29 23:39:59,382 - src.models.model_manager - INFO - [After generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 83.8%
+2025-07-29 23:39:59,384 - src.evaluation.mtbench_evaluator - INFO - Judging responses for gpt2
+2025-07-29 23:39:59,384 - src.evaluation.judge_client - INFO - Judging 2 responses with gpt-4.1-nano
+2025-07-29 23:40:01,189 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-07-29 23:40:03,230 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-07-29 23:40:03,231 - src.evaluation.mtbench_evaluator - INFO - Judged 2 responses for gpt2
+2025-07-29 23:40:03,237 - src.evaluation.mtbench_evaluator - INFO - Completed evaluation of gpt2 in 17.7s
+2025-07-29 23:40:03,237 - src.evaluation.mtbench_evaluator - INFO - Average score: 1.50
+2025-07-29 23:40:03,237 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:40:03,237 - src.models.model_manager - INFO - Cleaning up model: gpt2
+2025-07-29 23:40:03,428 - src.evaluation.mtbench_evaluator - INFO - Aggregating results from all models
+2025-07-29 23:40:03,428 - src.evaluation.mtbench_evaluator - INFO - Results aggregation completed
+2025-07-29 23:40:03,428 - src.evaluation.mtbench_evaluator - INFO - Full MT-bench evaluation completed successfully
+2025-07-29 23:40:03,428 - src.evaluation.conversation_handler - INFO - Cleaned up 0 conversation sessions
+2025-07-29 23:40:03,428 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:40:03,429 - src.utils.results_analyzer - INFO - Results exported to results/mtbench_results_20250729_234003.json
+2025-07-29 23:40:03,434 - src.utils.results_analyzer - INFO - Results exported to results/mtbench_results_20250729_234003.csv
+2025-07-29 23:40:03,435 - src.evaluation.mtbench_evaluator - INFO - Results exported to results
+2025-07-29 23:40:03,435 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:41:43,570 - __main__ - INFO - Applied RTX 3060 optimizations
+2025-07-29 23:41:43,571 - __main__ - INFO - Validated models: ['gpt2']
+2025-07-29 23:41:43,571 - src.models.model_manager - INFO - ModelManager initialized on cpu
+2025-07-29 23:41:43,658 - src.evaluation.judge_client - INFO - JudgeClient initialized with model: gpt-4.1-nano
+2025-07-29 23:41:43,658 - src.evaluation.conversation_handler - INFO - ConversationHandler initialized
+2025-07-29 23:41:43,658 - src.utils.results_analyzer - INFO - ResultsAnalyzer initialized
+2025-07-29 23:41:43,658 - src.evaluation.mtbench_evaluator - INFO - MTBenchEvaluator initialized for models: ['gpt2']
+2025-07-29 23:41:43,658 - __main__ - INFO - Starting MT-bench evaluation for 1 models
+2025-07-29 23:41:43,658 - __main__ - INFO - Limited to 1 questions for testing
+2025-07-29 23:41:43,658 - src.evaluation.mtbench_evaluator - INFO - Starting full MT-bench evaluation
+2025-07-29 23:41:43,660 - src.utils.data_loader - INFO - Loaded 80 MT-bench questions
+2025-07-29 23:41:43,660 - src.utils.data_loader - INFO - Dataset validation passed: 80 questions, 8 categories
+2025-07-29 23:41:43,660 - src.evaluation.mtbench_evaluator - INFO - Limited to 1 questions for testing
+2025-07-29 23:41:43,660 - src.evaluation.mtbench_evaluator - INFO - Evaluating model: gpt2
+2025-07-29 23:41:43,660 - src.evaluation.mtbench_evaluator - INFO - Starting evaluation of gpt2
+2025-07-29 23:41:43,660 - src.models.model_manager - INFO - Loading model: gpt2 (gpt2)
+2025-07-29 23:41:43,660 - src.models.model_manager - INFO - [Before model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.4%
+2025-07-29 23:41:44,672 - src.models.model_manager - INFO - Tokenizer loaded, vocab size: 50257
+2025-07-29 23:41:47,501 - src.models.model_manager - INFO - [After model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.5%
+2025-07-29 23:41:47,501 - src.models.model_manager - INFO - Successfully loaded gpt2
+2025-07-29 23:41:47,502 - src.evaluation.mtbench_evaluator - INFO - [Loaded gpt2] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.5%
+2025-07-29 23:41:47,517 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.5%
+2025-07-29 23:41:49,200 - src.models.model_manager - INFO - [After generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 84.8%
+2025-07-29 23:41:49,201 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 84.8%
+2025-07-29 23:41:57,029 - src.models.model_manager - INFO - [After generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 83.9%
+2025-07-29 23:41:57,030 - src.evaluation.conversation_handler - WARNING - Empty response in turn 1
+2025-07-29 23:41:57,030 - src.evaluation.mtbench_evaluator - WARNING - Invalid conversation format for question 81
+2025-07-29 23:41:57,031 - src.evaluation.mtbench_evaluator - INFO - Judging responses for gpt2
+2025-07-29 23:41:57,031 - src.evaluation.judge_client - INFO - Judging 2 responses with gpt-4.1-nano
+2025-07-29 23:41:59,082 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-07-29 23:41:59,083 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-07-29 23:41:59,092 - src.evaluation.mtbench_evaluator - INFO - Judged 2 responses for gpt2
+2025-07-29 23:41:59,097 - src.evaluation.mtbench_evaluator - ERROR - Failed to evaluate gpt2: 'ConversationTurn' object has no attribute 'get'
+2025-07-29 23:41:59,097 - src.evaluation.mtbench_evaluator - ERROR - Evaluation failed: 'ConversationTurn' object has no attribute 'get'
+2025-07-29 23:41:59,097 - src.evaluation.conversation_handler - INFO - Cleaned up 0 conversation sessions
+2025-07-29 23:41:59,097 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:41:59,097 - src.models.model_manager - INFO - Cleaning up model: gpt2
+2025-07-29 23:41:59,211 - __main__ - ERROR - Evaluation failed: 'ConversationTurn' object has no attribute 'get'
+2025-07-29 23:41:59,277 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:43:51,783 - __main__ - INFO - Applied RTX 3060 optimizations
+2025-07-29 23:43:51,784 - __main__ - INFO - Validated models: ['gpt2']
+2025-07-29 23:43:51,784 - src.models.model_manager - INFO - ModelManager initialized on cpu
+2025-07-29 23:43:51,871 - src.evaluation.judge_client - INFO - JudgeClient initialized with model: gpt-4.1-nano
+2025-07-29 23:43:51,871 - src.evaluation.conversation_handler - INFO - ConversationHandler initialized
+2025-07-29 23:43:51,871 - src.utils.results_analyzer - INFO - ResultsAnalyzer initialized
+2025-07-29 23:43:51,871 - src.evaluation.mtbench_evaluator - INFO - MTBenchEvaluator initialized for models: ['gpt2']
+2025-07-29 23:43:51,871 - __main__ - INFO - Starting MT-bench evaluation for 1 models
+2025-07-29 23:43:51,871 - __main__ - INFO - Limited to 1 questions for testing
+2025-07-29 23:43:51,871 - src.evaluation.mtbench_evaluator - INFO - Starting full MT-bench evaluation
+2025-07-29 23:43:51,872 - src.utils.data_loader - INFO - Loaded 80 MT-bench questions
+2025-07-29 23:43:51,872 - src.utils.data_loader - INFO - Dataset validation passed: 80 questions, 8 categories
+2025-07-29 23:43:51,872 - src.evaluation.mtbench_evaluator - INFO - Limited to 1 questions for testing
+2025-07-29 23:43:51,872 - src.evaluation.mtbench_evaluator - INFO - Evaluating model: gpt2
+2025-07-29 23:43:51,872 - src.evaluation.mtbench_evaluator - INFO - Starting evaluation of gpt2
+2025-07-29 23:43:51,872 - src.models.model_manager - INFO - Loading model: gpt2 (gpt2)
+2025-07-29 23:43:51,872 - src.models.model_manager - INFO - [Before model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 85.8%
+2025-07-29 23:43:53,146 - src.models.model_manager - INFO - Tokenizer loaded, vocab size: 50257
+2025-07-29 23:43:56,152 - src.models.model_manager - INFO - [After model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.3%
+2025-07-29 23:43:56,152 - src.models.model_manager - INFO - Successfully loaded gpt2
+2025-07-29 23:43:56,152 - src.evaluation.mtbench_evaluator - INFO - [Loaded gpt2] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.3%
+2025-07-29 23:43:56,160 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.4%
+2025-07-29 23:43:57,672 - src.models.model_manager - INFO - [After generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 85.1%
+2025-07-29 23:43:57,673 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 85.1%
+2025-07-29 23:44:02,514 - src.models.model_manager - INFO - [After generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 84.7%
+2025-07-29 23:44:02,515 - src.evaluation.conversation_handler - WARNING - Empty response in turn 1
+2025-07-29 23:44:02,515 - src.evaluation.mtbench_evaluator - WARNING - Invalid conversation format for question 81
+2025-07-29 23:44:02,516 - src.evaluation.mtbench_evaluator - INFO - Judging responses for gpt2
+2025-07-29 23:44:02,516 - src.evaluation.judge_client - INFO - Judging 2 responses with gpt-4.1-nano
+2025-07-29 23:44:04,345 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-07-29 23:44:04,437 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-07-29 23:44:04,440 - src.evaluation.mtbench_evaluator - INFO - Judged 2 responses for gpt2
+2025-07-29 23:44:04,452 - src.evaluation.mtbench_evaluator - INFO - Completed evaluation of gpt2 in 12.6s
+2025-07-29 23:44:04,452 - src.evaluation.mtbench_evaluator - INFO - Average score: 1.50
+2025-07-29 23:44:04,452 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:44:04,452 - src.models.model_manager - INFO - Cleaning up model: gpt2
+2025-07-29 23:44:04,666 - src.evaluation.mtbench_evaluator - INFO - Aggregating results from all models
+2025-07-29 23:44:04,666 - src.evaluation.mtbench_evaluator - INFO - Results aggregation completed
+2025-07-29 23:44:04,666 - src.evaluation.mtbench_evaluator - INFO - Full MT-bench evaluation completed successfully
+2025-07-29 23:44:04,666 - src.evaluation.conversation_handler - INFO - Cleaned up 0 conversation sessions
+2025-07-29 23:44:04,666 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:44:04,667 - src.utils.results_analyzer - INFO - Results exported to results/mtbench_results_20250729_234404.json
+2025-07-29 23:44:04,672 - src.utils.results_analyzer - INFO - Results exported to results/mtbench_results_20250729_234404.csv
+2025-07-29 23:44:04,672 - src.evaluation.mtbench_evaluator - INFO - Results exported to results
+2025-07-29 23:44:04,672 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:45:07,898 - __main__ - INFO - Applied RTX 3060 optimizations
+2025-07-29 23:45:07,898 - __main__ - INFO - Validated models: ['gpt2']
+2025-07-29 23:45:07,899 - src.models.model_manager - INFO - ModelManager initialized on cpu
+2025-07-29 23:45:07,993 - src.evaluation.judge_client - INFO - JudgeClient initialized with model: gpt-4.1-nano
+2025-07-29 23:45:07,993 - src.evaluation.conversation_handler - INFO - ConversationHandler initialized
+2025-07-29 23:45:07,993 - src.utils.results_analyzer - INFO - ResultsAnalyzer initialized
+2025-07-29 23:45:07,993 - src.evaluation.mtbench_evaluator - INFO - MTBenchEvaluator initialized for models: ['gpt2']
+2025-07-29 23:45:07,993 - __main__ - INFO - Starting MT-bench evaluation for 1 models
+2025-07-29 23:45:07,993 - __main__ - INFO - Limited to 2 questions for testing
+2025-07-29 23:45:07,993 - src.evaluation.mtbench_evaluator - INFO - Starting full MT-bench evaluation
+2025-07-29 23:45:07,994 - src.utils.data_loader - INFO - Loaded 80 MT-bench questions
+2025-07-29 23:45:07,994 - src.utils.data_loader - INFO - Dataset validation passed: 80 questions, 8 categories
+2025-07-29 23:45:07,994 - src.evaluation.mtbench_evaluator - INFO - Limited to 2 questions for testing
+2025-07-29 23:45:07,994 - src.evaluation.mtbench_evaluator - INFO - Evaluating model: gpt2
+2025-07-29 23:45:07,994 - src.evaluation.mtbench_evaluator - INFO - Starting evaluation of gpt2
+2025-07-29 23:45:07,994 - src.models.model_manager - INFO - Loading model: gpt2 (gpt2)
+2025-07-29 23:45:07,994 - src.models.model_manager - INFO - [Before model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.4%
+2025-07-29 23:45:09,006 - src.models.model_manager - INFO - Tokenizer loaded, vocab size: 50257
+2025-07-29 23:45:12,279 - src.models.model_manager - INFO - [After model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.0%
+2025-07-29 23:45:12,280 - src.models.model_manager - INFO - Successfully loaded gpt2
+2025-07-29 23:45:12,280 - src.evaluation.mtbench_evaluator - INFO - [Loaded gpt2] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.0%
+2025-07-29 23:45:12,299 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.1%
+2025-07-29 23:45:14,028 - src.models.model_manager - INFO - [After generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 84.9%
+2025-07-29 23:45:14,029 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 84.9%
+2025-07-29 23:45:17,175 - src.models.model_manager - INFO - [After generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 83.5%
+2025-07-29 23:45:17,176 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 83.5%
+2025-07-29 23:45:21,006 - src.models.model_manager - INFO - [After generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 83.7%
+2025-07-29 23:45:21,008 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 83.7%
+2025-07-29 23:45:37,452 - src.models.model_manager - INFO - [After generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 83.4%
+2025-07-29 23:45:37,455 - src.evaluation.mtbench_evaluator - INFO - Judging responses for gpt2
+2025-07-29 23:45:37,455 - src.evaluation.judge_client - INFO - Judging 4 responses with gpt-4.1-nano
+2025-07-29 23:45:39,591 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-07-29 23:45:39,643 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-07-29 23:45:39,856 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-07-29 23:45:40,557 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-07-29 23:45:40,561 - src.evaluation.mtbench_evaluator - INFO - Judged 4 responses for gpt2
+2025-07-29 23:45:40,571 - src.evaluation.mtbench_evaluator - INFO - Completed evaluation of gpt2 in 32.6s
+2025-07-29 23:45:40,572 - src.evaluation.mtbench_evaluator - INFO - Average score: 1.50
+2025-07-29 23:45:40,572 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:45:40,572 - src.models.model_manager - INFO - Cleaning up model: gpt2
+2025-07-29 23:45:40,765 - src.evaluation.mtbench_evaluator - INFO - Aggregating results from all models
+2025-07-29 23:45:40,766 - src.evaluation.mtbench_evaluator - INFO - Results aggregation completed
+2025-07-29 23:45:40,766 - src.evaluation.mtbench_evaluator - INFO - Full MT-bench evaluation completed successfully
+2025-07-29 23:45:40,766 - src.evaluation.conversation_handler - INFO - Cleaned up 0 conversation sessions
+2025-07-29 23:45:40,766 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:45:40,768 - src.utils.results_analyzer - INFO - Results exported to results/mtbench_results_20250729_234540.json
+2025-07-29 23:45:40,773 - src.utils.results_analyzer - INFO - Results exported to results/mtbench_results_20250729_234540.csv
+2025-07-29 23:45:40,773 - src.evaluation.mtbench_evaluator - INFO - Results exported to results
+2025-07-29 23:45:40,773 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:48:19,812 - __main__ - INFO - Applied RTX 3060 optimizations
+2025-07-29 23:48:19,813 - __main__ - INFO - Validated models: ['gpt2-large']
+2025-07-29 23:48:19,813 - src.models.model_manager - INFO - ModelManager initialized on cpu
+2025-07-29 23:48:19,903 - src.evaluation.judge_client - INFO - JudgeClient initialized with model: gpt-4.1-nano
+2025-07-29 23:48:19,903 - src.evaluation.conversation_handler - INFO - ConversationHandler initialized
+2025-07-29 23:48:19,903 - src.utils.results_analyzer - INFO - ResultsAnalyzer initialized
+2025-07-29 23:48:19,903 - src.evaluation.mtbench_evaluator - INFO - MTBenchEvaluator initialized for models: ['gpt2-large']
+2025-07-29 23:48:19,903 - __main__ - INFO - Starting MT-bench evaluation for 1 models
+2025-07-29 23:48:19,903 - src.evaluation.mtbench_evaluator - INFO - Starting full MT-bench evaluation
+2025-07-29 23:48:19,904 - src.utils.data_loader - INFO - Loaded 80 MT-bench questions
+2025-07-29 23:48:19,905 - src.utils.data_loader - INFO - Dataset validation passed: 80 questions, 8 categories
+2025-07-29 23:48:19,905 - src.evaluation.mtbench_evaluator - INFO - Evaluating model: gpt2-large
+2025-07-29 23:48:19,905 - src.evaluation.mtbench_evaluator - INFO - Starting evaluation of gpt2-large
+2025-07-29 23:48:19,905 - src.models.model_manager - INFO - Loading model: gpt2-large (gpt2-large)
+2025-07-29 23:48:19,905 - src.models.model_manager - INFO - [Before model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 86.1%
+2025-07-29 23:48:35,727 - __main__ - INFO - Applied RTX 3060 optimizations
+2025-07-29 23:48:35,728 - __main__ - INFO - Validated models: ['llama-3.2-1b']
+2025-07-29 23:48:35,728 - src.models.model_manager - INFO - ModelManager initialized on cpu
+2025-07-29 23:48:35,818 - src.evaluation.judge_client - INFO - JudgeClient initialized with model: gpt-4.1-nano
+2025-07-29 23:48:35,818 - src.evaluation.conversation_handler - INFO - ConversationHandler initialized
+2025-07-29 23:48:35,818 - src.utils.results_analyzer - INFO - ResultsAnalyzer initialized
+2025-07-29 23:48:35,818 - src.evaluation.mtbench_evaluator - INFO - MTBenchEvaluator initialized for models: ['llama-3.2-1b']
+2025-07-29 23:48:35,818 - __main__ - INFO - Starting MT-bench evaluation for 1 models
+2025-07-29 23:48:35,818 - __main__ - INFO - Limited to 2 questions for testing
+2025-07-29 23:48:35,818 - src.evaluation.mtbench_evaluator - INFO - Starting full MT-bench evaluation
+2025-07-29 23:48:35,819 - src.utils.data_loader - INFO - Loaded 80 MT-bench questions
+2025-07-29 23:48:35,819 - src.utils.data_loader - INFO - Dataset validation passed: 80 questions, 8 categories
+2025-07-29 23:48:35,819 - src.evaluation.mtbench_evaluator - INFO - Limited to 2 questions for testing
+2025-07-29 23:48:35,819 - src.evaluation.mtbench_evaluator - INFO - Evaluating model: llama-3.2-1b
+2025-07-29 23:48:35,819 - src.evaluation.mtbench_evaluator - INFO - Starting evaluation of llama-3.2-1b
+2025-07-29 23:48:35,819 - src.models.model_manager - INFO - Loading model: llama-3.2-1b (meta-llama/Llama-3.2-1B-Instruct)
+2025-07-29 23:48:35,820 - src.models.model_manager - INFO - [Before model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 85.8%
+2025-07-29 23:48:46,903 - src.models.model_manager - INFO - Tokenizer loaded, vocab size: 128256
+2025-07-29 23:50:12,234 - src.evaluation.conversation_handler - INFO - Cleaned up 0 conversation sessions
+2025-07-29 23:50:12,236 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-07-29 23:50:12,236 - __main__ - INFO - Evaluation interrupted by user
+2025-07-29 23:50:12,384 - src.models.model_manager - INFO - Cleaning up ModelManager
