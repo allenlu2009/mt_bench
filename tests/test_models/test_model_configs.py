@@ -124,7 +124,7 @@ class TestPromptFormatting:
         config = get_model_config("llama-3.2-1b")
         prompt = format_prompt_for_model("Hello, world!", config)
         
-        assert prompt == "<s>[INST] Hello, world! [/INST]"
+        assert prompt == "<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\nHello, world!<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
     
     def test_format_prompt_for_model_with_history(self):
         """Test prompt formatting with conversation history."""
