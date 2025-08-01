@@ -10,6 +10,7 @@ from .mtbench_evaluator import MTBenchEvaluator
 from .judge_client import JudgeClient, PairwiseJudgment
 from ..utils.response_manager import ResponseManager
 from ..utils.data_loader import DataLoader
+from ..models.model_configs import get_model_config, get_generation_config
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +47,10 @@ class MultiModeEvaluator:
             max_questions: Maximum questions to evaluate (for testing)
             disable_response_cache: Disable response caching
         """
+        # Validate input
+        if len(model_names) < 2:
+            raise ValueError("MultiModeEvaluator requires at least 2 models for comparison")
+        
         self.model_names = model_names
         self.openai_api_key = openai_api_key
         self.judge_model = judge_model
@@ -112,7 +117,7 @@ class MultiModeEvaluator:
             raise ValueError("Pairwise evaluation requires at least 2 models")
         
         # Load questions
-        questions = self.data_loader.load_questions()
+        questions = self.data_loader.load_mtbench_questions()
         if self.max_questions:
             questions = questions[:self.max_questions]
         
@@ -156,7 +161,8 @@ class MultiModeEvaluator:
         
         for model_name in self.model_names:
             # Check if responses are already cached
-            generation_config = self.single_evaluator.model_manager.get_generation_config()
+            model_config = get_model_config(model_name)
+            generation_config = get_generation_config(model_config)
             
             if self.response_manager.has_cached_responses(model_name, generation_config):
                 logger.info(f"Using cached responses for {model_name}")
@@ -205,7 +211,9 @@ class MultiModeEvaluator:
         
         # Prepare comparison data
         comparisons = []
-        generation_config = self.single_evaluator.model_manager.get_generation_config()
+        # Use a default generation config for comparison (doesn't matter which model since we're just checking cache)
+        default_model_config = get_model_config(self.model_names[0])
+        generation_config = get_generation_config(default_model_config)
         
         for model_a, model_b in model_pairs:
             for question in questions:
