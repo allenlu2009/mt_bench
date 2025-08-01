@@ -177,7 +177,7 @@ class MultiModeEvaluator:
             # Generate responses
             model_responses = {}
             for question in questions:
-                question_id = str(question["question_id"])
+                question_id = str(question.question_id)
                 conversation = await self.single_evaluator.conversation_handler.run_conversation(
                     question, model_name
                 )
@@ -217,7 +217,7 @@ class MultiModeEvaluator:
         
         for model_a, model_b in model_pairs:
             for question in questions:
-                question_id = str(question["question_id"])
+                question_id = str(question.question_id)
                 
                 # Get responses for both turns
                 for turn in [1, 2]:
@@ -229,12 +229,12 @@ class MultiModeEvaluator:
                     )
                     
                     if response_a and response_b:
-                        turn_question = question["turns"][turn - 1]
+                        turn_question = question.turns[turn - 1]
                         comparisons.append({
                             "question": turn_question,
                             "answer_a": response_a,
                             "answer_b": response_b,
-                            "question_id": question["question_id"],
+                            "question_id": question.question_id,
                             "turn": turn,
                             "model_a": model_a,
                             "model_b": model_b

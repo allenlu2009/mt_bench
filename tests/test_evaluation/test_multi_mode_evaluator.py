@@ -122,7 +122,7 @@ class TestMultiModeEvaluatorGenerationConfig:
         mock_get_gen_config.return_value = mock_generation_config
         
         # Mock other dependencies
-        sample_questions = [{"question_id": 1, "category": "writing", "turns": ["Q1", "Q2"]}]
+        sample_questions = [MTBenchQuestion(question_id=1, category="writing", turns=["Q1", "Q2"])]
         
         with patch.object(evaluator.response_manager, 'has_cached_responses', return_value=True), \
              patch.object(evaluator.response_manager, 'get_cached_responses', return_value={}):
@@ -149,7 +149,7 @@ class TestMultiModeEvaluatorGenerationConfig:
         mock_get_model_config.return_value = mock_model_config
         mock_get_gen_config.return_value = mock_generation_config
         
-        sample_questions = [{"question_id": 1, "category": "writing", "turns": ["Q1", "Q2"]}]
+        sample_questions = [MTBenchQuestion(question_id=1, category="writing", turns=["Q1", "Q2"])]
         
         with patch.object(evaluator.response_manager, 'get_cached_responses') as mock_get_cached, \
              patch.object(evaluator.judge_client, 'judge_multiple_pairwise', new_callable=AsyncMock) as mock_judge:
@@ -243,7 +243,7 @@ class TestMultiModeEvaluatorIntegration:
         mock_data_loader_instance = Mock()
         mock_data_loader.return_value = mock_data_loader_instance
         mock_data_loader_instance.load_mtbench_questions.return_value = [
-            {"question_id": 1, "category": "writing", "turns": ["Q1", "Q2"]}
+            MTBenchQuestion(question_id=1, category="writing", turns=["Q1", "Q2"])
         ]
         
         mock_response_manager_instance = Mock()
