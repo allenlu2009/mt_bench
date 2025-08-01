@@ -178,23 +178,56 @@ class MultiModeEvaluator:
             model_responses = {}
             for question in questions:
                 question_id = str(question.question_id)
-                conversation = await self.single_evaluator.conversation_handler.run_conversation(
-                    question, model_name
-                )
                 
-                # Convert to cache format
-                turns = []
-                for turn_idx, turn in enumerate(conversation["turns"]):
-                    turns.append({
-                        "question": turn["question"],
-                        "response": turn["response"],
-                        "metadata": {
-                            "model_name": model_name,
-                            "generation_time": turn.get("generation_time", 0.0)
-                        }
-                    })
+                # Start conversation
+                session_id = self.single_evaluator.conversation_handler.start_conversation(question, model_name)
                 
-                model_responses[question_id] = turns
+                try:
+                    # Process both turns
+                    for turn_number in [1, 2]:
+                        # Get model config for this model
+                        model_config = get_model_config(model_name)
+                        
+                        # Format prompt for this turn
+                        prompt = self.single_evaluator.conversation_handler.format_turn_prompt(
+                            session_id, turn_number, question, model_config
+                        )
+                        
+                        # Generate response
+                        response = self.single_evaluator.model_manager.generate_response(prompt, model_name)
+                        
+                        # Add turn to conversation
+                        self.single_evaluator.conversation_handler.add_turn_response(
+                            session_id=session_id,
+                            turn_number=turn_number,
+                            question=question,
+                            response=response,
+                            generation_time=0.0,
+                            memory_used_gb=0.0
+                        )
+                    
+                    # End conversation and get session
+                    session = self.single_evaluator.conversation_handler.end_conversation(session_id)
+                    
+                    # Convert to cache format
+                    turns = []
+                    for turn in session.turns:
+                        turns.append({
+                            "question": turn.user_message,
+                            "response": turn.assistant_response,
+                            "metadata": {
+                                "model_name": model_name,
+                                "generation_time": turn.generation_time
+                            }
+                        })
+                    
+                    model_responses[question_id] = turns
+                    
+                except Exception as e:
+                    logger.error(f"Error processing question {question_id}: {str(e)}")
+                    # Cleanup session on error
+                    self.single_evaluator.conversation_handler.cleanup_session(session_id)
+                    continue
             
             # Cache responses
             self.response_manager.cache_responses(model_name, model_responses, generation_config)
