@@ -391,7 +391,20 @@ async def main() -> None:
         progress = evaluator.get_evaluation_progress()
         print(f"\nEvaluation Statistics:")
         print(f"  Models evaluated: {progress['models_completed']}/{progress['total_models']}")
-        print(f"  Total responses judged: {progress['total_scores']}")
+        
+        # Handle different evaluator types
+        if 'total_scores' in progress:
+            # MTBenchEvaluator
+            print(f"  Total responses judged: {progress['total_scores']}")
+        else:
+            # MultiModeEvaluator
+            total_judgments = progress.get('single_scores', 0) + progress.get('pairwise_judgments', 0)
+            print(f"  Total judgments made: {total_judgments}")
+            if progress.get('pairwise_judgments', 0) > 0:
+                print(f"    - Pairwise comparisons: {progress['pairwise_judgments']}")
+            if progress.get('single_scores', 0) > 0:
+                print(f"    - Single evaluations: {progress['single_scores']}")
+        
         print(f"  Peak memory usage: {progress['peak_memory_gb']:.2f}GB")
         
         # Print detailed Q&A examples
