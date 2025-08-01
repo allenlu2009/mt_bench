@@ -45,7 +45,7 @@ AVAILABLE_MODELS = {
     "llama-3.2-1b": ModelConfig(
         model_path="meta-llama/Llama-3.2-1B-Instruct",
         model_family="llama",
-        prompt_template="<s>[INST] {instruction} [/INST]",
+        prompt_template="<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n{instruction}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n",
         max_new_tokens=512,
         temperature=0.7,
         top_p=0.9,
@@ -57,7 +57,7 @@ AVAILABLE_MODELS = {
     "llama-3.2-3b": ModelConfig(
         model_path="meta-llama/Llama-3.2-3B-Instruct",
         model_family="llama", 
-        prompt_template="<s>[INST] {instruction} [/INST]",
+        prompt_template="<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\n{instruction}<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n",
         max_new_tokens=512,
         temperature=0.7,
         top_p=0.9,
