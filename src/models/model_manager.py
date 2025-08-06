@@ -99,7 +99,8 @@ class ModelManager:
         config.update(opt_config)
         
         # Add 4-bit quantization for larger models if needed
-        if model_config.estimated_memory_gb > 5.0:
+        # Only quantize models that would exceed reasonable GPU memory limits (>10GB)
+        if model_config.estimated_memory_gb > 10.0:
             logger.info("Using 4-bit quantization for large model")
             config["quantization_config"] = BitsAndBytesConfig(
                 load_in_4bit=True,
@@ -161,6 +162,18 @@ class ModelManager:
             if tokenizer.pad_token is None:
                 tokenizer.pad_token = tokenizer.eos_token
                 
+            # Add special tokens for conversational models if needed
+            if "conversational" in model_name.lower() and model_config.chat_template_name == "gpt2_conversational":
+                special_tokens = ["<|USER|>", "<|ASSISTANT|>"]
+                vocab = tokenizer.get_vocab()
+                new_tokens = [token for token in special_tokens if token not in vocab]
+                if new_tokens:
+                    logger.info(f"Adding special tokens: {new_tokens}")
+                    num_added = tokenizer.add_tokens(new_tokens)
+                    logger.info(f"Added {num_added} new tokens")
+                else:
+                    logger.info(f"Special tokens already in vocabulary: {[vocab.get(token, 'NOT_FOUND') for token in special_tokens]}")
+                
             logger.info(f"Tokenizer loaded, vocab size: {len(tokenizer)}")
             
             # Load model with optimizations
@@ -175,9 +188,7 @@ class ModelManager:
                     "use_cache": loading_config.get("use_cache", True)
                 }
                 
-                # Only add device_map and quantization_config if present
-                if "device_map" in loading_config:
-                    model_kwargs["device_map"] = loading_config["device_map"]
+                # Add quantization_config if present (for large models)
                 if "quantization_config" in loading_config:
                     model_kwargs["quantization_config"] = loading_config["quantization_config"]
                 
@@ -192,9 +203,33 @@ class ModelManager:
                 logger.info("Gradient checkpointing enabled")
             
             # Move model to the correct device and set to evaluation mode
-            if "device_map" not in loading_config:
-                model = model.to(self.device)
+            # Handle meta tensors properly by using to_empty()
+            try:
+                # Check if any parameter is a meta tensor
+                has_meta_tensors = any(p.is_meta for p in model.parameters())
+                if has_meta_tensors:
+                    logger.info("Model has meta tensors, using to_empty()")
+                    model = model.to_empty(device=self.device)
+                else:
+                    model = model.to(self.device)
+            except Exception as e:
+                # If to_empty() fails or we can't detect meta tensors, try the alternative approach
+                logger.warning(f"Standard device move failed: {e}, trying to_empty()")
+                try:
+                    model = model.to_empty(device=self.device)
+                except Exception as e2:
+                    logger.error(f"to_empty() also failed: {e2}")
+                    raise e
+            
             model.eval()
+            
+            # Resize token embeddings if we added special tokens
+            if "conversational" in model_name.lower() and model_config.chat_template_name == "gpt2_conversational":
+                special_tokens = ["<|USER|>", "<|ASSISTANT|>"]
+                new_tokens = [token for token in special_tokens if token not in tokenizer.get_vocab()]
+                if new_tokens:
+                    logger.info(f"Resizing token embeddings for {len(new_tokens)} new tokens")
+                    model.resize_token_embeddings(len(tokenizer))
             
             # Store references
             self.current_model = model
@@ -245,37 +280,101 @@ class ModelManager:
             gen_config["pad_token_id"] = self.current_tokenizer.eos_token_id
         if gen_config["eos_token_id"] is None:
             gen_config["eos_token_id"] = self.current_tokenizer.eos_token_id
+            
+        # Ensure token IDs are within valid range to prevent CUDA assertion errors
+        vocab_size = len(self.current_tokenizer)
+        for key in ["pad_token_id", "eos_token_id", "bos_token_id"]:
+            if key in gen_config and gen_config[key] is not None:
+                if gen_config[key] >= vocab_size:
+                    logger.warning(f"{key} ({gen_config[key]}) >= vocab_size ({vocab_size}), using eos_token_id")
+                    gen_config[key] = self.current_tokenizer.eos_token_id
         
         self.memory_monitor.log_memory_usage("Before generation", logger)
         
         try:
-            # Tokenize input
-            inputs = self.current_tokenizer(
-                prompt, 
-                return_tensors="pt", 
-                padding=True, 
-                truncation=True,
-                max_length=2048
-            )
-            
-            # Move inputs to the same device as the model
-            model_device = next(self.current_model.parameters()).device
-            inputs = {k: v.to(model_device) for k, v in inputs.items()}
-            
-            # Generate response
-            with torch.no_grad():
-                outputs = self.current_model.generate(
-                    **inputs,
-                    **gen_config
+            # For conversational models, use special handling
+            if self.current_model_name in ["gpt2-large-conversational", "dialogpt-large"]:
+                # Use the exact tokenization approach from the example
+                input_ids = self.current_tokenizer.encode(
+                    prompt, 
+                    add_special_tokens=True, 
+                    return_tensors="pt"
                 )
+                
+                # Move to device
+                model_device = next(self.current_model.parameters()).device
+                input_ids = input_ids.to(model_device)
+                attention_mask = torch.ones_like(input_ids).to(model_device)
+                
+                # Use max_length instead of max_new_tokens for this model
+                gen_config_copy = gen_config.copy()
+                if "max_new_tokens" in gen_config_copy:
+                    max_length = len(input_ids[0]) + gen_config_copy.pop("max_new_tokens")
+                    gen_config_copy["max_length"] = min(max_length, 1024)  # Cap at 1024 as in example
+                
+                # Generate response with exact parameters from example
+                with torch.no_grad():
+                    outputs = self.current_model.generate(
+                        input_ids,
+                        attention_mask=attention_mask,
+                        **gen_config_copy
+                    )
+            else:
+                # Standard tokenization for other models
+                inputs = self.current_tokenizer(
+                    prompt, 
+                    return_tensors="pt", 
+                    padding=True, 
+                    truncation=True,
+                    max_length=2048
+                )
+                
+                # Validate input tokens are within vocabulary range
+                vocab_size = len(self.current_tokenizer)
+                input_ids = inputs["input_ids"]
+                max_token_id = input_ids.max().item()
+                if max_token_id >= vocab_size:
+                    logger.error(f"Input contains token IDs >= vocab_size: max_id={max_token_id}, vocab_size={vocab_size}")
+                    # Clamp token IDs to valid range
+                    inputs["input_ids"] = torch.clamp(input_ids, 0, vocab_size - 1)
+                    logger.warning("Clamped input token IDs to valid range")
+                
+                # Move inputs to the same device as the model
+                model_device = next(self.current_model.parameters()).device
+                inputs = {k: v.to(model_device) for k, v in inputs.items()}
+                
+                # Generate response
+                with torch.no_grad():
+                    outputs = self.current_model.generate(
+                        **inputs,
+                        **gen_config
+                    )
             
             # Decode response (remove input tokens)
-            input_length = inputs["input_ids"].shape[1]
-            response_tokens = outputs[0][input_length:]
-            response = self.current_tokenizer.decode(
-                response_tokens, 
-                skip_special_tokens=True
-            ).strip()
+            if self.current_model_name in ["gpt2-large-conversational", "dialogpt-large"]:
+                input_length = input_ids.shape[1]
+                
+                if self.current_model_name == "gpt2-large-conversational":
+                    # For gpt2-conversational model, decode the full output and extract the response part
+                    full_output = self.current_tokenizer.decode(outputs[0], skip_special_tokens=False)
+                    # Extract only the assistant's response after <|ASSISTANT|>
+                    if "<|ASSISTANT|>" in full_output:
+                        response = full_output.split("<|ASSISTANT|>")[-1].strip()
+                    else:
+                        # Fallback: remove input tokens
+                        response_tokens = outputs[0][input_length:]
+                        response = self.current_tokenizer.decode(response_tokens, skip_special_tokens=True).strip()
+                else:  # dialogpt-large
+                    # For DialoGPT, just remove input tokens
+                    response_tokens = outputs[0][input_length:]
+                    response = self.current_tokenizer.decode(response_tokens, skip_special_tokens=True).strip()
+            else:
+                input_length = inputs["input_ids"].shape[1]
+                response_tokens = outputs[0][input_length:]
+                response = self.current_tokenizer.decode(
+                    response_tokens, 
+                    skip_special_tokens=True
+                ).strip()
             
             self.memory_monitor.log_memory_usage("After generation", logger)
             
