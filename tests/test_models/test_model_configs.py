@@ -71,12 +71,14 @@ class TestModelConfigRetrieval:
     
     def test_get_models_within_memory_limit(self):
         """Test filtering models by memory limit."""
-        # Test with 2GB limit - should include only small models
-        small_models = get_models_within_memory_limit(2.0)
+        # Test with 2.5GB limit - should include small and medium models
+        small_models = get_models_within_memory_limit(2.5)
         assert "gpt2-large" in small_models  # 1.5GB
         assert "gpt2-large-conversational" in small_models  # 1.5GB
-        assert "llama-3.2-1b" in small_models  # 2.0GB
-        assert "qwen2.5-3b" not in small_models  # 6.0GB
+        assert "llama-3.2-1b" in small_models  # 2.3GB
+        assert "llama-3.2-3b" in small_models  # 2.1GB
+        assert "qwen2.5-3b" in small_models  # 1.9GB
+        assert "phi-3-mini" not in small_models  # 7.1GB
         
         # Test with large limit - should include all models
         all_models = get_models_within_memory_limit(20.0)
