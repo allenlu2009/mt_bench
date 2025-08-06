@@ -64,10 +64,10 @@ AVAILABLE_MODELS = {
         max_new_tokens=512,
         temperature=0.7,
         top_p=0.9,
-        estimated_memory_gb=2.1,  # Actual: 2.09GB from logs (with 4-bit quantization)
+        estimated_memory_gb=6.0,  # Actual: 5.98GB from logs (FP16, no quantization)
         requires_system_prompt=False,
         chat_template_name="llama",
-        quantization_format="INT4"
+        quantization_format="FP16"
     ),
     
     "phi-3-mini": ModelConfig(
