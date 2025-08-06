@@ -90,10 +90,10 @@ AVAILABLE_MODELS = {
         max_new_tokens=512,
         temperature=0.7,
         top_p=0.9,
-        estimated_memory_gb=1.9,  # Actual: 1.93GB from logs (with 4-bit quantization)
+        estimated_memory_gb=5.9,  # Actual: 5.85GB from logs (FP16, no quantization)
         requires_system_prompt=False,
         chat_template_name="qwen",
-        quantization_format="INT4"
+        quantization_format="FP16"
     ),
     
     "gemma-2b": ModelConfig(
