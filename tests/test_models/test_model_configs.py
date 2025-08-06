@@ -61,6 +61,7 @@ class TestModelConfigRetrieval:
         assert isinstance(models, dict)
         assert len(models) > 0
         assert "gpt2-large" in models
+        assert "gpt2-large-conversational" in models
         assert "llama-3.2-1b" in models
         
         # Test that it returns a copy
@@ -73,6 +74,7 @@ class TestModelConfigRetrieval:
         # Test with 2GB limit - should include only small models
         small_models = get_models_within_memory_limit(2.0)
         assert "gpt2-large" in small_models  # 1.5GB
+        assert "gpt2-large-conversational" in small_models  # 1.5GB
         assert "llama-3.2-1b" in small_models  # 2.0GB
         assert "qwen2.5-3b" not in small_models  # 6.0GB
         
@@ -106,6 +108,17 @@ class TestGenerationConfig:
         assert gen_config["temperature"] == model_config.temperature
         assert gen_config["top_p"] == model_config.top_p
         assert gen_config["do_sample"] is True
+        
+    def test_get_generation_config_conversational(self):
+        """Test generation configuration for conversational GPT-2 model."""
+        model_config = get_model_config("gpt2-large-conversational")
+        gen_config = get_generation_config(model_config)
+        
+        # Should include model-specific settings
+        assert gen_config["top_k"] == 23
+        assert gen_config["repetition_penalty"] == 1.176
+        assert gen_config["temperature"] == 0.3
+        assert gen_config["top_p"] == 0.7
 
 
 class TestPromptFormatting:
@@ -124,7 +137,7 @@ class TestPromptFormatting:
         config = get_model_config("llama-3.2-1b")
         prompt = format_prompt_for_model("Hello, world!", config)
         
-        assert prompt == "<s>[INST] Hello, world! [/INST]"
+        assert prompt == "<|begin_of_text|><|start_header_id|>user<|end_header_id|>\n\nHello, world!<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n\n"
     
     def test_format_prompt_for_model_with_history(self):
         """Test prompt formatting with conversation history."""
@@ -141,6 +154,22 @@ class TestPromptFormatting:
         prompt = format_prompt_for_model("Test question", config)
         
         assert prompt == "<|user|>\nTest question<|end|>\n<|assistant|>\n"
+    
+    def test_format_prompt_for_model_conversational_gpt2(self):
+        """Test conversational GPT-2 prompt formatting."""
+        config = get_model_config("gpt2-large-conversational")
+        prompt = format_prompt_for_model("Hello there!", config)
+        
+        assert prompt == "<|USER|> Hello there! <|ASSISTANT|> "
+        
+    def test_format_prompt_for_model_conversational_with_history(self):
+        """Test conversational GPT-2 formatting with history."""
+        config = get_model_config("gpt2-large-conversational")
+        history = "User: Hi\nAssistant: Hello!"
+        prompt = format_prompt_for_model("How are you?", config, history)
+        
+        expected = "<|USER|> User: Hi\nAssistant: Hello!\n\nUser: How are you?\nAssistant: <|ASSISTANT|> "
+        assert prompt == expected
 
 
 class TestSystemMessages:
