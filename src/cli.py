@@ -9,7 +9,6 @@ from pathlib import Path
 from typing import List, Optional
 
 from .evaluation.mtbench_evaluator import MTBenchEvaluator
-from .evaluation.multi_mode_evaluator import MultiModeEvaluator
 from .models.model_configs import get_available_models, get_models_within_memory_limit
 from .utils.memory_utils import optimize_for_rtx3060
 
@@ -189,17 +188,11 @@ def create_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Evaluate single model (absolute scoring)
+  # Evaluate single model
   python -m src.cli --models gpt2-large
   
-  # Evaluate multiple models (absolute scoring)
+  # Evaluate multiple models
   python -m src.cli --models gpt2-large llama-3.2-1b phi-3-mini
-  
-  # Pairwise comparison between two models
-  python -m src.cli --mode pairwise --models gpt2-large llama-3.2-1b
-  
-  # Both absolute scoring and pairwise comparison
-  python -m src.cli --mode both --models gpt2-large llama-3.2-1b phi-3-mini
   
   # Quick test with limited questions
   python -m src.cli --models gpt2-large --max-questions 5
@@ -216,13 +209,6 @@ Examples:
         "--models",
         nargs="+",
         help="Model names to evaluate (use --list-models to see available models)"
-    )
-    
-    parser.add_argument(
-        "--mode",
-        choices=["single", "pairwise", "both"],
-        default="single",
-        help="Evaluation mode: single (absolute scoring), pairwise (head-to-head comparison), or both (default: single)"
     )
     
     parser.add_argument(
@@ -268,18 +254,6 @@ Examples:
     )
     
     parser.add_argument(
-        "--response-cache-dir",
-        default="cached_responses",
-        help="Directory for caching model responses (default: cached_responses)"
-    )
-    
-    parser.add_argument(
-        "--disable-response-cache",
-        action="store_true",
-        help="Disable response caching (always generate fresh responses)"
-    )
-    
-    parser.add_argument(
         "--verbose", "-v",
         action="store_true",
         help="Enable verbose logging"
@@ -312,10 +286,6 @@ async def main() -> None:
     if not args.models:
         parser.error("--models is required (use --list-models to see available models)")
     
-    # Validate evaluation mode requirements
-    if args.mode in ["pairwise", "both"] and len(args.models) < 2:
-        parser.error("Pairwise comparison requires at least 2 models")
-    
     # Check for API key
     api_key = args.openai_api_key or os.getenv("OPENAI_API_KEY")
     if not api_key:
@@ -333,46 +303,23 @@ async def main() -> None:
         # Create output directory
         Path(args.output_dir).mkdir(exist_ok=True)
         
-        # Initialize appropriate evaluator based on mode
-        if args.mode == "single":
-            # Use original single-mode evaluator
-            evaluator = MTBenchEvaluator(
-                model_names=valid_models,
-                openai_api_key=api_key,
-                judge_model=args.judge_model,
-                cache_dir=args.cache_dir,
-                memory_limit_gb=args.memory_limit,
-                max_questions=args.max_questions
-            )
-            
-            logger.info(f"Starting single-mode MT-bench evaluation for {len(valid_models)} models")
-            results = await evaluator.run_full_evaluation()
-            
-        else:
-            # Use multi-mode evaluator for pairwise and both modes
-            evaluator = MultiModeEvaluator(
-                model_names=valid_models,
-                openai_api_key=api_key,
-                judge_model=args.judge_model,
-                cache_dir=args.cache_dir,
-                response_cache_dir=args.response_cache_dir,
-                memory_limit_gb=args.memory_limit,
-                max_questions=args.max_questions,
-                disable_response_cache=args.disable_response_cache
-            )
-            
-            logger.info(f"Starting {args.mode}-mode MT-bench evaluation for {len(valid_models)} models")
-            
-            if args.max_questions:
-                logger.info(f"Limited to {args.max_questions} questions for testing")
-            
-            # Run appropriate evaluation mode
-            if args.mode == "pairwise":
-                results = await evaluator.run_pairwise_evaluation()
-            elif args.mode == "both":
-                results = await evaluator.run_both_evaluation()
-            else:
-                raise ValueError(f"Unknown evaluation mode: {args.mode}")
+        # Initialize evaluator
+        evaluator = MTBenchEvaluator(
+            model_names=valid_models,
+            openai_api_key=api_key,
+            judge_model=args.judge_model,
+            cache_dir=args.cache_dir,
+            memory_limit_gb=args.memory_limit,
+            max_questions=args.max_questions
+        )
+        
+        # Run evaluation
+        logger.info(f"Starting MT-bench evaluation for {len(valid_models)} models")
+        
+        if args.max_questions:
+            logger.info(f"Limited to {args.max_questions} questions for testing")
+        
+        results = await evaluator.run_full_evaluation()
         
         # Export results
         evaluator.export_results(results, args.output_dir)
@@ -391,20 +338,7 @@ async def main() -> None:
         progress = evaluator.get_evaluation_progress()
         print(f"\nEvaluation Statistics:")
         print(f"  Models evaluated: {progress['models_completed']}/{progress['total_models']}")
-        
-        # Handle different evaluator types
-        if 'total_scores' in progress:
-            # MTBenchEvaluator
-            print(f"  Total responses judged: {progress['total_scores']}")
-        else:
-            # MultiModeEvaluator
-            total_judgments = progress.get('single_scores', 0) + progress.get('pairwise_judgments', 0)
-            print(f"  Total judgments made: {total_judgments}")
-            if progress.get('pairwise_judgments', 0) > 0:
-                print(f"    - Pairwise comparisons: {progress['pairwise_judgments']}")
-            if progress.get('single_scores', 0) > 0:
-                print(f"    - Single evaluations: {progress['single_scores']}")
-        
+        print(f"  Total responses judged: {progress['total_scores']}")
         print(f"  Peak memory usage: {progress['peak_memory_gb']:.2f}GB")
         
         # Print detailed Q&A examples

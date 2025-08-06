@@ -100,6 +100,30 @@ AVAILABLE_MODELS = {
         estimated_memory_gb=4.0,
         requires_system_prompt=False,
         chat_template_name="gemma"
+    ),
+    
+    "gpt2-large-conversational": ModelConfig(
+        model_path="Locutusque/gpt2-large-conversational-retrain",  # Problematic model - produces garbage output
+        model_family="gpt2",
+        prompt_template="<|USER|> {instruction} <|ASSISTANT|> ",
+        max_new_tokens=256,
+        temperature=0.3,
+        top_p=0.7,
+        estimated_memory_gb=1.5,
+        requires_system_prompt=False,
+        chat_template_name="gpt2_conversational"
+    ),
+    
+    "dialogpt-large": ModelConfig(
+        model_path="microsoft/DialoGPT-large",
+        model_family="gpt2",
+        prompt_template="{instruction}",  # DialoGPT uses simple prompting
+        max_new_tokens=256,
+        temperature=0.7,
+        top_p=0.9,
+        estimated_memory_gb=1.5,
+        requires_system_prompt=False,
+        chat_template_name="dialogpt"
     )
 }
 
@@ -163,7 +187,7 @@ def get_generation_config(model_config: ModelConfig) -> Dict[str, Any]:
     Returns:
         Dictionary with generation parameters
     """
-    return {
+    base_config = {
         "max_new_tokens": model_config.max_new_tokens,
         "temperature": model_config.temperature,
         "top_p": model_config.top_p,
@@ -173,6 +197,21 @@ def get_generation_config(model_config: ModelConfig) -> Dict[str, Any]:
         "repetition_penalty": 1.1,
         "no_repeat_ngram_size": 3,
     }
+    
+    # Apply model-specific generation settings
+    if model_config.chat_template_name == "gpt2_conversational":
+        # Use optimized settings from Locutusque model
+        base_config.update({
+            "top_k": 23,
+            "repetition_penalty": 1.176,
+        })
+    elif model_config.model_family == "phi":
+        # Disable cache for phi models to fix DynamicCache compatibility
+        base_config.update({
+            "use_cache": False,
+        })
+    
+    return base_config
 
 
 def format_prompt_for_model(instruction: str, model_config: ModelConfig, 
@@ -228,7 +267,7 @@ OPTIMIZATION_CONFIGS = {
         "rope_scaling": None,
     },
     "phi": {
-        "use_cache": True,
+        "use_cache": False,  # Disable cache to fix DynamicCache compatibility issue
         "gradient_checkpointing": True,
         "trust_remote_code": True,
     },

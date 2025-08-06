@@ -65,48 +65,16 @@ python -m src.cli --models gpt2-large llama-3.2-1b phi-3-mini
 ### Prerequisites
 
 - Python 3.8+
+- CUDA-compatible GPU (RTX 3060 or better)
 - OpenAI API key for judging
-- Optional: CUDA-compatible GPU for optimal performance
 
-### Option 1: Using pyproject.toml (Recommended)
+### Desktop Installation
 
 ```bash
 # Clone repository
-git clone https://github.com/allenlu/claude_mt_bench.git
+git clone https://github.com/your-username/claude_mt_bench.git
 cd claude_mt_bench
 
-# Using pip (works on all platforms)
-pip install -e .
-
-# Using uv (faster, but see macOS note below)
-uv sync --extra dev
-
-# Platform-specific installations:
-# For CUDA systems (Linux/Windows with NVIDIA GPU)
-uv sync --extra dev --extra cuda
-
-# For macOS (no CUDA support)
-uv sync --extra dev --extra macos
-```
-
-**Note for macOS users**: If you encounter flash-attn build errors with `uv`, use one of these solutions:
-
-1. **Use pip instead** (recommended):
-   ```bash
-   pip install -e ".[dev,macos]"
-   ```
-
-2. **Use uv with --no-sync** for running commands:
-   ```bash
-   # First install with pip
-   pip install -e ".[dev]" 
-   # Then use uv run with --no-sync
-   uv run --no-sync pytest tests/ -v
-   ```
-
-### Option 2: Using requirements.txt
-
-```bash
 # Create virtual environment
 python -m venv venv
 source venv/bin/activate  # Linux/Mac
