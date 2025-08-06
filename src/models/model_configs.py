@@ -41,7 +41,7 @@ AVAILABLE_MODELS = {
         top_p=0.9,
         estimated_memory_gb=1.5,  # Actual: 1.48GB from logs
         requires_system_prompt=False,
-        quantization_format="FP32"
+        quantization_format="FP16"
     ),
     
     "llama-3.2-1b": ModelConfig(
