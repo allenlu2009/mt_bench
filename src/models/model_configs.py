@@ -16,6 +16,7 @@ class ModelConfig:
     estimated_memory_gb: float
     requires_system_prompt: bool = False
     chat_template_name: Optional[str] = None
+    quantization_format: str = "FP16"  # FP32, FP16, BF16, FP8, INT8, INT4
 
 
 # Supported models with their configurations
@@ -38,8 +39,9 @@ AVAILABLE_MODELS = {
         max_new_tokens=512,
         temperature=0.7,
         top_p=0.9,
-        estimated_memory_gb=1.5,
-        requires_system_prompt=False
+        estimated_memory_gb=1.5,  # Actual: 1.48GB from logs
+        requires_system_prompt=False,
+        quantization_format="FP32"
     ),
     
     "llama-3.2-1b": ModelConfig(
@@ -49,9 +51,10 @@ AVAILABLE_MODELS = {
         max_new_tokens=512,
         temperature=0.7,
         top_p=0.9,
-        estimated_memory_gb=2.0,
+        estimated_memory_gb=2.3,  # Actual: 2.31GB from logs
         requires_system_prompt=False,
-        chat_template_name="llama"
+        chat_template_name="llama",
+        quantization_format="FP16"
     ),
     
     "llama-3.2-3b": ModelConfig(
@@ -61,9 +64,10 @@ AVAILABLE_MODELS = {
         max_new_tokens=512,
         temperature=0.7,
         top_p=0.9,
-        estimated_memory_gb=6.0,
+        estimated_memory_gb=2.1,  # Actual: 2.09GB from logs (with 4-bit quantization)
         requires_system_prompt=False,
-        chat_template_name="llama"
+        chat_template_name="llama",
+        quantization_format="INT4"
     ),
     
     "phi-3-mini": ModelConfig(
@@ -73,9 +77,10 @@ AVAILABLE_MODELS = {
         max_new_tokens=512,
         temperature=0.7,
         top_p=0.9,
-        estimated_memory_gb=2.5,
+        estimated_memory_gb=7.1,  # Actual: 7.13GB from logs
         requires_system_prompt=False,
-        chat_template_name="phi"
+        chat_template_name="phi",
+        quantization_format="FP16"
     ),
     
     "qwen2.5-3b": ModelConfig(
@@ -85,9 +90,10 @@ AVAILABLE_MODELS = {
         max_new_tokens=512,
         temperature=0.7,
         top_p=0.9,
-        estimated_memory_gb=6.0,
+        estimated_memory_gb=1.9,  # Actual: 1.93GB from logs (with 4-bit quantization)
         requires_system_prompt=False,
-        chat_template_name="qwen"
+        chat_template_name="qwen",
+        quantization_format="INT4"
     ),
     
     "gemma-2b": ModelConfig(
