@@ -620,3 +620,590 @@
 2025-07-29 23:50:12,236 - src.models.model_manager - INFO - Cleaning up ModelManager
 2025-07-29 23:50:12,236 - __main__ - INFO - Evaluation interrupted by user
 2025-07-29 23:50:12,384 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-08-12 21:49:23,426 - __main__ - INFO - Applied RTX 3060 optimizations
+2025-08-12 21:49:23,427 - __main__ - INFO - Validated models: ['gpt2-large']
+2025-08-12 21:49:23,429 - src.models.model_manager - INFO - ModelManager initialized on cuda
+2025-08-12 21:49:23,461 - src.evaluation.judge_client - INFO - JudgeClient initialized with model: gpt-4.1-nano
+2025-08-12 21:49:23,461 - src.evaluation.conversation_handler - INFO - ConversationHandler initialized
+2025-08-12 21:49:23,461 - src.utils.results_analyzer - INFO - ResultsAnalyzer initialized
+2025-08-12 21:49:23,462 - src.evaluation.mtbench_evaluator - INFO - MTBenchEvaluator initialized for models: ['gpt2-large']
+2025-08-12 21:49:23,462 - __main__ - INFO - Starting single-mode MT-bench evaluation for 1 models
+2025-08-12 21:49:23,462 - src.evaluation.mtbench_evaluator - INFO - Starting full MT-bench evaluation
+2025-08-12 21:49:23,477 - src.utils.data_loader - INFO - Loaded 80 MT-bench questions
+2025-08-12 21:49:23,477 - src.utils.data_loader - INFO - Dataset validation passed: 80 questions, 8 categories
+2025-08-12 21:49:23,477 - src.evaluation.mtbench_evaluator - INFO - Evaluating model: gpt2-large
+2025-08-12 21:49:23,477 - src.evaluation.mtbench_evaluator - INFO - Starting evaluation of gpt2-large
+2025-08-12 21:49:23,478 - src.models.model_manager - INFO - Loading model: gpt2-large (gpt2-large)
+2025-08-12 21:49:23,478 - src.models.model_manager - INFO - [Before model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 13.0%
+2025-08-12 21:49:24,536 - src.models.model_manager - INFO - Tokenizer loaded, vocab size: 50257
+2025-08-12 21:49:28,297 - src.models.model_manager - INFO - [After model loading] GPU: 1.48GB (12.3%), Cached: 1.61GB, System: 22.5%
+2025-08-12 21:49:28,298 - src.models.model_manager - INFO - Successfully loaded gpt2-large
+2025-08-12 21:49:28,299 - src.evaluation.mtbench_evaluator - INFO - [Loaded gpt2-large] GPU: 1.48GB (12.3%), Cached: 1.61GB, System: 22.5%
+2025-08-12 21:49:28,310 - src.models.model_manager - INFO - [Before generation] GPU: 1.48GB (12.3%), Cached: 1.61GB, System: 22.5%
+2025-08-12 21:49:33,026 - src.models.model_manager - INFO - [After generation] GPU: 1.48GB (12.4%), Cached: 1.65GB, System: 22.7%
+2025-08-12 21:49:33,036 - src.models.model_manager - INFO - [Before generation] GPU: 1.48GB (12.4%), Cached: 1.65GB, System: 22.7%
+2025-08-12 21:49:40,558 - src.models.model_manager - INFO - [After generation] GPU: 1.48GB (12.4%), Cached: 1.71GB, System: 22.7%
+2025-08-12 21:49:40,570 - src.models.model_manager - INFO - [Before generation] GPU: 1.48GB (12.4%), Cached: 1.71GB, System: 22.7%
+2025-08-12 21:49:47,325 - src.models.model_manager - INFO - [After generation] GPU: 1.48GB (12.4%), Cached: 1.71GB, System: 22.7%
+2025-08-12 21:49:47,338 - src.models.model_manager - INFO - [Before generation] GPU: 1.48GB (12.4%), Cached: 1.71GB, System: 22.7%
+2025-08-12 21:49:50,998 - src.models.model_manager - INFO - [After generation] GPU: 1.48GB (12.4%), Cached: 1.79GB, System: 22.7%
+2025-08-12 21:49:51,007 - src.models.model_manager - INFO - [Before generation] GPU: 1.48GB (12.4%), Cached: 1.79GB, System: 22.7%
+2025-08-12 21:49:52,266 - src.models.model_manager - INFO - [After generation] GPU: 1.48GB (12.4%), Cached: 1.79GB, System: 22.7%
+2025-08-12 21:49:52,274 - src.models.model_manager - INFO - [Before generation] GPU: 1.48GB (12.4%), Cached: 1.79GB, System: 22.7%
+2025-08-12 21:49:56,450 - src.models.model_manager - INFO - [After generation] GPU: 1.48GB (12.4%), Cached: 1.79GB, System: 22.7%
+2025-08-12 21:49:56,460 - src.models.model_manager - INFO - [Before generation] GPU: 1.48GB (12.4%), Cached: 1.79GB, System: 22.7%
+2025-08-12 21:50:15,322 - src.models.model_manager - INFO - [After generation] GPU: 1.48GB (12.4%), Cached: 1.79GB, System: 22.7%
+2025-08-12 21:50:15,331 - src.models.model_manager - INFO - [Before generation] GPU: 1.48GB (12.4%), Cached: 1.79GB, System: 22.7%
+2025-08-12 21:50:23,239 - src.evaluation.conversation_handler - INFO - Cleaned up 1 conversation sessions
+2025-08-12 21:50:23,239 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-08-12 21:50:23,240 - src.models.model_manager - INFO - Cleaning up model: gpt2-large
+2025-08-12 21:50:57,920 - __main__ - INFO - Applied RTX 3060 optimizations
+2025-08-12 21:50:57,921 - __main__ - ERROR - Evaluation failed: No valid models found after filtering
+2025-08-12 21:51:12,861 - __main__ - INFO - Applied RTX 3060 optimizations
+2025-08-12 21:51:12,862 - __main__ - INFO - Validated models: ['llama-3.2-3b']
+2025-08-12 21:51:12,864 - src.models.model_manager - INFO - ModelManager initialized on cuda
+2025-08-12 21:51:12,895 - src.evaluation.judge_client - INFO - JudgeClient initialized with model: gpt-4.1-nano
+2025-08-12 21:51:12,896 - src.evaluation.conversation_handler - INFO - ConversationHandler initialized
+2025-08-12 21:51:12,896 - src.utils.results_analyzer - INFO - ResultsAnalyzer initialized
+2025-08-12 21:51:12,897 - src.evaluation.mtbench_evaluator - INFO - MTBenchEvaluator initialized for models: ['llama-3.2-3b']
+2025-08-12 21:51:12,897 - __main__ - INFO - Starting single-mode MT-bench evaluation for 1 models
+2025-08-12 21:51:12,897 - src.evaluation.mtbench_evaluator - INFO - Starting full MT-bench evaluation
+2025-08-12 21:51:12,900 - src.utils.data_loader - INFO - Loaded 80 MT-bench questions
+2025-08-12 21:51:12,900 - src.utils.data_loader - INFO - Dataset validation passed: 80 questions, 8 categories
+2025-08-12 21:51:12,901 - src.evaluation.mtbench_evaluator - INFO - Evaluating model: llama-3.2-3b
+2025-08-12 21:51:12,901 - src.evaluation.mtbench_evaluator - INFO - Starting evaluation of llama-3.2-3b
+2025-08-12 21:51:12,901 - src.models.model_manager - INFO - Loading model: llama-3.2-3b (meta-llama/Llama-3.2-3B-Instruct)
+2025-08-12 21:51:12,902 - src.models.model_manager - INFO - [Before model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 13.0%
+2025-08-12 21:51:13,975 - src.models.model_manager - INFO - Tokenizer loaded, vocab size: 128256
+2025-08-12 21:51:30,368 - src.models.model_manager - INFO - Gradient checkpointing enabled
+2025-08-12 21:51:48,527 - src.models.model_manager - INFO - [After model loading] GPU: 5.98GB (49.9%), Cached: 6.03GB, System: 16.1%
+2025-08-12 21:51:48,528 - src.models.model_manager - INFO - Successfully loaded llama-3.2-3b
+2025-08-12 21:51:48,537 - src.evaluation.mtbench_evaluator - INFO - [Loaded llama-3.2-3b] GPU: 5.98GB (49.9%), Cached: 6.03GB, System: 16.1%
+2025-08-12 21:51:48,879 - src.models.model_manager - INFO - [Before generation] GPU: 5.98GB (49.9%), Cached: 6.03GB, System: 16.2%
+2025-08-12 21:52:16,634 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.17GB, System: 16.7%
+2025-08-12 21:52:16,686 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.17GB, System: 16.7%
+2025-08-12 21:52:34,853 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.19GB, System: 16.8%
+2025-08-12 21:52:34,900 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.19GB, System: 16.8%
+2025-08-12 21:52:44,704 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.19GB, System: 16.8%
+2025-08-12 21:52:44,749 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.19GB, System: 16.8%
+2025-08-12 21:52:58,781 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.19GB, System: 16.8%
+2025-08-12 21:52:58,814 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.19GB, System: 16.8%
+2025-08-12 21:53:11,397 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.19GB, System: 16.8%
+2025-08-12 21:53:11,431 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.19GB, System: 16.8%
+2025-08-12 21:53:13,622 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.8%
+2025-08-12 21:53:13,664 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.8%
+2025-08-12 21:53:31,284 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.8%
+2025-08-12 21:53:31,316 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.8%
+2025-08-12 21:53:47,963 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:53:47,996 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:54:00,705 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:54:00,740 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:54:11,161 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:54:11,196 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:54:25,662 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:54:25,698 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:54:47,661 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:54:47,700 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:55:11,081 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:55:11,124 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:55:19,824 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:55:19,875 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:55:30,256 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:55:30,293 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:55:31,637 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:55:31,673 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:55:45,707 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:55:45,739 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:55:46,647 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:55:46,682 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:55:56,197 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:55:56,235 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:56:06,769 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 17.0%
+2025-08-12 21:56:06,804 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 17.0%
+2025-08-12 21:56:26,030 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 17.0%
+2025-08-12 21:56:26,069 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 17.0%
+2025-08-12 21:56:35,812 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 17.0%
+2025-08-12 21:56:35,849 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 17.0%
+2025-08-12 21:56:43,997 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 17.0%
+2025-08-12 21:56:44,031 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 17.0%
+2025-08-12 21:56:51,850 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:56:51,887 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:57:10,932 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:57:10,974 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:57:12,892 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:57:12,928 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:57:27,449 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:57:27,484 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:57:28,478 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:57:28,514 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:57:42,677 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:57:42,711 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:57:48,098 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:57:48,133 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 16.9%
+2025-08-12 21:58:08,473 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 17.0%
+2025-08-12 21:58:08,506 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 17.0%
+2025-08-12 21:58:23,172 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 17.0%
+2025-08-12 21:58:23,210 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 17.0%
+2025-08-12 21:58:45,918 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 17.0%
+2025-08-12 21:58:45,957 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.21GB, System: 17.0%
+2025-08-12 21:59:08,919 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 21:59:08,956 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 21:59:19,726 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 21:59:19,764 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 21:59:27,392 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 21:59:27,425 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 21:59:32,585 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 21:59:32,620 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 21:59:36,325 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 21:59:36,361 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 21:59:59,400 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 21:59:59,443 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:00:21,626 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:00:21,664 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:00:24,482 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:00:24,519 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:00:27,695 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:00:27,731 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:00:29,307 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:00:29,342 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:00:33,672 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:00:33,708 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:00:53,216 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:00:53,253 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:01:04,902 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:01:04,938 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:01:14,710 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:01:14,746 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:01:31,398 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:01:31,435 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:01:45,961 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:01:45,998 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:01:47,662 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:01:47,703 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:02:02,547 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:02:02,585 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:02:16,268 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:02:16,304 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:02:23,522 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:02:23,558 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:02:36,037 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:02:36,074 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:02:38,944 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:02:38,979 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:02:40,404 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:02:40,440 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:02:45,833 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:02:45,871 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:02:55,539 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:02:55,575 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:03:02,666 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:03:02,700 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:03:23,327 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:03:23,362 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:03:42,425 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:03:42,460 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:03:57,321 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:03:57,358 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:04:01,682 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:04:01,716 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:04:03,869 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:04:03,911 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:04:26,264 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:04:26,305 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:04:31,160 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:04:31,196 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:04:43,961 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:04:43,998 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:04:59,875 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:04:59,924 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:05:08,358 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:05:08,393 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:05:14,067 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:05:14,106 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:05:26,950 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:05:26,983 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:05:28,104 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:05:28,141 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:05:34,824 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:05:34,854 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:05:44,690 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:05:44,727 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:05:54,355 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:05:54,393 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:06:02,898 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:06:02,935 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:06:09,098 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:06:09,134 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:06:24,173 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:06:24,209 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:06:28,281 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:06:28,316 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:06:39,262 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:06:39,296 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:07:02,073 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:07:02,107 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:07:25,017 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:07:25,052 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:07:48,765 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:07:48,795 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:07:59,283 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:07:59,324 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:08:21,970 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 16.9%
+2025-08-12 22:08:22,006 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 16.9%
+2025-08-12 22:08:37,961 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:08:37,995 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:09:00,800 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:09:00,833 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.25GB, System: 17.0%
+2025-08-12 22:09:28,085 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:09:28,120 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:09:50,588 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:09:50,629 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:10:08,973 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:10:09,005 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:10:30,910 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:10:30,944 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:10:52,313 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:10:52,348 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:11:09,041 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:11:09,072 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:11:30,224 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:11:30,259 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:11:54,170 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:11:54,205 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:12:08,484 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:12:08,517 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:12:28,528 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:12:28,564 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:12:52,317 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:12:52,355 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:13:10,960 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:13:10,994 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:13:30,016 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:13:30,053 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:13:31,728 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:13:31,763 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:13:39,947 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:13:39,982 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:13:44,206 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:13:44,237 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:13:48,642 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:13:48,672 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:13:54,017 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:13:54,051 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:14:04,195 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:14:04,227 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:14:17,418 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:14:17,453 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:14:28,123 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:14:28,157 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:14:32,261 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:14:32,293 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:14:37,391 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:14:37,426 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:14:38,449 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:14:38,481 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:14:39,754 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:14:39,789 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:14:42,888 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:14:42,920 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:14:44,183 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:14:44,218 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:14:57,933 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:14:57,966 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:15:00,227 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:15:00,260 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:15:23,937 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:15:23,971 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:15:30,918 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:15:30,955 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:15:54,669 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:15:54,700 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:16:18,018 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:16:18,052 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:16:40,962 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:16:40,995 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:16:53,792 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:16:53,828 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:17:12,508 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:17:12,550 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:17:31,883 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:17:31,919 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:17:46,702 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:17:46,734 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:18:10,528 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:18:10,572 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:18:30,392 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:18:30,433 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:18:40,485 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:18:40,520 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:18:53,419 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:18:53,454 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:18:59,265 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:18:59,296 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:19:20,427 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.0%
+2025-08-12 22:19:20,462 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.0%
+2025-08-12 22:19:27,540 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.0%
+2025-08-12 22:19:27,582 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.0%
+2025-08-12 22:19:46,548 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.0%
+2025-08-12 22:19:46,586 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.0%
+2025-08-12 22:20:09,026 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:20:09,061 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:20:31,378 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:20:31,407 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:20:42,569 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:20:42,612 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:21:01,578 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:21:01,611 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:21:15,632 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:21:15,665 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:21:32,899 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:21:32,937 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:21:56,176 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:21:56,212 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:22:19,112 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:22:19,146 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:22:37,767 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:22:37,800 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:22:59,991 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:23:00,032 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:23:15,471 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:23:15,506 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:23:37,812 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:23:37,844 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:23:59,344 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:23:59,378 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.1%
+2025-08-12 22:24:22,035 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:24:22,071 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:24:45,736 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:24:45,770 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:25:08,901 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:25:08,933 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:25:32,873 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:25:32,911 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:25:55,973 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:25:56,008 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:25:57,498 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:25:57,534 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:26:14,081 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:26:14,108 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:26:33,653 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:26:33,701 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:26:54,344 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:26:54,374 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:27:17,973 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:27:18,010 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:27:41,490 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:27:41,523 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:28:05,206 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:28:05,241 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:28:28,198 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:28:28,233 - src.models.model_manager - INFO - [Before generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:28:50,520 - src.models.model_manager - INFO - [After generation] GPU: 5.99GB (49.9%), Cached: 6.28GB, System: 18.2%
+2025-08-12 22:28:50,521 - src.evaluation.mtbench_evaluator - INFO - Judging responses for llama-3.2-3b
+2025-08-12 22:28:50,522 - src.evaluation.judge_client - INFO - Judging 160 responses with gpt-4.1-nano
+2025-08-12 22:28:52,823 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:28:52,976 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:28:54,121 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:28:54,848 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:28:55,135 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:28:55,205 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:28:55,700 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:28:55,708 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:28:55,926 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:28:55,944 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:28:55,965 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:28:56,307 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:28:56,349 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:28:57,814 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:28:58,601 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:28:58,754 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:28:58,824 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:28:59,225 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:00,194 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:00,258 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:00,791 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:00,883 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:00,997 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:01,626 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:02,170 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:02,475 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:02,799 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:03,059 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:04,600 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:04,833 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:04,945 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:05,184 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:06,314 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:06,408 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:06,503 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:06,547 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:08,023 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:08,486 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:08,914 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:08,934 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:09,307 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:09,633 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:09,798 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:10,061 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:10,241 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:10,660 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:11,122 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:11,285 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:12,247 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:12,519 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:12,541 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:13,325 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:13,392 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:14,081 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:14,111 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:14,718 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:15,135 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:15,528 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:15,668 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:16,912 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:16,968 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:17,038 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:17,337 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:17,673 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:18,004 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:18,275 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:19,407 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:19,739 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:19,960 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:19,998 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:20,040 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:20,833 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:20,889 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:21,128 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:21,808 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:22,011 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:22,645 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:23,147 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:24,323 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:24,976 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:25,052 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:25,686 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:25,907 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:30,213 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:30,263 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:30,503 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:30,721 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:31,507 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:31,862 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:32,367 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:32,373 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:33,919 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:34,909 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:35,381 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:35,401 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:38,102 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:38,850 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:39,089 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:39,303 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:39,746 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:40,301 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:40,683 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:42,679 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:43,044 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:43,609 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:43,697 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:44,049 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:44,120 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:44,683 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:45,076 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:45,303 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:45,941 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:47,186 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:48,094 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:48,184 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:49,109 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:49,492 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:49,542 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:49,556 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:49,582 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:51,539 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:51,631 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:51,781 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:52,429 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:53,815 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:53,850 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:54,733 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:54,993 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:55,726 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:56,902 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:57,885 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:58,135 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:58,698 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:58,701 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:58,846 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:58,960 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:59,380 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:59,501 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:29:59,803 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:30:00,754 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:30:02,146 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:30:02,647 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:30:02,809 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:30:03,378 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:30:03,433 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:30:03,933 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:30:04,346 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:30:04,899 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:30:05,052 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:30:05,134 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:30:06,040 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:30:06,716 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:30:07,446 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:30:07,476 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:30:08,196 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:30:08,770 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:30:09,737 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:30:09,909 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:30:10,995 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:30:11,518 - httpx - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-08-12 22:30:11,542 - src.evaluation.mtbench_evaluator - INFO - Judged 160 responses for llama-3.2-3b
+2025-08-12 22:30:11,574 - src.evaluation.mtbench_evaluator - INFO - Completed evaluation of llama-3.2-3b in 2338.7s
+2025-08-12 22:30:11,574 - src.evaluation.mtbench_evaluator - INFO - Average score: 6.01
+2025-08-12 22:30:11,575 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-08-12 22:30:11,575 - src.models.model_manager - INFO - Cleaning up model: llama-3.2-3b
+2025-08-12 22:30:19,356 - src.evaluation.mtbench_evaluator - INFO - Aggregating results from all models
+2025-08-12 22:30:19,357 - src.evaluation.mtbench_evaluator - INFO - Results aggregation completed
+2025-08-12 22:30:19,357 - src.evaluation.mtbench_evaluator - INFO - Full MT-bench evaluation completed successfully
+2025-08-12 22:30:19,357 - src.evaluation.conversation_handler - INFO - Cleaned up 0 conversation sessions
+2025-08-12 22:30:19,358 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-08-12 22:30:19,376 - src.utils.results_analyzer - INFO - Results exported to results/mtbench_results_20250812_223019.json
+2025-08-12 22:30:19,404 - src.utils.results_analyzer - INFO - Results exported to results/mtbench_results_20250812_223019.csv
+2025-08-12 22:30:19,406 - src.evaluation.mtbench_evaluator - INFO - Results exported to results
+2025-08-12 23:28:21,020 - __main__ - INFO - Applied RTX 3060 optimizations
+2025-08-12 23:28:21,021 - __main__ - INFO - Validated models: ['gpt2-large']
+2025-08-12 23:28:21,021 - src.models.model_manager - INFO - ModelManager initialized on cpu
+2025-08-12 23:28:21,062 - src.evaluation.judge_client - INFO - JudgeClient initialized with model: gpt-4.1-nano
+2025-08-12 23:28:21,062 - src.evaluation.conversation_handler - INFO - ConversationHandler initialized
+2025-08-12 23:28:21,062 - src.utils.results_analyzer - INFO - ResultsAnalyzer initialized
+2025-08-12 23:28:21,062 - src.evaluation.mtbench_evaluator - INFO - MTBenchEvaluator initialized for models: ['gpt2-large']
+2025-08-12 23:28:21,062 - __main__ - INFO - Starting single-mode MT-bench evaluation for 1 models
+2025-08-12 23:28:21,062 - src.evaluation.mtbench_evaluator - INFO - Starting full MT-bench evaluation
+2025-08-12 23:28:21,064 - src.utils.data_loader - INFO - Loaded 80 MT-bench questions
+2025-08-12 23:28:21,064 - src.utils.data_loader - INFO - Dataset validation passed: 80 questions, 8 categories
+2025-08-12 23:28:21,064 - src.evaluation.mtbench_evaluator - INFO - Evaluating model: gpt2-large
+2025-08-12 23:28:21,064 - src.evaluation.mtbench_evaluator - INFO - Starting evaluation of gpt2-large
+2025-08-12 23:28:21,064 - src.models.model_manager - INFO - Loading model: gpt2-large (gpt2-large)
+2025-08-12 23:28:21,064 - src.models.model_manager - INFO - [Before model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 87.4%
+2025-08-12 23:28:22,167 - src.models.model_manager - INFO - Tokenizer loaded, vocab size: 50257
+2025-08-12 23:51:03,438 - src.models.model_manager - INFO - [After model loading] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 85.6%
+2025-08-12 23:51:03,441 - src.models.model_manager - INFO - Successfully loaded gpt2-large
+2025-08-12 23:51:03,442 - src.evaluation.mtbench_evaluator - INFO - [Loaded gpt2-large] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 85.6%
+2025-08-12 23:51:03,468 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 85.7%
+2025-08-12 23:55:05,914 - src.models.model_manager - INFO - [After generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 80.0%
+2025-08-12 23:55:05,929 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 80.1%
+2025-08-13 00:01:06,350 - src.models.model_manager - INFO - [After generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 80.8%
+2025-08-13 00:01:06,375 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 80.9%
+2025-08-13 00:06:39,379 - src.models.model_manager - INFO - [After generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 80.5%
+2025-08-13 00:06:39,392 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 80.6%
+2025-08-13 00:13:53,893 - src.models.model_manager - INFO - [After generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 79.5%
+2025-08-13 00:13:53,911 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 79.5%
+2025-08-13 00:14:56,824 - src.models.model_manager - INFO - [After generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 80.1%
+2025-08-13 00:14:56,829 - src.models.model_manager - INFO - [Before generation] GPU: 0.00GB (0.0%), Cached: 0.00GB, System: 80.1%
+2025-08-13 00:21:27,479 - src.evaluation.conversation_handler - INFO - Cleaned up 1 conversation sessions
+2025-08-13 00:21:27,486 - src.models.model_manager - INFO - Cleaning up ModelManager
+2025-08-13 00:21:27,486 - src.models.model_manager - INFO - Cleaning up model: gpt2-large

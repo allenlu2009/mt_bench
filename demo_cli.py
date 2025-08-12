@@ -52,11 +52,15 @@ def main():
     print("🚀 MT-bench CLI Demonstration")
     print("This demo shows CLI functionality without running full evaluations")
     
-    # Check if we're in a virtual environment
-    if not os.environ.get('VIRTUAL_ENV') and not sys.prefix != sys.base_prefix:
+    # Check if we're in a virtual environment (mamba/conda or venv)
+    in_conda_env = 'CONDA_DEFAULT_ENV' in os.environ or 'CONDA_PREFIX' in os.environ
+    in_venv = os.environ.get('VIRTUAL_ENV') or sys.prefix != sys.base_prefix
+    
+    if not (in_conda_env or in_venv):
         print("\n⚠️  Warning: Not in virtual environment!")
-        print("Please run: source .venv/bin/activate")
-        return
+        print("Please run: mamba activate mtbench (macOS) or mamba activate mamba2 (PC with CUDA)")
+        print("Continuing demo anyway...")
+        print()
     
     # Demo commands
     commands = [

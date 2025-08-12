@@ -20,7 +20,10 @@
       "Bash(uv pip install:*)",
       "Bash(uv pip uninstall:*)",
       "Bash(chmod:*)",
-      "Bash(uv pip:*)"
+      "Bash(uv pip:*)",
+      "Bash(git gc:*)",
+      "Bash(git push:*)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }
