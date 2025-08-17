@@ -230,14 +230,25 @@ def get_generation_config(model_config: ModelConfig) -> Dict[str, Any]:
             "use_cache": False,
         })
     elif model_config.model_family == "gemma":
-        # Gemma models need more conservative sampling to avoid CUDA assertion errors
-        base_config.update({
-            "temperature": max(0.1, model_config.temperature * 0.5),  # Reduce temperature
-            "top_p": 0.8,  # More conservative top_p
-            "top_k": 50,   # Add top_k filtering
-            "repetition_penalty": 1.05,  # Reduce repetition penalty
-            "do_sample": model_config.temperature > 0.0,  # Only sample if temperature > 0
-        })
+        # Gemma models have CUDA assertion issues with sampling
+        if "gemma-3-270m" in model_config.model_path:
+            # Use greedy decoding for gemma3-270m to avoid CUDA assertion errors
+            return {
+                "max_new_tokens": model_config.max_new_tokens,
+                "do_sample": False,  # Disable sampling entirely
+                "pad_token_id": None,  # Will be set based on tokenizer
+                "eos_token_id": None,  # Will be set based on tokenizer
+                "repetition_penalty": 1.0,  # Minimal repetition penalty
+            }
+        else:
+            # More conservative sampling for other Gemma models
+            base_config.update({
+                "temperature": max(0.1, model_config.temperature * 0.5),  # Reduce temperature
+                "top_p": 0.8,  # More conservative top_p
+                "top_k": 50,   # Add top_k filtering
+                "repetition_penalty": 1.05,  # Reduce repetition penalty
+                "do_sample": model_config.temperature > 0.0,  # Only sample if temperature > 0
+            })
     
     return base_config
 
