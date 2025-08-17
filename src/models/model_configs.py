@@ -135,7 +135,7 @@ AVAILABLE_MODELS = {
     "gemma3-270m": ModelConfig(
         model_path="google/gemma-3-270m",
         model_family="gemma",
-        prompt_template="<start_of_turn>user\n{instruction}<end_of_turn>\n<start_of_turn>model\n",
+        prompt_template="{instruction}",  # Simple prompt template - no special formatting
         max_new_tokens=512,
         temperature=0.3,  # Lower temperature to avoid sampling issues
         top_p=0.8,        # More conservative top_p  
@@ -235,11 +235,12 @@ def get_generation_config(model_config: ModelConfig) -> Dict[str, Any]:
             # Use greedy decoding for gemma3-270m to avoid CUDA assertion errors
             return {
                 "max_new_tokens": model_config.max_new_tokens,
-                "min_new_tokens": 10,  # Force at least 10 tokens to prevent empty responses
+                "min_new_tokens": 50,  # Force at least 50 tokens to prevent empty responses
                 "do_sample": False,  # Disable sampling entirely
                 "pad_token_id": None,  # Will be set based on tokenizer
                 "eos_token_id": None,  # Will be set based on tokenizer
-                "repetition_penalty": 1.0,  # Minimal repetition penalty
+                "repetition_penalty": 1.1,  # Slight repetition penalty to avoid loops
+                "no_repeat_ngram_size": 0,  # Disable to prevent blocking
             }
         else:
             # More conservative sampling for other Gemma models
