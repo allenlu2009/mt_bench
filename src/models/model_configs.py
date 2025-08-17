@@ -235,6 +235,7 @@ def get_generation_config(model_config: ModelConfig) -> Dict[str, Any]:
             # Use greedy decoding for gemma3-270m to avoid CUDA assertion errors
             return {
                 "max_new_tokens": model_config.max_new_tokens,
+                "min_new_tokens": 10,  # Force at least 10 tokens to prevent empty responses
                 "do_sample": False,  # Disable sampling entirely
                 "pad_token_id": None,  # Will be set based on tokenizer
                 "eos_token_id": None,  # Will be set based on tokenizer
