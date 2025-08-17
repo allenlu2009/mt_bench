@@ -130,6 +130,19 @@ AVAILABLE_MODELS = {
         estimated_memory_gb=1.5,
         requires_system_prompt=False,
         chat_template_name="dialogpt"
+    ),
+    
+    "gemma3-270m": ModelConfig(
+        model_path="google/gemma-3-270m",
+        model_family="gemma",
+        prompt_template="<start_of_turn>user\n{instruction}<end_of_turn>\n<start_of_turn>model\n",
+        max_new_tokens=512,
+        temperature=0.7,
+        top_p=0.9,
+        estimated_memory_gb=0.6,  # ~536MB + overhead
+        requires_system_prompt=False,
+        chat_template_name="gemma",
+        quantization_format="BF16"  # Native BF16 model
     )
 }
 

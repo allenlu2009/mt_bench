@@ -90,10 +90,11 @@ class TestModelConfigRetrieval:
         all_models = get_models_within_memory_limit(20.0)
         assert len(all_models) == len(AVAILABLE_MODELS)
         
-        # Test with very small limit - should include only GPT-2 (0.5GB)
+        # Test with very small limit - should include gpt2 (0.5GB) and gemma3-270m (0.6GB)
         tiny_models = get_models_within_memory_limit(1.0)
-        assert len(tiny_models) == 1  # Only gpt2 (0.5GB) under 1GB limit
+        assert len(tiny_models) == 2  # gpt2 (0.5GB) and gemma3-270m (0.6GB) under 1GB limit
         assert "gpt2" in tiny_models
+        assert "gemma3-270m" in tiny_models
 
 
 class TestGenerationConfig:
