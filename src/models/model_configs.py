@@ -137,8 +137,8 @@ AVAILABLE_MODELS = {
         model_family="gemma",
         prompt_template="<start_of_turn>user\n{instruction}<end_of_turn>\n<start_of_turn>model\n",
         max_new_tokens=512,
-        temperature=0.7,
-        top_p=0.9,
+        temperature=0.3,  # Lower temperature to avoid sampling issues
+        top_p=0.8,        # More conservative top_p  
         estimated_memory_gb=0.6,  # ~536MB + overhead
         requires_system_prompt=False,
         chat_template_name="gemma",
@@ -228,6 +228,15 @@ def get_generation_config(model_config: ModelConfig) -> Dict[str, Any]:
         # Disable cache for phi models to fix DynamicCache compatibility
         base_config.update({
             "use_cache": False,
+        })
+    elif model_config.model_family == "gemma":
+        # Gemma models need more conservative sampling to avoid CUDA assertion errors
+        base_config.update({
+            "temperature": max(0.1, model_config.temperature * 0.5),  # Reduce temperature
+            "top_p": 0.8,  # More conservative top_p
+            "top_k": 50,   # Add top_k filtering
+            "repetition_penalty": 1.05,  # Reduce repetition penalty
+            "do_sample": model_config.temperature > 0.0,  # Only sample if temperature > 0
         })
     
     return base_config
