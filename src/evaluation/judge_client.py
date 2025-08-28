@@ -1,4 +1,4 @@
-"""OpenAI GPT-4.1-nano judge client for MT-bench evaluation."""
+"""OpenAI judge client for MT-bench evaluation with multi-model support."""
 
 import asyncio
 import json
@@ -27,7 +27,7 @@ class JudgeScore:
     question_id: int
     turn: int
     model_name: str
-    judge_model: str = "gpt-4.1-nano"
+    judge_model: str = "gpt-5-mini"
 
 
 @dataclass
@@ -39,15 +39,22 @@ class PairwiseJudgment:
     turn: int
     model_a: str
     model_b: str
-    judge_model: str = "gpt-4.1-nano"
+    judge_model: str = "gpt-5-mini"
 
 
 class JudgeClient:
     """
-    OpenAI GPT-4.1-nano client for judging model responses in MT-bench evaluation.
+    OpenAI judge client for judging model responses in MT-bench evaluation.
+    
+    Supports multiple judge models including:
+    - GPT-5-mini (default) - Latest OpenAI model
+    - GPT-4o-mini - Cost-effective option
+    - GPT-4.1-nano - Legacy option
+    - GPT-4-turbo - High performance option
     
     Features:
-    - Rate limiting compliance (max 10 req/sec for GPT-4.1-nano)
+    - Adaptive rate limiting based on model
+    - GPT-5 specific parameter handling
     - Exponential backoff retry logic
     - Structured response parsing
     - Comprehensive error handling
@@ -77,26 +84,130 @@ class JudgeClient:
 {answer_b}
 [The End of Assistant B's Answer]"""
 
-    def __init__(self, api_key: Optional[str] = None, model: str = "gpt-4.1-nano"):
+    def __init__(self, api_key: Optional[str] = None, model: str = "gpt-5-nano", debug: bool = False):
         """
         Initialize judge client.
         
         Args:
             api_key: OpenAI API key (uses OPENAI_API_KEY env var if None)
             model: Judge model to use
+            debug: Enable debug output for prompts and responses
         """
         self.api_key = api_key or os.getenv("OPENAI_API_KEY")
         if not self.api_key:
             raise ValueError("OpenAI API key not provided. Set OPENAI_API_KEY environment variable.")
         
         self.model = model
+        self.debug = debug
         self.client = AsyncOpenAI(api_key=self.api_key)
         
-        # Rate limiting: GPT-4.1-nano allows max 10 requests per second
-        self.max_requests_per_second = 10
+        # Set rate limiting and parameters based on model
+        self._configure_model_settings()
         self.request_timestamps = []
         
-        logger.info(f"JudgeClient initialized with model: {model}")
+        logger.info(f"JudgeClient initialized with model: {model} (rate limit: {self.max_requests_per_second}/s)")
+    
+    def _configure_model_settings(self) -> None:
+        """
+        Configure model-specific settings including rate limits and API parameters.
+        """
+        model_configs = {
+            "gpt-5-nano": {
+                "max_requests_per_second": 50,  # Higher limit for nano model (smallest/cheapest)
+                "use_max_completion_tokens": True,
+                "temperature": 1.0,  # GPT-5 default
+                "supports_system_message": True,
+                "max_completion_tokens": 4000,  # Much higher for GPT-5-nano reasoning
+                "reasoning_effort": "low"  # Minimize internal reasoning overhead
+            },
+            "gpt-5-mini": {
+                "max_requests_per_second": 30,  # Higher limit for GPT-5
+                "use_max_completion_tokens": True,
+                "temperature": 1.0,  # GPT-5 default
+                "supports_system_message": True
+            },
+            "gpt-4o-mini": {
+                "max_requests_per_second": 50,  # High limit for mini model
+                "use_max_completion_tokens": False,
+                "temperature": 0.2,
+                "supports_system_message": True
+            },
+            "gpt-4o-mini-2024-07-18": {
+                "max_requests_per_second": 50,
+                "use_max_completion_tokens": False,
+                "temperature": 0.2,
+                "supports_system_message": True
+            },
+            "gpt-4.1-nano": {
+                "max_requests_per_second": 10,  # Conservative limit
+                "use_max_completion_tokens": False,
+                "temperature": 0.2,
+                "supports_system_message": True
+            },
+            "gpt-4-turbo": {
+                "max_requests_per_second": 20,
+                "use_max_completion_tokens": False,
+                "temperature": 0.2,
+                "supports_system_message": True
+            },
+            "gpt-4-turbo-2024-04-09": {
+                "max_requests_per_second": 20,
+                "use_max_completion_tokens": False,
+                "temperature": 0.2,
+                "supports_system_message": True
+            },
+            "gpt-4o-2024-05-13": {
+                "max_requests_per_second": 30,
+                "use_max_completion_tokens": False,
+                "temperature": 0.2,
+                "supports_system_message": True
+            }
+        }
+        
+        # Get configuration for the current model, fallback to conservative defaults
+        config = model_configs.get(self.model, {
+            "max_requests_per_second": 5,  # Very conservative default
+            "use_max_completion_tokens": False,
+            "temperature": 0.2,
+            "supports_system_message": True
+        })
+        
+        self.max_requests_per_second = config["max_requests_per_second"]
+        self.use_max_completion_tokens = config["use_max_completion_tokens"]
+        self.default_temperature = config["temperature"]
+        self.supports_system_message = config["supports_system_message"]
+        self.model_max_completion_tokens = config.get("max_completion_tokens", 1000)
+        self.reasoning_effort = config.get("reasoning_effort", None)
+    
+    def _get_api_parameters(self, max_tokens: int = 1000) -> Dict[str, Any]:
+        """
+        Get model-specific API parameters.
+        
+        Args:
+            max_tokens: Maximum tokens to generate (ignored if model has specific config)
+            
+        Returns:
+            Dictionary of API parameters
+        """
+        params = {
+            "model": self.model,
+            "temperature": self.default_temperature,
+            "top_p": 1.0
+        }
+        
+        # GPT-5 models use max_completion_tokens instead of max_tokens
+        if self.use_max_completion_tokens:
+            # Use model-specific token limit if available, otherwise use provided value
+            token_limit = self.model_max_completion_tokens if hasattr(self, 'model_max_completion_tokens') else max_tokens
+            params["max_completion_tokens"] = token_limit
+        else:
+            params["max_tokens"] = max_tokens
+        
+        # Add reasoning_effort for GPT-5 models if configured
+        if self.reasoning_effort:
+            params["reasoning_effort"] = self.reasoning_effort
+            
+        return params
     
     async def _enforce_rate_limit(self) -> None:
         """
@@ -122,21 +233,27 @@ class JudgeClient:
         # Record this request
         self.request_timestamps.append(current_time)
     
-    def _format_judge_prompt(self, question: str, answer: str) -> str:
+    def _format_judge_prompt(self, question: str, answer: str, turn_num: int = 1) -> str:
         """
         Format the judge prompt with question and answer.
         
         Args:
-            question: The original question
+            question: The original question (with context for Turn 2)
             answer: The model's answer to evaluate
+            turn_num: Turn number (1 or 2)
             
         Returns:
             Formatted prompt string
         """
-        return self.JUDGE_PROMPT_TEMPLATE.format(
-            question=question.strip(),
-            answer=answer.strip()
-        )
+        # Use turn-aware template similar to examples
+        return f"""Please act as an impartial judge and evaluate the quality of the response provided by an AI assistant to the user question displayed below. Your evaluation should consider factors such as the helpfulness, relevance, accuracy, depth, creativity, and level of detail of the response. Begin your evaluation by providing a short explanation. Be as objective as possible. After providing your explanation, please rate the response on a scale of 1 to 10 by strictly following this format: "[[rating]]", for example: "Rating: [[5]]".
+
+[Question (Turn {turn_num})]
+{question.strip()}
+
+[The Start of Assistant's Answer]
+{answer.strip()}
+[The End of Assistant's Answer]"""
     
     def _parse_judge_response(self, response_text: str) -> Dict[str, Any]:
         """
@@ -149,17 +266,17 @@ class JudgeClient:
             Dictionary with 'score' and 'reasoning' keys
         """
         try:
-            # Look for rating pattern [[X]] or Rating: [[X]]
+            # Use the exact same parsing logic as examples/judge.py
             import re
             
-            # Try to find rating in [[rating]] format
-            rating_match = re.search(r'\[\[(\d+(?:\.\d+)?)\]\]', response_text)
-            
-            if rating_match:
-                score = float(rating_match.group(1))
+            # Look for [[rating]] pattern (including negative numbers)
+            match = re.search(r'\[\[(-?\d+(?:\.\d+)?)\]\]', response_text)
+            if match:
+                rating = float(match.group(1))
+                score = max(1.0, min(10.0, rating))  # Clamp to 1-10 range
                 
                 # Extract reasoning (everything before the rating)
-                rating_start = rating_match.start()
+                rating_start = match.start()
                 reasoning = response_text[:rating_start].strip()
                 
                 # Clean up reasoning
@@ -170,19 +287,39 @@ class JudgeClient:
                     "score": score,
                     "reasoning": reasoning or "No reasoning provided"
                 }
-            
-            # Fallback: try to extract any number between 1-10
-            number_matches = re.findall(r'\b([1-9]|10)\b', response_text)
-            if number_matches:
-                score = float(number_matches[-1])  # Take the last number found
+                
+            # Fallback: look for "Rating: X" pattern (including negative numbers)
+            match = re.search(r'[Rr]ating:?\s*(-?\d+(?:\.\d+)?)', response_text)
+            if match:
+                rating = float(match.group(1))
+                score = max(1.0, min(10.0, rating))
                 return {
                     "score": score,
                     "reasoning": response_text.strip()
                 }
             
-            logger.warning(f"Could not parse rating from response: {response_text[:100]}...")
+            # Additional patterns for GPT-5-mini compatibility 
+            gpt5_patterns = [
+                r'(\d+(?:\.\d+)?)\s*out\s*of\s*10',              # "7 out of 10"
+                r'(\d+(?:\.\d+)?)\s*/\s*10',                      # "7/10"  
+                r'(\d+(?:\.\d+)?)/10',                            # "7/10" (no spaces)
+            ]
+            
+            for pattern in gpt5_patterns:
+                match = re.search(pattern, response_text, re.IGNORECASE)
+                if match:
+                    rating = float(match.group(1))
+                    score = max(1.0, min(10.0, rating))
+                    return {
+                        "score": score,
+                        "reasoning": response_text.strip()
+                    }
+            
+            # Log the full response for debugging (like examples)
+            logger.warning(f"Could not extract rating from response: {response_text[:100]}...")
+            
             return {
-                "score": 0.0,
+                "score": 5.0,  # Default like examples
                 "reasoning": f"Failed to parse rating from: {response_text}"
             }
             
@@ -217,15 +354,44 @@ class JudgeClient:
         await self._enforce_rate_limit()
         
         # Format the prompt
-        prompt = self._format_judge_prompt(question, answer)
+        prompt = self._format_judge_prompt(question, answer, turn)
+        
+        # Set prompt to use (will be enhanced for GPT-5 models)
+        prompt_to_send = prompt
+        
+        
+        
+        
         
         try:
             logger.debug(f"Judging response for {model_name}, Q{question_id}, Turn {turn}")
             
-            response = await self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {
+            # Use different parameters for GPT-5 models
+            if "gpt-5" in self.model:
+                # Workaround for GPT-5 empty response issue
+                # Add explicit instructions to force a text response
+                enhanced_prompt = prompt + "\n\n[SYSTEM INSTRUCTION: You must provide a complete text response with your evaluation followed by a rating in the format [[rating]]. Do not use reasoning mode. Respond directly with your evaluation text.]"
+                
+                if self.debug:
+                    print(f"🔧 GPT-5 workaround applied: {self.model}")
+                    print(f"Enhanced prompt length: {len(enhanced_prompt)} chars")
+                    print(f"Using max_completion_tokens: {self.model_max_completion_tokens}")
+                    if self.reasoning_effort:
+                        print(f"Using reasoning_effort: {self.reasoning_effort}")
+                
+                prompt_to_send = enhanced_prompt
+                
+                # Get model-specific parameters
+                api_params = self._get_api_parameters()
+                api_params["messages"] = [{"role": "user", "content": prompt_to_send}]
+                api_params["stream"] = False  # Explicitly disable streaming
+                
+                response = await self.client.chat.completions.create(**api_params)
+            else:
+                # Other models: Use system + user messages, temperature 0.0
+                messages = []
+                if self.supports_system_message:
+                    messages.append({
                         "role": "system",
                         "content": (
                             "You are an expert AI model evaluator. Your task is to "
@@ -233,21 +399,78 @@ class JudgeClient:
                             "Provide detailed reasoning followed by a numerical rating "
                             "in the format [[rating]]."
                         )
-                    },
-                    {
-                        "role": "user", 
-                        "content": prompt
-                    }
-                ],
-                temperature=0.2,  # Low temperature for consistent judging
-                max_tokens=1000,
-                top_p=1.0
-            )
+                    })
+                messages.append({
+                    "role": "user", 
+                    "content": prompt
+                })
+                
+                response = await self.client.chat.completions.create(
+                    model=self.model,
+                    messages=messages,
+                    temperature=0.0,  # Deterministic for consistency
+                    max_tokens=1000
+                )
             
+            # Debug: Print full prompt being sent to judge
+            if self.debug:
+                import time
+                current_time = time.strftime("%H:%M:%S")
+                print(f"\n{'='*80}")
+                print(f"📤 SENDING TO {self.model} - Turn {turn} (Q{question_id}) [{current_time}]")
+                print(f"{'='*80}")
+                print(f"Prompt length: {len(prompt_to_send)} characters")
+                print(f"Question length: {len(question)} characters")
+                print(f"Answer length: {len(answer)} characters")
+                print(f"\nFULL PROMPT SENT TO JUDGE:")
+                print(prompt_to_send)
+                print(f"{'='*80}")
+            
+            # Extract response text with detailed debugging
             response_text = response.choices[0].message.content
+            
+            # Debug: Check raw API response structure for GPT-5 models
+            if self.debug and "gpt-5" in self.model:
+                print(f"\n🔍 RAW API RESPONSE STRUCTURE:")
+                print(f"Response object type: {type(response)}")
+                print(f"Choices length: {len(response.choices) if response.choices else 0}")
+                if response.choices:
+                    choice = response.choices[0]
+                    print(f"Choice message type: {type(choice.message)}")
+                    print(f"Message content type: {type(choice.message.content)}")
+                    print(f"Message content: {repr(choice.message.content)}")
+                    print(f"Finish reason: {choice.finish_reason}")
+                if hasattr(response, 'usage'):
+                    print(f"Token usage: {response.usage}")
+            
+            # Debug: Check for empty responses
+            if not response_text or len(response_text.strip()) == 0:
+                logger.warning(f"Empty response from {self.model} for Q{question_id} Turn {turn}")
+                logger.warning(f"Prompt length: {len(prompt)} characters")
+                if self.debug:
+                    print(f"❌ EMPTY RESPONSE DETECTED - Raw content: {repr(response_text)}")
+            
+            # Debug: Print judge model response
+            if self.debug:
+                response_time = time.strftime("%H:%M:%S")
+                print(f"\n{'='*80}")
+                print(f"📥 RECEIVED FROM {self.model} - Turn {turn} (Q{question_id}) [{response_time}]")
+                print(f"{'='*80}")
+                print(f"Response length: {len(response_text)} characters")
+                print(f"\nFULL RESPONSE FROM JUDGE:")
+                print(response_text if response_text else "[EMPTY RESPONSE]")
+                print(f"{'='*80}")
             
             # Parse the response
             parsed = self._parse_judge_response(response_text)
+            
+            # Debug: Print parsing results
+            if self.debug:
+                parse_success = "Yes" if parsed["score"] > 0 and "[[" in response_text else "No"
+                print(f"Parsed score: {parsed['score']}")
+                print(f"Parse success: {parse_success}")
+                print(f"{'='*80}")
+            
             
             return JudgeScore(
                 score=parsed["score"],
@@ -411,10 +634,19 @@ class JudgeClient:
         try:
             logger.debug(f"Pairwise judging {model_a} vs {model_b}, Q{question_id}, Turn {turn}")
             
-            response = await self.client.chat.completions.create(
-                model=self.model,
-                messages=[
-                    {
+            # Use different API approaches for GPT-5 vs other models
+            if "gpt-5" in self.model:
+                # GPT-5 models: Use user message only, configured parameters
+                api_params = self._get_api_parameters(max_tokens=1000)
+                response = await self.client.chat.completions.create(
+                    messages=[{"role": "user", "content": prompt}],
+                    **api_params
+                )
+            else:
+                # Other models: Use system + user messages, temperature 0.2
+                messages = []
+                if self.supports_system_message:
+                    messages.append({
                         "role": "system",
                         "content": (
                             "You are an expert AI model evaluator performing pairwise comparisons. "
@@ -423,18 +655,25 @@ class JudgeClient:
                             "Avoid position bias and don't let response length influence your judgment. "
                             "Provide detailed reasoning followed by your verdict: [[A]], [[B]], or [[C]] for tie."
                         )
-                    },
-                    {
-                        "role": "user", 
-                        "content": prompt
-                    }
-                ],
-                temperature=0.2,  # Low temperature for consistent judging
-                max_tokens=1000,
-                top_p=1.0
-            )
+                    })
+                messages.append({
+                    "role": "user", 
+                    "content": prompt
+                })
+                
+                # Get API parameters for non-GPT-5 models
+                api_params = self._get_api_parameters(max_tokens=1000)
+                response = await self.client.chat.completions.create(
+                    messages=messages,
+                    **api_params
+                )
             
             response_text = response.choices[0].message.content
+            
+            # Debug: Print the actual pairwise judge response
+            print("="*80)  
+            print(response_text)
+            print("="*80)
             
             # Parse the response
             parsed = self._parse_pairwise_response(response_text)

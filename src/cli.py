@@ -110,6 +110,9 @@ def print_qa_examples(results: dict, max_questions: int) -> None:
     print("DETAILED Q&A EXAMPLES")
     print("="*80)
     
+    # Extract judge model from evaluation metadata
+    judge_model = results.get("metadata", {}).get("judge_model", "gpt-5-mini")
+    
     for model_result in results["model_results"]:
         model_name = model_result["model_name"] 
         print(f"\nModel: {model_name}")
@@ -124,20 +127,27 @@ def print_qa_examples(results: dict, max_questions: int) -> None:
         if max_questions == 1:
             # Show only the first question
             if responses:
-                show_qa_detail(responses[0], 1)
+                show_qa_detail(responses[0], 1, judge_model)
         else:
             # Show first and last questions
             if len(responses) >= 1:
                 print(f"\n📝 FIRST QUESTION (Q{responses[0].get('question_id', '?')}):")
-                show_qa_detail(responses[0], 1)
+                show_qa_detail(responses[0], 1, judge_model)
                 
             if len(responses) >= 2:
                 print(f"\n📝 LAST QUESTION (Q{responses[-1].get('question_id', '?')}):")
-                show_qa_detail(responses[-1], len(responses))
+                show_qa_detail(responses[-1], len(responses), judge_model)
 
 
-def show_qa_detail(response_data: dict, question_num: int) -> None:
-    """Show detailed Q&A for a single question."""
+def show_qa_detail(response_data: dict, question_num: int, judge_model: str = "gpt-5-mini") -> None:
+    """
+    Show detailed Q&A for a single question.
+    
+    Args:
+        response_data: Response data for a single question
+        question_num: Question number 
+        judge_model: Name of the judge model used
+    """
     
     # Question
     question_text = response_data.get('question', 'Question text not available')
@@ -165,10 +175,10 @@ def show_qa_detail(response_data: dict, question_num: int) -> None:
             print(f"    User: {user_msg}")
             print(f"    Assistant: {assistant_msg}")
     
-    # Judgments
+    # Judgments - use dynamic judge model name
     scores = response_data.get('scores', [])
     if scores:
-        print("\n⚖️  GPT-4.1-nano Judgments:")
+        print(f"\n⚖️  {judge_model} Judgments:")
         for i, score_data in enumerate(scores, 1):
             score = score_data.get('score', 'N/A')
             reasoning = score_data.get('reasoning', 'No reasoning provided')
@@ -208,6 +218,11 @@ Examples:
   # Quick test with limited questions
   python -m src.cli --models gpt2-large --max-questions 5
   
+  # Use different judge models
+  python -m src.cli --models gpt2-large --judge-model gpt-5-mini
+  python -m src.cli --models gpt2-large --judge-model gpt-4o-mini
+  python -m src.cli --models gpt2-large --judge-model gpt-4.1-nano
+  
   # Adjust memory limit for different GPUs
   python -m src.cli --models llama-3.2-3b --memory-limit 8.0
   
@@ -242,8 +257,10 @@ Examples:
     
     parser.add_argument(
         "--judge-model",
-        default="gpt-4.1-nano",
-        help="Judge model to use (default: gpt-4.1-nano)"
+        choices=["gpt-5-mini", "gpt-5-nano", "gpt-4o-mini", "gpt-4o-mini-2024-07-18", "gpt-4.1-nano", 
+                 "gpt-4-turbo", "gpt-4-turbo-2024-04-09", "gpt-4o-2024-05-13"],
+        default="gpt-5-nano",
+        help="Judge model to use (default: gpt-5-nano)"
     )
     
     parser.add_argument(
@@ -287,6 +304,12 @@ Examples:
         "--verbose", "-v",
         action="store_true",
         help="Enable verbose logging"
+    )
+    
+    parser.add_argument(
+        "--debug-judge",
+        action="store_true",
+        help="Print judge model prompts and responses for debugging"
     )
     
     parser.add_argument(
@@ -346,7 +369,8 @@ async def main() -> None:
                 judge_model=args.judge_model,
                 cache_dir=args.cache_dir,
                 memory_limit_gb=args.memory_limit,
-                max_questions=args.max_questions
+                max_questions=args.max_questions,
+                debug_judge=args.debug_judge
             )
             
             logger.info(f"Starting single-mode MT-bench evaluation for {len(valid_models)} models")
@@ -362,7 +386,8 @@ async def main() -> None:
                 response_cache_dir=args.response_cache_dir,
                 memory_limit_gb=args.memory_limit,
                 max_questions=args.max_questions,
-                disable_response_cache=args.disable_response_cache
+                disable_response_cache=args.disable_response_cache,
+                debug_judge=args.debug_judge
             )
             
             logger.info(f"Starting {args.mode}-mode MT-bench evaluation for {len(valid_models)} models")
