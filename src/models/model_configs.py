@@ -169,6 +169,32 @@ AVAILABLE_MODELS = {
         requires_system_prompt=False,
         chat_template_name="gemma",
         quantization_format="BF16"
+    ),
+    
+    "qwen3-4b-fp8": ModelConfig(
+        model_path="Qwen/Qwen3-4B-Instruct-2507-FP8",
+        model_family="qwen",
+        prompt_template="<|im_start|>user\n{instruction}<|im_end|>\n<|im_start|>assistant\n",
+        max_new_tokens=512,
+        temperature=0.7,
+        top_p=0.9,
+        estimated_memory_gb=4.0,  # FP8 quantization reduces memory significantly
+        requires_system_prompt=False,
+        chat_template_name="qwen",
+        quantization_format="FP8"
+    ),
+    
+    "qwen3-4b": ModelConfig(
+        model_path="Qwen/Qwen3-4B-Instruct-2507",
+        model_family="qwen",
+        prompt_template="<|im_start|>user\n{instruction}<|im_end|>\n<|im_start|>assistant\n",
+        max_new_tokens=512,
+        temperature=0.7,
+        top_p=0.9,
+        estimated_memory_gb=8.0,  # 4B parameters in standard precision
+        requires_system_prompt=False,
+        chat_template_name="qwen",
+        quantization_format="BF16"
     )
 }
 
