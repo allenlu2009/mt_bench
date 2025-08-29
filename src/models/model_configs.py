@@ -143,6 +143,32 @@ AVAILABLE_MODELS = {
         requires_system_prompt=False,
         chat_template_name="gemma",
         quantization_format="BF16"
+    ),
+    
+    "gemma3-1b": ModelConfig(
+        model_path="google/gemma-3-1b-it",
+        model_family="gemma3",
+        prompt_template="<start_of_turn>user\n{instruction}<end_of_turn>\n<start_of_turn>model\n",
+        max_new_tokens=256,
+        temperature=0.0,  # Use greedy decoding to avoid CUDA probability errors
+        top_p=1.0,
+        estimated_memory_gb=2.2,  # 1B parameters in BF16
+        requires_system_prompt=False,
+        chat_template_name="gemma",
+        quantization_format="BF16"
+    ),
+    
+    "gemma3-4b": ModelConfig(
+        model_path="google/gemma-3-4b-it",
+        model_family="gemma3",
+        prompt_template="<start_of_turn>user\n{instruction}<end_of_turn>\n<start_of_turn>model\n",
+        max_new_tokens=256,
+        temperature=0.0,  # Use greedy decoding to avoid CUDA probability errors
+        top_p=1.0,
+        estimated_memory_gb=8.8,  # 4B parameters in BF16
+        requires_system_prompt=False,
+        chat_template_name="gemma",
+        quantization_format="BF16"
     )
 }
 
