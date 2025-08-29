@@ -1,5 +1,12 @@
 venv
 venv_linux
+.venv
+.venv/
 __pycache__
 .ruff_cache
 .pytest_cache
+results
+*.egg-info
+cached_responses
+examples/
+tests/test_evaluation/

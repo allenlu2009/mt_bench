@@ -1,266 +1,384 @@
-import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM
-import openai
-from tenacity import retry, stop_after_attempt, wait_random_exponential
-import os
-import json
-import pandas as pd
-from tqdm import tqdm
-import numpy as np
-from typing import List, Dict, Any
-import requests
-from openai import OpenAI
-
-# MT-bench dataset URL
-MTBENCH_URL = ("https://raw.githubusercontent.com/lm-sys/FastChat/main/"
-               "fastchat/llm_judge/data/mt_bench/question.jsonl")
-
-# System prompt template for different models
-PROMPT_TEMPLATES = {
-    "gpt": ("A chat between a human and an AI assistant. "
-            "The assistant gives helpful, detailed, accurate, "
-            "and engaging responses.\n\nHuman: {instruction}\n\nAssistant:"),
-    "llama": "<s>[INST] {instruction} [/INST]",
-    "phi": "Instruct: {instruction}\nOutput:",
-    # Add more model-specific templates as needed
-}
-
-# MTBench prompts and configurations
-JUDGE_PROMPT = """You are a helpful AI assistant. You will be comparing \
-two responses to a given prompt. Please compare them based on:
-1. Helpfulness - How well does the response address the user's needs?
-2. Relevance - How well does the response stay on topic?
-3. Accuracy - Is the information provided correct and reliable?
-4. Completeness - Does the response fully address all aspects of the prompt?
-
-Rate each response on a scale of 1-10, where 10 is the best. Be critical \
-and strict in your scoring.
-Format your response as JSON with fields: "score_a", "score_b", "reasoning"
+"""
+Complete MT-bench evaluation system for phi models.
 """
 
-AVAILABLE_MODELS = {
-    'gpt2-large': 'gpt2-large',
-    'Llama3.2-1B': 'meta-llama/Llama-3.2-1B-Instruct',
-    'Llama3.2-3B': 'meta-llama/Llama-3.2-3B',
-    'Phi3-mini-4k': 'microsoft/Phi-3-mini-4k-instruct',
-    'Qwen2.5-3B': 'Qwen/Qwen2.5-3B-Instruct',
-    'gemma-7B': 'google/gemma-7b-it'
-}
+import json
+import time
+from typing import List, Dict, Tuple
+from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
+
+from phi_evaluator import PhiEvaluator
+from judge import MTBenchJudge
+from mtbench_data import MTBENCH_QUESTIONS, get_all_categories
+from models import MTBenchResponse, MTBenchResult, PairwiseComparison, EvaluationSummary
+from config import Config
+from memory_utils import aggressive_memory_cleanup, print_memory_status
 
 
 class MTBenchEvaluator:
-    def __init__(self, test_model_name="Llama3.2-1B"):
-        if test_model_name not in AVAILABLE_MODELS:
-            raise ValueError(
-                f"Model {test_model_name} not found. "
-                f"Available models: {list(AVAILABLE_MODELS.keys())}"
-            )
-        self.device = torch.device(
-            "cuda" if torch.cuda.is_available() else "cpu"
-        )
-        self.test_model_name = test_model_name
-        self.test_model_path = AVAILABLE_MODELS[test_model_name]
-        # Set up OpenAI API
-        openai.api_key = os.getenv("OPENAI_API_KEY")
-        if not openai.api_key:
-            raise ValueError("Please set OPENAI_API_KEY environment variable")
-        # Initialize test model only
-        self.test_tokenizer = AutoTokenizer.from_pretrained(
-            self.test_model_path
-        )
-        self.test_model = AutoModelForCausalLM.from_pretrained(
-            self.test_model_path
-        ).to(self.device)
-        # Load MTBench dataset
-        self.load_mtbench_data()
-
-    def load_mtbench_data(self):
-        """Load MTBench multi-turn conversation dataset"""
-        # Download MT-bench questions if not exists
-        cache_path = "mt_bench_questions.jsonl"
-        if not os.path.exists(cache_path):
-            response = requests.get(MTBENCH_URL)
-            with open(cache_path, "w") as f:
-                f.write(response.text)
-        # Load conversations
-        self.conversations = []
-        with open(cache_path, "r") as f:
-            for line in f:
-                data = json.loads(line)
-                turns = []
-                for i, q in enumerate(data["turns"]):
-                    turns.append({
-                        "user": q,
-                        "assistant": "..."
-                    })
-                self.conversations.append({
-                    "id": data["question_id"],
-                    "category": data["category"],
-                    "turns": turns
-                })
-
-    def get_model_response(self, prompt: str) -> str:
-        """Get response from test model"""
-        # Get appropriate prompt template
-        template = PROMPT_TEMPLATES.get(
-            self.test_model_name.split("/")[-1].split("-")[0].lower(),
-            PROMPT_TEMPLATES["gpt"]
-        )
-        formatted_prompt = template.format(instruction=prompt)
-        inputs = self.test_tokenizer(
-            formatted_prompt, return_tensors="pt"
-        ).to(self.device)
-
-        # Generate with error handling
-        try:
-            with torch.no_grad():
-                outputs = self.test_model.generate(
-                    **inputs,
-                    max_new_tokens=512,
-                    do_sample=True,
-                    temperature=0.7
+    """
+    Complete MT-bench evaluation system.
+    """
+    
+    def __init__(self, judge_model: str = None):
+        """Initialize the MT-bench evaluator."""
+        self.judge = MTBenchJudge(judge_model=judge_model)
+        self.results: Dict[str, List[MTBenchResult]] = {}
+        self.pairwise_results: List[PairwiseComparison] = []
+        self.lock = threading.Lock()
+        
+    def generate_model_responses(self, model_name: str, questions_to_use: List = None) -> List[MTBenchResponse]:
+        """
+        Generate responses for MT-bench questions using a phi model.
+        
+        Args:
+            model_name: Name of the phi model to evaluate
+            questions_to_use: List of questions to evaluate (defaults to all MTBENCH_QUESTIONS)
+            
+        Returns:
+            List of MTBenchResponse objects
+        """
+        if questions_to_use is None:
+            questions_to_use = MTBENCH_QUESTIONS
+            
+        print(f"Generating MT-bench responses for {model_name}")
+        print("-" * 50)
+        
+        model_config = Config.PHI_MODELS[model_name]
+        responses = []
+        
+        with PhiEvaluator(model_config) as evaluator:
+            evaluator.load_model()
+            
+            for question in questions_to_use:
+                print(f"Processing question {question.question_id} ({question.category})")
+                
+                question_responses = []
+                total_time = 0
+                
+                # Generate response for each turn with proper conversation context
+                for i, turn in enumerate(question.turns):
+                    # Build conversation messages up to current turn
+                    conversation_messages = []
+                    
+                    # Add all previous turns
+                    for j in range(i):
+                        conversation_messages.append({"role": "user", "content": question.turns[j]})
+                        conversation_messages.append({"role": "assistant", "content": question_responses[j]})
+                    
+                    # Add current turn
+                    conversation_messages.append({"role": "user", "content": turn})
+                    
+                    try:
+                        # Generate response using multi-turn conversation method
+                        response, gen_time = evaluator.generate_response_multiturn(conversation_messages)
+                        question_responses.append(response)
+                        total_time += gen_time
+                        
+                        print(f"  Turn {i+1}: Generated in {gen_time:.2f}s")
+                        
+                    except Exception as e:
+                        print(f"  Error in turn {i+1}: {e}")
+                        question_responses.append(f"Error: {str(e)}")
+                        
+                # Create response object
+                mtbench_response = MTBenchResponse(
+                    question_id=question.question_id,
+                    model_name=model_name,
+                    turns=question_responses,
+                    generation_time=total_time
                 )
-            # Decode and return the generated response
-            decode_outputs = self.test_tokenizer.batch_decode(
-                outputs, skip_special_tokens=True
-            )
-            if decode_outputs:
-                return decode_outputs[0]
-            else:
-                print("No output generated.")
-                return "No response generated"
-            # return self.test_tokenizer.decode(outputs[0], skip_special_tokens=True)
-        except Exception as e:
-            print(f"Generation error: {e}")
-            return "Error during generation"
-        # outputs = self.test_model.generate(
-        #     **inputs,
-        #     max_length=2048,  # Increased for longer responses
-        #     temperature=0.3,
-        #     do_sample=True,
-        #     top_p=0.95,
-        #     repetition_penalty=1.2
-        # )
-        # return self.test_tokenizer.decode(outputs[0], skip_special_tokens=True)
-
-    @retry(
-        wait=wait_random_exponential(min=1, max=60),
-        stop=stop_after_attempt(6)
-    )
-    def get_judge_score(
-            self, prompt: str, response_a: str, response_b: str
-    ) -> Dict[str, Any]:
-        """Get judgment scores using OpenAI's GPT model"""
-        judge_input = (
-            f"{JUDGE_PROMPT}\n\nPrompt: {prompt}\n\n"
-            f"Response A: {response_a}\n\nResponse B: {response_b}\n\n"
-            "Provide your evaluation as JSON:"
-        )
-        try:
-            client = OpenAI(api_key=openai.api_key)
-            response = client.chat.completions.create(
-                model="gpt-4.1-nano",  # or "gpt-3.5-turbo"
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "You are an expert AI model evaluator."
-                    },
-                    {"role": "user", "content": judge_input}
-                ],
-                temperature=0.2,
-                max_tokens=500
-            )
-            result = response.choices[0].message.content
-            try:
-                scores = json.loads(result)
-                return scores
-            except json.JSONDecodeError:
-                return {
-                    "score_a": 0,
-                    "score_b": 0,
-                    "reasoning": "Failed to parse GPT response"
-                }
-        except Exception as e:
-            print(f"OpenAI API error: {str(e)}")
-            return {
-                "score_a": 0,
-                "score_b": 0,
-                "reasoning": f"API error: {str(e)}"
-            }
-
-    def evaluate_conversation(self, conversation: Dict) -> List[Dict]:
-        """Evaluate a multi-turn conversation"""
+                
+                responses.append(mtbench_response)
+                print(f"  Total time: {total_time:.2f}s")
+                
+                # Print detailed question and response information for debugging
+                print(f"\n📝 Question {question.question_id} Details:")
+                print(f"   Category: {question.category}")
+                print(f"   Total Turns: {len(question.turns)}")
+                print("   " + "="*80)
+                
+                # Print all turns (questions and responses) with full details
+                for i, turn_question in enumerate(question.turns, 1):
+                    print(f"\n   🔵 TURN {i} QUESTION:")
+                    print(f"   {turn_question}")
+                    
+                    if i <= len(question_responses):
+                        response = question_responses[i-1]
+                        print(f"\n   🟢 TURN {i} RESPONSE:")
+                        print(f"   {response}")
+                        print(f"   📏 Response Length: {len(response)} characters")
+                    else:
+                        print(f"\n   ❌ TURN {i} RESPONSE: NOT GENERATED")
+                    print("   " + "-"*60)
+                
+                print()
+                
+        return responses
+        
+    def evaluate_individual_model(self, model_name: str, responses: List[MTBenchResponse]) -> List[MTBenchResult]:
+        """
+        Evaluate individual model responses using the judge.
+        
+        Args:
+            model_name: Name of the model
+            responses: List of model responses
+            
+        Returns:
+            List of MTBenchResult objects
+        """
+        print(f"Evaluating {model_name} responses with judge")
+        print("-" * 50)
+        
         results = []
-        context = ""
-        for turn in conversation["turns"]:
-            prompt = context + turn["user"]
-            model_response = self.get_model_response(prompt)
-            scores = self.get_judge_score(
-                prompt, turn["assistant"], model_response
+        
+        for response in responses:
+            # Get the original question
+            question = next(q for q in MTBENCH_QUESTIONS if q.question_id == response.question_id)
+            
+            print(f"Judging question {response.question_id} ({question.category})")
+            
+            # Judge the response
+            result = self.judge.evaluate_mtbench_result(
+                question=question.turns[0],
+                responses=response.turns,
+                model_name=model_name,
+                question_id=response.question_id,
+                category=question.category,
+                questions=question.turns
             )
-            results.append({
-                "prompt": turn["user"],
-                "reference": turn["assistant"],
-                "model_response": model_response,
-                "scores": scores
-            })
             
-            context += f"User: {turn['user']}\nAssistant: {model_response}\n"
+            results.append(result)
+            
+            print(f"  Turn 1 score: {result.turn_1_score.score:.1f}")
+            if result.turn_2_score:
+                print(f"  Turn 2 score: {result.turn_2_score.score:.1f}")
+            print(f"  Average: {result.average_score:.1f}")
+            print()
+            
         return results
-
-    def run_evaluation(self):
-        """Run evaluation on all conversations"""
-        all_results = []
-        for conv in tqdm(self.conversations, desc="Evaluating conversations"):
-            results = self.evaluate_conversation(conv)
-            for r in results:
-                r["category"] = conv["category"]
-                r["question_id"] = conv["id"]
-            all_results.extend(results)
+        
+    def evaluate_pairwise_comparison(self, model_a: str, responses_a: List[MTBenchResponse],
+                                   model_b: str, responses_b: List[MTBenchResponse]) -> List[PairwiseComparison]:
+        """
+        Perform pairwise comparison between two models.
+        
+        Args:
+            model_a: Name of first model
+            responses_a: Responses from first model
+            model_b: Name of second model
+            responses_b: Responses from second model
             
-        # Calculate statistics per category
-        categories = set(r["category"] for r in all_results)
-        stats = {}
-        for category in categories:
-            cat_results = [
-                r for r in all_results if r["category"] == category
-            ]
-            scores_a = [r["scores"]["score_a"] for r in cat_results]
-            scores_b = [r["scores"]["score_b"] for r in cat_results]
-            stats[category] = {
-                "mean_reference_score": np.mean(scores_a),
-                "mean_model_score": np.mean(scores_b),
-                "std_reference_score": np.std(scores_a),
-                "std_model_score": np.std(scores_b)
-            }
+        Returns:
+            List of PairwiseComparison objects
+        """
+        print(f"Pairwise comparison: {model_a} vs {model_b}")
+        print("-" * 50)
         
-        # Overall stats
-        scores_a = [r["scores"]["score_a"] for r in all_results]
-        scores_b = [r["scores"]["score_b"] for r in all_results]
-        stats["overall"] = {
-            "mean_reference_score": np.mean(scores_a),
-            "mean_model_score": np.mean(scores_b),
-            "std_reference_score": np.std(scores_a),
-            "std_model_score": np.std(scores_b)
-        }
+        comparisons = []
         
-        return all_results, stats
+        for resp_a, resp_b in zip(responses_a, responses_b):
+            assert resp_a.question_id == resp_b.question_id, "Question IDs must match"
+            
+            # Get the original question
+            question = next(q for q in MTBENCH_QUESTIONS if q.question_id == resp_a.question_id)
+            
+            print(f"Comparing question {resp_a.question_id} ({question.category})")
+            
+            # Perform pairwise comparison
+            comparison = self.judge.compare_models_pairwise(
+                question=question.turns[0],
+                responses_a=resp_a.turns,
+                responses_b=resp_b.turns,
+                model_a=model_a,
+                model_b=model_b,
+                question_id=resp_a.question_id,
+                category=question.category
+            )
+            
+            comparisons.append(comparison)
+            
+            print(f"  Winner: {comparison.winner}")
+            print()
+            
+        return comparisons
+        
+    def run_complete_evaluation(self, max_questions: int = None, selected_models: dict = None) -> EvaluationSummary:
+        """
+        Run complete MT-bench evaluation for selected models.
+        
+        Args:
+            max_questions: Limit number of questions for debugging (None for all questions)
+            selected_models: Dictionary of models to evaluate (defaults to all models)
+        
+        Returns:
+            EvaluationSummary with all results
+        """
+        # Select questions to evaluate
+        questions_to_use = MTBENCH_QUESTIONS
+        if max_questions:
+            questions_to_use = MTBENCH_QUESTIONS[:max_questions]
+            print("=== Starting MT-bench Evaluation (DEBUG MODE) ===")
+            print(f"Limited to {max_questions} question(s) for debugging")
+        else:
+            print("=== Starting Complete MT-bench Evaluation ===")
+            
+        # Use selected models or default to all models
+        models_to_evaluate = selected_models if selected_models is not None else Config.PHI_MODELS
+        
+        print(f"Timestamp: {datetime.now()}")
+        print(f"Models to evaluate: {list(models_to_evaluate.keys())}")
+        print(f"Questions to evaluate: {len(questions_to_use)}")
+        print(f"Categories: {get_all_categories()}")
+        print()
+        
+        # Step 1: Generate responses for all models (sequential loading for memory management)
+        all_responses = {}
+        model_names = list(models_to_evaluate.keys())
+        
+        for i, model_name in enumerate(model_names):
+            print(f"Processing model {i+1}/{len(model_names)}: {model_name}")
+            print("⚠️  Loading model sequentially to avoid OOM on RTX 3060")
+            responses = self.generate_model_responses(model_name, questions_to_use)
+            all_responses[model_name] = responses
+            
+            # Force aggressive memory cleanup between models (except after last model)
+            if i < len(model_names) - 1:  # Don't clean after last model
+                print(f"🧹 Performing aggressive memory cleanup after {model_name}...")
+                aggressive_memory_cleanup(model_name)
+                
+                # Additional cleanup verification
+                import torch
+                if torch.cuda.is_available():
+                    print_memory_status(f"Memory Status After {model_name} Cleanup")
+            print()
+            
+        # Step 2: Individual evaluation
+        for model_name, responses in all_responses.items():
+            results = self.evaluate_individual_model(model_name, responses)
+            self.results[model_name] = results
+            
+        # Step 3: Pairwise comparison
+        model_names = list(models_to_evaluate.keys())
+        if len(model_names) == 2:
+            model_a, model_b = model_names
+            comparisons = self.evaluate_pairwise_comparison(
+                model_a, all_responses[model_a],
+                model_b, all_responses[model_b]
+            )
+            self.pairwise_results = comparisons
+            
+        # Step 4: Generate summary
+        summary = self._generate_summary()
+        
+        print("=== Evaluation Complete ===")
+        self._print_summary(summary)
+        
+        return summary
+        
+    def _generate_summary(self) -> EvaluationSummary:
+        """
+        Generate evaluation summary from results.
+        
+        Returns:
+            EvaluationSummary object
+        """
+        # Calculate individual average scores
+        individual_scores = {}
+        for model_name, results in self.results.items():
+            if results:
+                avg_score = sum(r.average_score for r in results) / len(results)
+                individual_scores[model_name] = avg_score
+                
+        # Calculate pairwise win/loss/tie counts
+        pairwise_results = {}
+        if self.pairwise_results:
+            model_names = list(self.results.keys())  # Use models that were actually evaluated
+            for model in model_names:
+                pairwise_results[model] = {"wins": 0, "losses": 0, "ties": 0}
+                
+            for comparison in self.pairwise_results:
+                if comparison.winner == comparison.model_a:
+                    pairwise_results[comparison.model_a]["wins"] += 1
+                    pairwise_results[comparison.model_b]["losses"] += 1
+                elif comparison.winner == comparison.model_b:
+                    pairwise_results[comparison.model_b]["wins"] += 1
+                    pairwise_results[comparison.model_a]["losses"] += 1
+                else:  # tie
+                    pairwise_results[comparison.model_a]["ties"] += 1
+                    pairwise_results[comparison.model_b]["ties"] += 1
+                    
+        return EvaluationSummary(
+            models_evaluated=list(Config.PHI_MODELS.keys()),
+            total_questions=len([r for results in self.results.values() for r in results]),
+            categories=list(set(r.category for results in self.results.values() for r in results)),
+            individual_scores=individual_scores,
+            pairwise_results=pairwise_results,
+            judge_model=self.judge.judge_model
+        )
+        
+    def _print_summary(self, summary: EvaluationSummary) -> None:
+        """
+        Print formatted evaluation summary.
+        
+        Args:
+            summary: EvaluationSummary to print
+        """
+        print("\n" + "="*60)
+        print("MT-BENCH EVALUATION SUMMARY")
+        print("="*60)
+        
+        print(f"Evaluation Date: {summary.timestamp}")
+        print(f"Judge Model: {summary.judge_model}")
+        print(f"Total Questions: {summary.total_questions}")
+        print(f"Categories: {', '.join(summary.categories)}")
+        print()
+        
+        print("INDIVIDUAL MODEL SCORES:")
+        print("-" * 30)
+        for model, score in summary.individual_scores.items():
+            print(f"{model}: {score:.2f}/10.0")
+        print()
+        
+        if summary.pairwise_results:
+            print("PAIRWISE COMPARISON RESULTS:")
+            print("-" * 30)
+            for model, results in summary.pairwise_results.items():
+                wins = results["wins"]
+                losses = results["losses"] 
+                ties = results["ties"]
+                total = wins + losses + ties
+                win_rate = (wins / total * 100) if total > 0 else 0
+                print(f"{model}: {wins}W-{losses}L-{ties}T ({win_rate:.1f}% win rate)")
+        
+        print("\nDetailed results available in self.results and self.pairwise_results")
 
 
-def main():
-    # Example usage with model selection
-    model_name = "gpt2-large"  # Choose from AVAILABLE_MODELS
-    evaluator = MTBenchEvaluator(test_model_name=model_name)
+def run_mtbench_evaluation(max_questions: int = None, selected_models: dict = None, judge_model: str = None):
+    """
+    Main function to run MT-bench evaluation.
     
-    results, stats = evaluator.run_evaluation()
+    Args:
+        max_questions: Limit number of questions for debugging (None for all questions)
+        selected_models: Dictionary of models to evaluate (defaults to all models)
+        judge_model: Judge model to use for evaluation
+    """
+    # Validate configuration
+    try:
+        Config.validate_config()
+    except ValueError as e:
+        print(f"Configuration error: {e}")
+        print("Please check your .env file and ensure all required variables are set.")
+        return None
+        
+    # Run evaluation
+    evaluator = MTBenchEvaluator(judge_model=judge_model)
+    summary = evaluator.run_complete_evaluation(max_questions=max_questions, selected_models=selected_models)
     
-    # Save results
-    df = pd.DataFrame(results)
-    df.to_csv("mtbench_results.csv", index=False)
-    
-    print("\nEvaluation Statistics:")
-    for k, v in stats.items():
-        print(f"{k}: {v:.2f}")
+    return evaluator, summary
+
 
 if __name__ == "__main__":
-    main()
+    run_mtbench_evaluation()

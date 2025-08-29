@@ -3,11 +3,61 @@
 
 # Judge configuration
 judge:
-  model: "gpt-4.1-nano"
-  temperature: 0.2
-  max_tokens: 1000
-  top_p: 1.0
-  rate_limit_requests_per_second: 10
+  model: "gpt-5-mini"  # Default judge model
+  
+  # Supported judge models with their configurations
+  supported_models:
+    gpt-5-mini:
+      temperature: 1.0  # GPT-5 default
+      max_tokens: 1000
+      max_completion_tokens: 1000  # GPT-5 uses this parameter
+      top_p: 1.0
+      rate_limit_requests_per_second: 30
+      supports_system_message: true
+      
+    gpt-4o-mini:
+      temperature: 0.2
+      max_tokens: 1000
+      top_p: 1.0
+      rate_limit_requests_per_second: 50
+      supports_system_message: true
+      
+    gpt-4o-mini-2024-07-18:
+      temperature: 0.2
+      max_tokens: 1000
+      top_p: 1.0
+      rate_limit_requests_per_second: 50
+      supports_system_message: true
+      
+    gpt-4.1-nano:
+      temperature: 0.2
+      max_tokens: 1000
+      top_p: 1.0
+      rate_limit_requests_per_second: 10
+      supports_system_message: true
+      
+    gpt-4-turbo:
+      temperature: 0.2
+      max_tokens: 1000
+      top_p: 1.0
+      rate_limit_requests_per_second: 20
+      supports_system_message: true
+      
+    gpt-4-turbo-2024-04-09:
+      temperature: 0.2
+      max_tokens: 1000
+      top_p: 1.0
+      rate_limit_requests_per_second: 20
+      supports_system_message: true
+      
+    gpt-4o-2024-05-13:
+      temperature: 0.2
+      max_tokens: 1000
+      top_p: 1.0
+      rate_limit_requests_per_second: 30
+      supports_system_message: true
+  
+  # Common retry settings for all models
   max_retries: 5
   retry_wait_min_seconds: 4
   retry_wait_max_seconds: 60
