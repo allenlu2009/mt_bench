@@ -32,10 +32,11 @@ class MTBenchEvaluator:
     def __init__(self, 
                  model_names: List[str],
                  openai_api_key: Optional[str] = None,
-                 judge_model: str = "gpt-4.1-nano",
+                 judge_model: str = "gpt-5-nano",
                  cache_dir: str = "data",
                  memory_limit_gb: float = 6.0,
-                 max_questions: Optional[int] = None):
+                 max_questions: Optional[int] = None,
+                 debug_judge: bool = False):
         """
         Initialize MT-bench evaluator.
         
@@ -46,6 +47,7 @@ class MTBenchEvaluator:
             cache_dir: Directory for data caching
             memory_limit_gb: GPU memory limit
             max_questions: Limit number of questions (for testing)
+            debug_judge: Enable debug output for judge prompts and responses
         """
         self.model_names = model_names
         self.max_questions = max_questions
@@ -53,7 +55,7 @@ class MTBenchEvaluator:
         # Initialize components
         self.model_manager = ModelManager(memory_limit_gb=memory_limit_gb)
         self.data_loader = DataLoader(cache_dir=cache_dir)
-        self.judge_client = JudgeClient(api_key=openai_api_key, model=judge_model)
+        self.judge_client = JudgeClient(api_key=openai_api_key, model=judge_model, debug=debug_judge)
         self.conversation_handler = ConversationHandler()
         self.results_analyzer = ResultsAnalyzer()
         self.memory_monitor = MemoryMonitor(memory_limit_gb)
@@ -230,9 +232,12 @@ class MTBenchEvaluator:
         try:
             # Process both turns
             for turn_number in [1, 2]:
-                # Format prompt for this turn
+                # Get current tokenizer for chat template support
+                tokenizer = self.model_manager.get_current_tokenizer()
+                
+                # Format prompt for this turn (with chat template support)
                 prompt = self.conversation_handler.format_turn_prompt(
-                    session_id, turn_number, question, model_config
+                    session_id, turn_number, question, model_config, tokenizer
                 )
                 
                 # Generate response
@@ -295,9 +300,24 @@ class MTBenchEvaluator:
                 logger.warning(f"Question {session.question_id} not found")
                 continue
             
+            # Create lookup for turns in this session
+            turn_lookup = {turn.turn_number: turn for turn in session.turns}
+            
             for turn in session.turns:
+                # For Turn 2, create contextual question including Turn 1
+                if turn.turn_number == 2 and 1 in turn_lookup:
+                    turn_1 = turn_lookup[1]
+                    # Truncate Turn 1 response if it's very long to avoid token limits
+                    turn_1_response = turn_1.assistant_response
+                    if len(turn_1_response) > 1000:
+                        turn_1_response = turn_1_response[:1000] + "..."
+                    contextual_question = f"Turn 1 Question: {turn_1.user_message}\n\nTurn 1 Response: {turn_1_response}\n\nTurn 2 Question: {turn.user_message}"
+                    question_text = contextual_question
+                else:
+                    question_text = turn.user_message
+                
                 evaluations.append({
-                    "question": turn.user_message,
+                    "question": question_text,
                     "answer": turn.assistant_response,
                     "question_id": session.question_id,
                     "turn": turn.turn_number,

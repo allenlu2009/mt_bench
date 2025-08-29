@@ -388,6 +388,15 @@ class ModelManager:
             logger.error(f"Generation failed: {str(e)}")
             raise
     
+    def get_current_tokenizer(self):
+        """
+        Get the currently loaded tokenizer.
+        
+        Returns:
+            Current tokenizer instance or None if no model is loaded
+        """
+        return self.current_tokenizer
+    
     def get_model_info(self) -> Dict[str, Any]:
         """
         Get information about the currently loaded model.

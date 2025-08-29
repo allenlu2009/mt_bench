@@ -28,12 +28,13 @@ class MultiModeEvaluator:
     def __init__(self,
                  model_names: List[str],
                  openai_api_key: str,
-                 judge_model: str = "gpt-4.1-nano",
+                 judge_model: str = "gpt-5-nano",
                  cache_dir: str = "data",
                  response_cache_dir: str = "cached_responses",
                  memory_limit_gb: float = 6.0,
                  max_questions: Optional[int] = None,
-                 disable_response_cache: bool = False):
+                 disable_response_cache: bool = False,
+                 debug_judge: bool = False):
         """
         Initialize multi-mode evaluator.
         
@@ -73,7 +74,7 @@ class MultiModeEvaluator:
         )
         
         self.data_loader = DataLoader(cache_dir)
-        self.judge_client = JudgeClient(openai_api_key, judge_model)
+        self.judge_client = JudgeClient(openai_api_key, judge_model, debug=debug_judge)
         
         # Track evaluation progress
         self.progress = {
@@ -188,9 +189,12 @@ class MultiModeEvaluator:
                         # Get model config for this model
                         model_config = get_model_config(model_name)
                         
-                        # Format prompt for this turn
+                        # Get current tokenizer for chat template support
+                        tokenizer = self.single_evaluator.model_manager.get_current_tokenizer()
+                        
+                        # Format prompt for this turn (with chat template support)
                         prompt = self.single_evaluator.conversation_handler.format_turn_prompt(
-                            session_id, turn_number, question, model_config
+                            session_id, turn_number, question, model_config, tokenizer
                         )
                         
                         # Generate response

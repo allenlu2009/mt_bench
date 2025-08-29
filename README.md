@@ -5,7 +5,8 @@ A comprehensive system for evaluating language models using the MT-bench benchma
 ## Features
 
 🚀 **Memory Optimized**: Uses Flash Attention 2 and fp16 precision for RTX 3060 (6GB VRAM)  
-⚡ **Fast Evaluation**: Async processing with rate limiting for GPT-4.1-nano judge  
+⚡ **Fast Evaluation**: Async processing with adaptive rate limiting for multiple judge models
+🤖 **Multi-Judge Support**: GPT-5-mini, GPT-4o-mini, GPT-4.1-nano with automatic parameter handling
 📊 **Comprehensive Analysis**: Category-wise and turn-wise performance metrics  
 🔧 **Easy Deployment**: CLI interface and Google Colab notebook  
 🧪 **Well Tested**: Unit tests with >90% coverage  
@@ -111,6 +112,10 @@ python -m src.cli --models llama-3.2-3b --memory-limit 8.0
 
 # Full evaluation with custom output
 python -m src.cli --models gpt2-large llama-3.2-1b --output-dir my_results
+
+# Use different judge models
+python -m src.cli --models gpt2-large --judge-model gpt-5-mini
+python -m src.cli --models gpt2-large --judge-model gpt-4o-mini
 ```
 
 ### Jupyter Notebook
@@ -324,7 +329,7 @@ Main evaluation class orchestrating the complete pipeline.
 evaluator = MTBenchEvaluator(
     model_names=['gpt2-large', 'llama-3.2-1b'],
     openai_api_key="your-api-key",
-    judge_model="gpt-4.1-nano",
+    judge_model="gpt-5-mini",  # Default judge model
     memory_limit_gb=6.0,
     max_questions=None  # Use all 80 questions
 )
@@ -350,19 +355,33 @@ response = manager.generate_response(prompt)
 
 ### JudgeClient
 
-Manages GPT-4.1-nano judging with rate limiting.
+Manages OpenAI judge models with adaptive rate limiting and GPT-5 support.
 
 ```python
 from src.evaluation.judge_client import JudgeClient
 
-judge = JudgeClient(api_key="your-key")
-score = await judge.judge_response(
+# Use different judge models
+judge_gpt5 = JudgeClient(api_key="your-key", model="gpt-5-mini")
+judge_gpt4o = JudgeClient(api_key="your-key", model="gpt-4o-mini") 
+judge_legacy = JudgeClient(api_key="your-key", model="gpt-4.1-nano")
+
+score = await judge_gpt5.judge_response(
     question="What is AI?",
     answer="AI is artificial intelligence...",
     question_id=1,
     turn=1,
     model_name="llama-3.2-1b"
 )
+```
+
+**Supported Judge Models:**
+- `gpt-5-mini` (default) - Latest model with 30 req/s
+- `gpt-4o-mini` - Cost-effective with 50 req/s  
+- `gpt-4o-mini-2024-07-18` - Specific version
+- `gpt-4.1-nano` - Legacy option with 10 req/s
+- `gpt-4-turbo` - High performance with 20 req/s
+- `gpt-4-turbo-2024-04-09` - Specific version
+- `gpt-4o-2024-05-13` - Specific GPT-4o version
 ```
 
 ## Troubleshooting

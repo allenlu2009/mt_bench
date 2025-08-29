@@ -116,9 +116,9 @@ class TestMemoryMonitor:
 class TestFlashAttentionConfig:
     """Test cases for Flash Attention configuration."""
     
-    @patch('torch.cuda.is_available', return_value=True)
     @patch('builtins.__import__')
-    def test_get_flash_attention_config_available(self, mock_import, mock_cuda):
+    @patch('src.utils.memory_utils.torch.cuda.is_available', return_value=True)
+    def test_get_flash_attention_config_available(self, mock_cuda, mock_import):
         """Test Flash Attention config when available."""
         # Mock successful import of flash_attn
         def mock_import_func(name, *args):

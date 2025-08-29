@@ -105,7 +105,8 @@ class ConversationHandler:
         return session_id
     
     def format_turn_prompt(self, session_id: str, turn_number: int, 
-                          question: MTBenchQuestion, model_config: ModelConfig) -> str:
+                          question: MTBenchQuestion, model_config: ModelConfig,
+                          tokenizer=None) -> str:
         """
         Format prompt for a specific turn with appropriate context.
         
@@ -114,6 +115,7 @@ class ConversationHandler:
             turn_number: Turn number (1 or 2)
             question: MT-bench question
             model_config: Configuration for the model
+            tokenizer: Optional tokenizer with apply_chat_template support
             
         Returns:
             Formatted prompt string
@@ -129,11 +131,12 @@ class ConversationHandler:
         # Get conversation context
         context = session.get_context_for_turn(turn_number)
         
-        # Format with model-specific template
+        # Format with model-specific template (now with chat template support)
         prompt = format_prompt_for_model(
             instruction=current_question,
             model_config=model_config,
-            conversation_history=context
+            conversation_history=context,
+            tokenizer=tokenizer  # Pass tokenizer for chat template support
         )
         
         logger.debug(f"Formatted prompt for {session_id}, turn {turn_number}")

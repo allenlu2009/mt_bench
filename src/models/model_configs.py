@@ -74,7 +74,7 @@ AVAILABLE_MODELS = {
         model_path="microsoft/Phi-3-mini-4k-instruct",
         model_family="phi",
         prompt_template="<|user|>\n{instruction}<|end|>\n<|assistant|>\n",
-        max_new_tokens=768,  # Increased for phi-3-mini to handle longer responses
+        max_new_tokens=512,
         temperature=0.7,
         top_p=0.9,
         estimated_memory_gb=7.1,  # Actual: 7.13GB from logs (FP16, no quantization)
@@ -130,6 +130,19 @@ AVAILABLE_MODELS = {
         estimated_memory_gb=1.5,
         requires_system_prompt=False,
         chat_template_name="dialogpt"
+    ),
+    
+    "gemma3-270m": ModelConfig(
+        model_path="google/gemma-3-270m-it",  # Use instruct version 
+        model_family="gemma",  # Use same family as working gemma-2b
+        prompt_template="<start_of_turn>user\n{instruction}<end_of_turn>\n<start_of_turn>model\n",  # Fallback template (chat template will override this)
+        max_new_tokens=512,  # Use standard length for MT-bench
+        temperature=0.7,  # Use same temperature as gemma-2b  
+        top_p=0.9,        # Use same top_p as gemma-2b
+        estimated_memory_gb=0.6,  # ~536MB + overhead
+        requires_system_prompt=False,
+        chat_template_name="gemma",  # Use same chat template name as gemma-2b
+        quantization_format="BF16"  # Native BF16 model
     )
 }
 
@@ -216,23 +229,101 @@ def get_generation_config(model_config: ModelConfig) -> Dict[str, Any]:
         base_config.update({
             "use_cache": False,
         })
+    elif model_config.model_family == "gemma3":
+        # Gemma-3 models need special handling due to new tokenizer and EOS behavior
+        return {
+            "max_new_tokens": model_config.max_new_tokens,
+            "min_new_tokens": 20,  # Force at least 20 tokens to prevent empty responses
+            "do_sample": False,  # Use greedy decoding for stability
+            "pad_token_id": None,  # Will be set based on tokenizer
+            "eos_token_id": None,  # Will be set based on tokenizer
+            "repetition_penalty": 1.1,  # Prevent repetition loops
+            "no_repeat_ngram_size": 3,  # Standard n-gram blocking
+            # No temperature, top_p, or top_k since we're using greedy decoding
+        }
+    elif model_config.model_family == "gemma":
+        # Original Gemma models (2B, etc.)
+        if "gemma-3-270m" in model_config.model_path:
+            # This shouldn't happen anymore since we changed to gemma3 family
+            return {
+                "max_new_tokens": model_config.max_new_tokens,
+                "min_new_tokens": 20,  # Force at least 20 tokens to prevent empty responses
+                "do_sample": False,  # Disable sampling to avoid CUDA assertion errors
+                "pad_token_id": None,  # Will be set based on tokenizer
+                "eos_token_id": None,  # Will be set based on tokenizer
+                "repetition_penalty": 1.05,  # Minimal repetition penalty 
+                "no_repeat_ngram_size": 0,  # Disable to prevent blocking
+                # No temperature, top_p, or top_k since we're using greedy decoding
+            }
+        else:
+            # More conservative sampling for other Gemma models
+            base_config.update({
+                "temperature": max(0.1, model_config.temperature * 0.5),  # Reduce temperature
+                "top_p": 0.8,  # More conservative top_p
+                "top_k": 50,   # Add top_k filtering
+                "repetition_penalty": 1.05,  # Reduce repetition penalty
+                "do_sample": model_config.temperature > 0.0,  # Only sample if temperature > 0
+            })
     
     return base_config
 
 
 def format_prompt_for_model(instruction: str, model_config: ModelConfig, 
-                          conversation_history: Optional[str] = None) -> str:
+                          conversation_history: Optional[str] = None,
+                          tokenizer=None) -> str:
     """
-    Format instruction using model-specific prompt template.
+    Format instruction using model-specific prompt template or chat template.
     
     Args:
         instruction: The instruction/question to format
         model_config: Model configuration containing prompt template
         conversation_history: Optional conversation history for multi-turn
+        tokenizer: Optional tokenizer with apply_chat_template support
         
     Returns:
         Formatted prompt string
     """
+    # Try to use tokenizer's built-in chat template first (for modern models)
+    if tokenizer and hasattr(tokenizer, 'apply_chat_template'):
+        try:
+            # Build messages list
+            messages = []
+            
+            # Add conversation history as previous turns if available
+            if conversation_history:
+                # Parse conversation history into alternating user/assistant messages
+                # This is a simple parser - could be enhanced for complex histories
+                history_lines = conversation_history.strip().split('\n')
+                current_user_msg = None
+                for line in history_lines:
+                    line = line.strip()
+                    if line.startswith('User: '):
+                        current_user_msg = line[6:]  # Remove 'User: ' prefix
+                    elif line.startswith('Assistant: ') and current_user_msg:
+                        assistant_msg = line[11:]  # Remove 'Assistant: ' prefix
+                        messages.append({"role": "user", "content": current_user_msg})
+                        messages.append({"role": "assistant", "content": assistant_msg})
+                        current_user_msg = None
+            
+            # Add current instruction as user message
+            messages.append({"role": "user", "content": instruction})
+            
+            # Apply chat template
+            formatted_prompt = tokenizer.apply_chat_template(
+                messages,
+                add_generation_prompt=True,
+                tokenize=False  # Return string, not tokens
+            )
+            
+            return formatted_prompt
+            
+        except Exception as e:
+            # Log the attempt but fall back gracefully
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.debug(f"Chat template failed for {model_config.model_path}: {e}. Using fallback.")
+    
+    # Fallback to existing manual template logic
     if conversation_history:
         # For multi-turn conversations, include history
         full_instruction = f"{conversation_history}\n\nUser: {instruction}\nAssistant:"
@@ -285,6 +376,11 @@ OPTIMIZATION_CONFIGS = {
     "gemma": {
         "use_cache": True,
         "gradient_checkpointing": True,
+    },
+    "gemma3": {
+        "use_cache": True,
+        "gradient_checkpointing": True,
+        "trust_remote_code": True,  # May be needed for newer Gemma 3 models
     }
 }
 
