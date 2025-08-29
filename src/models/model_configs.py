@@ -133,15 +133,15 @@ AVAILABLE_MODELS = {
     ),
     
     "gemma3-270m": ModelConfig(
-        model_path="google/gemma-3-270m-it",  # Use instruct version 
-        model_family="gemma",  # Use same family as working gemma-2b
+        model_path="google/gemma-3-270m-it",  # Use correct gemma-3-270m-it path 
+        model_family="gemma3",  # Use gemma3 family for proper CUDA handling
         prompt_template="<start_of_turn>user\n{instruction}<end_of_turn>\n<start_of_turn>model\n",  # Fallback template (chat template will override this)
         max_new_tokens=512,  # Use standard length for MT-bench
-        temperature=0.7,  # Use same temperature as gemma-2b  
-        top_p=0.9,        # Use same top_p as gemma-2b
+        temperature=0.0,  # Use greedy decoding to avoid CUDA errors 
+        top_p=1.0,        # Use deterministic generation
         estimated_memory_gb=0.6,  # ~536MB + overhead
         requires_system_prompt=False,
-        chat_template_name="gemma",  # Use same chat template name as gemma-2b
+        chat_template_name="gemma3",  # Use gemma3 chat template
         quantization_format="BF16"  # Native BF16 model
     )
 }
@@ -233,13 +233,13 @@ def get_generation_config(model_config: ModelConfig) -> Dict[str, Any]:
         # Gemma-3 models need special handling due to new tokenizer and EOS behavior
         return {
             "max_new_tokens": model_config.max_new_tokens,
-            "min_new_tokens": 20,  # Force at least 20 tokens to prevent empty responses
-            "do_sample": False,  # Use greedy decoding for stability
+            "min_new_tokens": 50,  # Force at least 50 tokens to ensure substantial output
+            "do_sample": False,  # Keep greedy decoding to avoid CUDA errors
             "pad_token_id": None,  # Will be set based on tokenizer
             "eos_token_id": None,  # Will be set based on tokenizer
-            "repetition_penalty": 1.1,  # Prevent repetition loops
-            "no_repeat_ngram_size": 3,  # Standard n-gram blocking
-            # No temperature, top_p, or top_k since we're using greedy decoding
+            "repetition_penalty": 1.05,  # Minimal penalty to avoid special token loops
+            "no_repeat_ngram_size": 0,  # Disable n-gram blocking completely
+            # No sampling parameters to avoid CUDA issues
         }
     elif model_config.model_family == "gemma":
         # Original Gemma models (2B, etc.)

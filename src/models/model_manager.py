@@ -371,10 +371,45 @@ class ModelManager:
             else:
                 input_length = inputs["input_ids"].shape[1]
                 response_tokens = outputs[0][input_length:]
-                response = self.current_tokenizer.decode(
-                    response_tokens, 
-                    skip_special_tokens=True
-                ).strip()
+                
+                # Special handling for gemma3 models
+                if "gemma-3" in str(self.current_model_config.model_path):
+                    # For gemma3 models, be more aggressive about filtering unwanted tokens
+                    response = self.current_tokenizer.decode(
+                        response_tokens, 
+                        skip_special_tokens=True
+                    ).strip()
+                    
+                    # Filter out common gemma3 artifacts
+                    unwanted_patterns = [
+                        "<mask>",
+                        "[multimodal]", 
+                        "<unused0>",
+                        "<unused1>",
+                        "<unused2>",
+                        "<unused3>",
+                        "<unused4>",
+                        "<unused5>",
+                        "<unused6>",
+                        "<unused7>",
+                        "<unused8>",
+                        "<unused9>",
+                    ]
+                    
+                    for pattern in unwanted_patterns:
+                        response = response.replace(pattern, "")
+                    
+                    response = response.strip()
+                    
+                    # If response is still empty or just special tokens, log warning
+                    if not response or len(response) < 5:
+                        logger.warning(f"Gemma3 generated minimal/empty response: '{response}'")
+                        logger.warning(f"Raw token output: {self.current_tokenizer.decode(response_tokens, skip_special_tokens=False)}")
+                else:
+                    response = self.current_tokenizer.decode(
+                        response_tokens, 
+                        skip_special_tokens=True
+                    ).strip()
             
             self.memory_monitor.log_memory_usage("After generation", logger)
             
