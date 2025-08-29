@@ -266,8 +266,8 @@ Examples:
     parser.add_argument(
         "--memory-limit",
         type=float,
-        default=6.0,
-        help="GPU memory limit in GB (default: 6.0 for RTX 3060)"
+        default=8.0,
+        help="GPU memory limit in GB (default: 8.0 for RTX 3060)"
     )
     
     parser.add_argument(

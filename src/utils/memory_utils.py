@@ -20,12 +20,12 @@ class MemoryStats:
 class MemoryMonitor:
     """Monitor and optimize GPU memory usage for RTX 3060 constraints."""
     
-    def __init__(self, gpu_memory_limit_gb: float = 6.0):
+    def __init__(self, gpu_memory_limit_gb: float = 8.0):
         """
         Initialize memory monitor.
         
         Args:
-            gpu_memory_limit_gb: GPU memory limit in GB (default: 6.0 for RTX 3060)
+            gpu_memory_limit_gb: GPU memory limit in GB (default: 8.0 for RTX 3060)
         """
         self.gpu_memory_limit = gpu_memory_limit_gb
         self.peak_memory = 0.0

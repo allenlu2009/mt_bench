@@ -133,16 +133,16 @@ AVAILABLE_MODELS = {
     ),
     
     "gemma3-270m": ModelConfig(
-        model_path="google/gemma-3-270m-it",  # Use correct gemma-3-270m-it path 
-        model_family="gemma3",  # Use gemma3 family for proper CUDA handling
-        prompt_template="<start_of_turn>user\n{instruction}<end_of_turn>\n<start_of_turn>model\n",  # Fallback template (chat template will override this)
-        max_new_tokens=512,  # Use standard length for MT-bench
-        temperature=0.0,  # Use greedy decoding to avoid CUDA errors 
-        top_p=1.0,        # Use deterministic generation
-        estimated_memory_gb=0.6,  # ~536MB + overhead
+        model_path="google/gemma-3-270m-it",  # Use the actual gemma-3-270m-it model as requested
+        model_family="gemma3",  # Use gemma3 family for multimodal handling
+        prompt_template="<start_of_turn>user\n{instruction}<end_of_turn>\n<start_of_turn>model\n",
+        max_new_tokens=256,  # Match working example (smaller for better results)
+        temperature=0.0,  # Use greedy decoding to avoid CUDA probability errors
+        top_p=1.0,
+        estimated_memory_gb=0.6,  # Gemma-3-270m memory usage
         requires_system_prompt=False,
-        chat_template_name="gemma3",  # Use gemma3 chat template
-        quantization_format="BF16"  # Native BF16 model
+        chat_template_name="gemma",
+        quantization_format="BF16"
     )
 }
 
@@ -230,16 +230,12 @@ def get_generation_config(model_config: ModelConfig) -> Dict[str, Any]:
             "use_cache": False,
         })
     elif model_config.model_family == "gemma3":
-        # Gemma-3 models need special handling due to new tokenizer and EOS behavior
+        # Gemma-3 models - use greedy decoding to avoid CUDA probability tensor errors
         return {
             "max_new_tokens": model_config.max_new_tokens,
-            "min_new_tokens": 50,  # Force at least 50 tokens to ensure substantial output
-            "do_sample": False,  # Keep greedy decoding to avoid CUDA errors
+            "do_sample": False,  # Use greedy decoding to avoid probability tensor issues
             "pad_token_id": None,  # Will be set based on tokenizer
             "eos_token_id": None,  # Will be set based on tokenizer
-            "repetition_penalty": 1.05,  # Minimal penalty to avoid special token loops
-            "no_repeat_ngram_size": 0,  # Disable n-gram blocking completely
-            # No sampling parameters to avoid CUDA issues
         }
     elif model_config.model_family == "gemma":
         # Original Gemma models (2B, etc.)

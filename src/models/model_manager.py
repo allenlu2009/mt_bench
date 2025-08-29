@@ -29,13 +29,13 @@ class ModelManager:
     - Gradient checkpointing for reduced memory usage
     """
     
-    def __init__(self, device: str = "cuda", memory_limit_gb: float = 6.0):
+    def __init__(self, device: str = "cuda", memory_limit_gb: float = 8.0):
         """
         Initialize model manager.
         
         Args:
             device: Device to use ('cuda' or 'cpu')
-            memory_limit_gb: GPU memory limit in GB (default: 6.0 for RTX 3060)
+            memory_limit_gb: GPU memory limit in GB (default: 8.0 for RTX 3060)
         """
         # Force CPU on macOS to avoid MPS memory issues
         if torch.cuda.is_available():
@@ -87,10 +87,18 @@ class ModelManager:
         Returns:
             Dictionary with loading parameters
         """
-        # Base memory optimization config
+        # Use minimal config for gemma3 models (copy exact working approach)
+        if model_config.model_family == "gemma3":
+            return {
+                "trust_remote_code": True,
+                "device_map": "auto",
+                "torch_dtype": torch.bfloat16
+            }
+        
+        # Base memory optimization config for other models
         config = self.memory_monitor.get_memory_optimization_config()
         
-        # Add Flash Attention config
+        # Add Flash Attention config for non-gemma3 models
         flash_config = get_flash_attention_config()
         config.update(flash_config)
         
@@ -152,15 +160,30 @@ class ModelManager:
             loading_config = self._get_model_loading_config(model_config)
             
             # Load tokenizer first (minimal memory impact)
-            tokenizer = AutoTokenizer.from_pretrained(
-                model_config.model_path,
-                trust_remote_code=loading_config.get("trust_remote_code", False),
-                padding_side="left"  # For batch inference
-            )
-            
-            # Set padding token if not present
-            if tokenizer.pad_token is None:
-                tokenizer.pad_token = tokenizer.eos_token
+            if model_config.model_family == "gemma3":
+                # Use exact tokenizer loading from working example
+                tokenizer = AutoTokenizer.from_pretrained(
+                    model_config.model_path,
+                    trust_remote_code=True
+                )
+                
+                # Add pad token exactly like working example
+                if tokenizer.pad_token is None:
+                    if hasattr(tokenizer, 'unk_token') and tokenizer.unk_token:
+                        tokenizer.pad_token = tokenizer.unk_token
+                    else:
+                        tokenizer.add_special_tokens({'pad_token': '<pad>'})
+            else:
+                # Standard tokenizer loading for other models
+                tokenizer = AutoTokenizer.from_pretrained(
+                    model_config.model_path,
+                    trust_remote_code=loading_config.get("trust_remote_code", False),
+                    padding_side="left"  # For batch inference
+                )
+                
+                # Set padding token if not present
+                if tokenizer.pad_token is None:
+                    tokenizer.pad_token = tokenizer.eos_token
                 
             # Add special tokens for conversational models if needed
             if "conversational" in model_name.lower() and model_config.chat_template_name == "gpt2_conversational":
@@ -180,48 +203,61 @@ class ModelManager:
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=UserWarning)
                 
-                model_kwargs = {
-                    "torch_dtype": loading_config["torch_dtype"],
-                    "attn_implementation": loading_config.get("attn_implementation", "eager"),
-                    "low_cpu_mem_usage": loading_config["low_cpu_mem_usage"],
-                    "trust_remote_code": loading_config.get("trust_remote_code", False),
-                    "use_cache": loading_config.get("use_cache", True)
-                }
-                
-                # Add quantization_config if present (for large models)
-                if "quantization_config" in loading_config:
-                    model_kwargs["quantization_config"] = loading_config["quantization_config"]
-                
-                model = AutoModelForCausalLM.from_pretrained(
-                    model_config.model_path,
-                    **model_kwargs
-                )
-            
-            # Enable gradient checkpointing if specified
-            if loading_config.get("gradient_checkpointing", False):
-                model.gradient_checkpointing_enable()
-                logger.info("Gradient checkpointing enabled")
-            
-            # Move model to the correct device and set to evaluation mode
-            # Handle meta tensors properly by using to_empty()
-            try:
-                # Check if any parameter is a meta tensor
-                has_meta_tensors = any(p.is_meta for p in model.parameters())
-                if has_meta_tensors:
-                    logger.info("Model has meta tensors, using to_empty()")
-                    model = model.to_empty(device=self.device)
+                # Use simple loading for gemma3 models (copy exact working approach)
+                if model_config.model_family == "gemma3":
+                    model = AutoModelForCausalLM.from_pretrained(
+                        model_config.model_path,
+                        **loading_config  # Uses the minimal config from _get_model_loading_config
+                    )
                 else:
-                    model = model.to(self.device)
-            except Exception as e:
-                # If to_empty() fails or we can't detect meta tensors, try the alternative approach
-                logger.warning(f"Standard device move failed: {e}, trying to_empty()")
-                try:
-                    model = model.to_empty(device=self.device)
-                except Exception as e2:
-                    logger.error(f"to_empty() also failed: {e2}")
-                    raise e
+                    # Complex loading for other models
+                    model_kwargs = {
+                        "torch_dtype": loading_config["torch_dtype"],
+                        "attn_implementation": loading_config.get("attn_implementation", "eager"),
+                        "low_cpu_mem_usage": loading_config["low_cpu_mem_usage"],
+                        "trust_remote_code": loading_config.get("trust_remote_code", False),
+                        "use_cache": loading_config.get("use_cache", True)
+                    }
+                    
+                    # Add quantization_config if present (for large models)
+                    if "quantization_config" in loading_config:
+                        model_kwargs["quantization_config"] = loading_config["quantization_config"]
+                    
+                    model = AutoModelForCausalLM.from_pretrained(
+                        model_config.model_path,
+                        **model_kwargs
+                    )
             
-            model.eval()
+            # Simple setup for gemma3 models (copy exact working approach)
+            if model_config.model_family == "gemma3":
+                # Just set to eval mode, device_map="auto" handles device placement
+                model.eval()
+            else:
+                # Enable gradient checkpointing if specified
+                if loading_config.get("gradient_checkpointing", False):
+                    model.gradient_checkpointing_enable()
+                    logger.info("Gradient checkpointing enabled")
+                
+                # Move model to the correct device and set to evaluation mode
+                # Handle meta tensors properly by using to_empty()
+                try:
+                    # Check if any parameter is a meta tensor
+                    has_meta_tensors = any(p.is_meta for p in model.parameters())
+                    if has_meta_tensors:
+                        logger.info("Model has meta tensors, using to_empty()")
+                        model = model.to_empty(device=self.device)
+                    else:
+                        model = model.to(self.device)
+                except Exception as e:
+                    # If to_empty() fails or we can't detect meta tensors, try the alternative approach
+                    logger.warning(f"Standard device move failed: {e}, trying to_empty()")
+                    try:
+                        model = model.to_empty(device=self.device)
+                    except Exception as e2:
+                        logger.error(f"to_empty() also failed: {e2}")
+                        raise e
+                
+                model.eval()
             
             # Resize token embeddings if we added special tokens
             if "conversational" in model_name.lower() and model_config.chat_template_name == "gpt2_conversational":
@@ -275,9 +311,9 @@ class ModelManager:
         # Override with any provided kwargs
         gen_config.update(generation_kwargs)
         
-        # Set pad_token_id if not provided
+        # Set token IDs based on tokenizer (don't override if tokenizer has them)
         if gen_config["pad_token_id"] is None:
-            gen_config["pad_token_id"] = self.current_tokenizer.eos_token_id
+            gen_config["pad_token_id"] = self.current_tokenizer.pad_token_id if self.current_tokenizer.pad_token_id is not None else self.current_tokenizer.eos_token_id
         if gen_config["eos_token_id"] is None:
             gen_config["eos_token_id"] = self.current_tokenizer.eos_token_id
             
@@ -292,8 +328,49 @@ class ModelManager:
         self.memory_monitor.log_memory_usage("Before generation", logger)
         
         try:
-            # For conversational models, use special handling
-            if self.current_model_name in ["gpt2-large-conversational", "dialogpt-large"]:
+            # Get current model config for prompt formatting
+            current_config = get_model_config(self.current_model_name)
+            
+            # Format prompt based on model type (following phi_evaluator.py pattern)
+            if "gemma-3" in str(current_config.model_path):
+                # Use the exact same approach as the working minimal test
+                messages = [{"role": "user", "content": prompt}]
+                try:
+                    inputs = self.current_tokenizer.apply_chat_template(
+                        messages,
+                        add_generation_prompt=True,
+                        tokenize=True,
+                        return_dict=True,
+                        return_tensors="pt"
+                    )
+                except Exception as e:
+                    logger.warning(f"Chat template failed for gemma3 ({e}), using fallback")
+                    formatted_prompt = f"<start_of_turn>user\n{prompt}<end_of_turn>\n<start_of_turn>model\n"
+                    inputs = self.current_tokenizer(formatted_prompt, return_tensors="pt")
+                
+                # Move to device
+                if torch.cuda.is_available():
+                    inputs = {k: v.to("cuda") for k, v in inputs.items()}
+                
+                # Generate using EXACTLY the same call as working minimal test
+                with torch.no_grad():
+                    outputs = self.current_model.generate(
+                        **inputs,
+                        max_new_tokens=256
+                    )
+                
+                # Decode response exactly like working minimal test  
+                input_length = inputs["input_ids"].shape[1]
+                response_tokens = outputs[0][input_length:]
+                response = self.current_tokenizer.decode(response_tokens, skip_special_tokens=True).strip()
+                
+                # Filter artifacts but keep original logic simple
+                unwanted_patterns = ["<pad>", "<mask>"]
+                for pattern in unwanted_patterns:
+                    response = response.replace(pattern, "")
+                response = response.strip()
+                
+            elif self.current_model_name in ["gpt2-large-conversational", "dialogpt-large"]:
                 # Use the exact tokenization approach from the example
                 input_ids = self.current_tokenizer.encode(
                     prompt, 
@@ -350,8 +427,11 @@ class ModelManager:
                         **gen_config
                     )
             
-            # Decode response (remove input tokens)
-            if self.current_model_name in ["gpt2-large-conversational", "dialogpt-large"]:
+            # Decode response (remove input tokens) - only for non-gemma3 models
+            if "gemma-3" in str(current_config.model_path):
+                # Response already handled above for gemma3
+                pass
+            elif self.current_model_name in ["gpt2-large-conversational", "dialogpt-large"]:
                 input_length = input_ids.shape[1]
                 
                 if self.current_model_name == "gpt2-large-conversational":
@@ -369,47 +449,10 @@ class ModelManager:
                     response_tokens = outputs[0][input_length:]
                     response = self.current_tokenizer.decode(response_tokens, skip_special_tokens=True).strip()
             else:
+                # Standard decoding for other models
                 input_length = inputs["input_ids"].shape[1]
                 response_tokens = outputs[0][input_length:]
-                
-                # Special handling for gemma3 models
-                if "gemma-3" in str(self.current_model_config.model_path):
-                    # For gemma3 models, be more aggressive about filtering unwanted tokens
-                    response = self.current_tokenizer.decode(
-                        response_tokens, 
-                        skip_special_tokens=True
-                    ).strip()
-                    
-                    # Filter out common gemma3 artifacts
-                    unwanted_patterns = [
-                        "<mask>",
-                        "[multimodal]", 
-                        "<unused0>",
-                        "<unused1>",
-                        "<unused2>",
-                        "<unused3>",
-                        "<unused4>",
-                        "<unused5>",
-                        "<unused6>",
-                        "<unused7>",
-                        "<unused8>",
-                        "<unused9>",
-                    ]
-                    
-                    for pattern in unwanted_patterns:
-                        response = response.replace(pattern, "")
-                    
-                    response = response.strip()
-                    
-                    # If response is still empty or just special tokens, log warning
-                    if not response or len(response) < 5:
-                        logger.warning(f"Gemma3 generated minimal/empty response: '{response}'")
-                        logger.warning(f"Raw token output: {self.current_tokenizer.decode(response_tokens, skip_special_tokens=False)}")
-                else:
-                    response = self.current_tokenizer.decode(
-                        response_tokens, 
-                        skip_special_tokens=True
-                    ).strip()
+                response = self.current_tokenizer.decode(response_tokens, skip_special_tokens=True).strip()
             
             self.memory_monitor.log_memory_usage("After generation", logger)
             
