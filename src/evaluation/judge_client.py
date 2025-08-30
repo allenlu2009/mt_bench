@@ -309,10 +309,11 @@ class JudgeClient:
                 r'\[\[rating\s*(\d+(?:\.\d+)?)\]\]',          # [[rating 4]]
                 r'\[\[Rating\s*(\d+(?:\.\d+)?)\]\]',          # [[Rating 4]]
                 r'\[\[(\d+(?:\.\d+)?)\]\]\[\[/rating\]\]',    # [[4]][[/rating]]
+                r'\[\[\s*(\d+(?:\.\d+)?)\s*\]\]',             # [[  3  ]] with whitespace/newlines
             ]
             
             for pattern in patterns:
-                match = re.search(pattern, response_text, re.IGNORECASE)
+                match = re.search(pattern, response_text, re.IGNORECASE | re.DOTALL)
                 if match:
                     rating = float(match.group(1))
                     score = max(1.0, min(10.0, rating))  # Clamp to 1-10 range
