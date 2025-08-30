@@ -1,6 +1,6 @@
 """Model configurations for supported LLMs in MT-bench evaluation."""
 
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
 
 
@@ -246,6 +246,36 @@ def get_models_within_memory_limit(memory_limit_gb: float) -> Dict[str, ModelCon
         for name, config in AVAILABLE_MODELS.items() 
         if config.estimated_memory_gb <= memory_limit_gb
     }
+
+
+def get_models_by_family(family: str) -> List[str]:
+    """
+    Get all models belonging to a specific family.
+    
+    Args:
+        family: Model family name (e.g., 'llama', 'gemma', 'phi', 'qwen', 'gpt2', 'gemma3')
+        
+    Returns:
+        List of model names in the specified family
+    """
+    family_models = []
+    for name, config in AVAILABLE_MODELS.items():
+        if config.model_family == family:
+            family_models.append(name)
+    return family_models
+
+
+def get_available_families() -> List[str]:
+    """
+    Get all available model families.
+    
+    Returns:
+        List of unique model family names
+    """
+    families = set()
+    for config in AVAILABLE_MODELS.values():
+        families.add(config.model_family)
+    return sorted(list(families))
 
 
 def get_generation_config(model_config: ModelConfig) -> Dict[str, Any]:

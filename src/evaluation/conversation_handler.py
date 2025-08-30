@@ -266,24 +266,29 @@ class ConversationHandler:
         }
     
     def validate_conversation_format(self, session: ConversationSession, 
-                                   question: MTBenchQuestion) -> bool:
+                                   question: MTBenchQuestion,
+                                   turn1_only: bool = False) -> bool:
         """
         Validate that conversation follows MT-bench format requirements.
         
         Args:
             session: Conversation session to validate
             question: Original MT-bench question
+            turn1_only: If True, expect only 1 turn instead of 2
             
         Returns:
             True if valid, False otherwise
         """
         # Check number of turns
-        if len(session.turns) != 2:
-            logger.warning(f"Invalid turn count: {len(session.turns)}, expected 2")
+        expected_turns = 1 if turn1_only else 2
+        if len(session.turns) != expected_turns:
+            logger.warning(f"Invalid turn count: {len(session.turns)}, expected {expected_turns}")
             return False
         
-        # Check that questions match
-        for i, turn in enumerate(session.turns):
+        # Check that questions match (only for the turns we processed)
+        turns_to_check = min(len(session.turns), expected_turns)
+        for i in range(turns_to_check):
+            turn = session.turns[i]
             expected_question = question.turns[i]
             if turn.user_message != expected_question:
                 logger.warning(f"Turn {i+1} question mismatch")

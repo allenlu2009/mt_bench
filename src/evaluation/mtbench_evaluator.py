@@ -36,7 +36,8 @@ class MTBenchEvaluator:
                  cache_dir: str = "data",
                  memory_limit_gb: float = 6.0,
                  max_questions: Optional[int] = None,
-                 debug_judge: bool = False):
+                 debug_judge: bool = False,
+                 turn1_only: bool = False):
         """
         Initialize MT-bench evaluator.
         
@@ -48,9 +49,11 @@ class MTBenchEvaluator:
             memory_limit_gb: GPU memory limit
             max_questions: Limit number of questions (for testing)
             debug_judge: Enable debug output for judge prompts and responses
+            turn1_only: If True, evaluate only the first turn (single Q&A)
         """
         self.model_names = model_names
         self.max_questions = max_questions
+        self.turn1_only = turn1_only
         
         # Initialize components
         self.model_manager = ModelManager(memory_limit_gb=memory_limit_gb)
@@ -69,10 +72,64 @@ class MTBenchEvaluator:
             "models_evaluated": model_names,
             "judge_model": judge_model,
             "total_questions": 0,
-            "memory_limit_gb": memory_limit_gb
+            "memory_limit_gb": memory_limit_gb,
+            "turn1_only": turn1_only
         }
         
         logger.info(f"MTBenchEvaluator initialized for models: {model_names}")
+    
+    def _select_questions_by_category(self, questions: List[MTBenchQuestion], 
+                                    max_questions: int) -> List[MTBenchQuestion]:
+        """
+        Select questions prioritizing one per category for balanced evaluation.
+        
+        Args:
+            questions: All available questions
+            max_questions: Maximum number of questions to select
+            
+        Returns:
+            Selected questions with balanced category representation
+        """
+        if max_questions >= len(questions):
+            return questions
+        
+        # Group questions by category
+        categories = {}
+        for q in questions:
+            if q.category not in categories:
+                categories[q.category] = []
+            categories[q.category].append(q)
+        
+        selected = []
+        category_names = sorted(categories.keys())
+        
+        # First pass: select one question from each category
+        for category in category_names:
+            if len(selected) < max_questions:
+                selected.append(categories[category][0])  # Take first question in category
+        
+        # Second pass: fill remaining slots with questions from categories with more questions
+        remaining_slots = max_questions - len(selected)
+        if remaining_slots > 0:
+            # Add more questions from categories that have multiple questions
+            for category in category_names:
+                category_questions = categories[category][1:]  # Skip first (already selected)
+                for q in category_questions:
+                    if len(selected) < max_questions:
+                        selected.append(q)
+                    else:
+                        break
+        
+        # Sort by question_id to maintain consistent order
+        selected.sort(key=lambda q: q.question_id)
+        
+        # Log category distribution
+        selected_categories = {}
+        for q in selected:
+            selected_categories[q.category] = selected_categories.get(q.category, 0) + 1
+        
+        logger.info(f"Selected questions by category: {dict(sorted(selected_categories.items()))}")
+        return selected
     
     async def run_full_evaluation(self) -> Dict[str, Any]:
         """
@@ -88,9 +145,9 @@ class MTBenchEvaluator:
             # Load MT-bench questions
             questions = self.data_loader.load_mtbench_questions()
             
-            # Limit questions if specified
+            # Limit questions if specified (prefer one per category)
             if self.max_questions:
-                questions = questions[:self.max_questions]
+                questions = self._select_questions_by_category(questions, self.max_questions)
                 logger.info(f"Limited to {len(questions)} questions for testing")
             
             self.evaluation_metadata["total_questions"] = len(questions)
@@ -230,8 +287,9 @@ class MTBenchEvaluator:
         session_id = self.conversation_handler.start_conversation(question, model_name)
         
         try:
-            # Process both turns
-            for turn_number in [1, 2]:
+            # Process turns (1 or 2 depending on turn1_only flag)
+            turns_to_process = [1] if self.turn1_only else [1, 2]
+            for turn_number in turns_to_process:
                 # Get current tokenizer for chat template support
                 tokenizer = self.model_manager.get_current_tokenizer()
                 
@@ -263,7 +321,7 @@ class MTBenchEvaluator:
             session = self.conversation_handler.end_conversation(session_id)
             
             # Validate conversation format
-            if not self.conversation_handler.validate_conversation_format(session, question):
+            if not self.conversation_handler.validate_conversation_format(session, question, self.turn1_only):
                 logger.warning(f"Invalid conversation format for question {question.question_id}")
             
             return session

@@ -10,7 +10,7 @@ from typing import List, Optional
 
 from .evaluation.mtbench_evaluator import MTBenchEvaluator
 from .evaluation.multi_mode_evaluator import MultiModeEvaluator
-from .models.model_configs import get_available_models, get_models_within_memory_limit
+from .models.model_configs import get_available_models, get_models_within_memory_limit, get_models_by_family, get_available_families
 from .utils.memory_utils import optimize_for_rtx3060
 
 
@@ -226,6 +226,13 @@ Examples:
   # Adjust memory limit for different GPUs
   python -m src.cli --models llama-3.2-3b --memory-limit 8.0
   
+  # Evaluate only first turn (single Q&A) for faster testing
+  python -m src.cli --models gemma3-270m --turn1 --max-questions 5
+  
+  # Evaluate all models in a family
+  python -m src.cli --family gemma3 --max-questions 2
+  python -m src.cli --family llama --turn1
+  
   # List available models
   python -m src.cli --list-models
         """
@@ -235,6 +242,11 @@ Examples:
         "--models",
         nargs="+",
         help="Model names to evaluate (use --list-models to see available models)"
+    )
+    
+    parser.add_argument(
+        "--family",
+        help="Evaluate all models in a specific family (e.g., 'gemma', 'llama', 'phi', 'qwen', 'gemma3', 'gpt2')"
     )
     
     parser.add_argument(
@@ -274,6 +286,12 @@ Examples:
         "--max-questions",
         type=int,
         help="Maximum number of questions to evaluate (for testing)"
+    )
+    
+    parser.add_argument(
+        "--turn1",
+        action="store_true",
+        help="Evaluate only the first turn (single Q&A) instead of full multi-turn conversations"
     )
     
     parser.add_argument(
@@ -335,12 +353,25 @@ async def main() -> None:
         print_available_models()
         return
     
-    # Validate required arguments
-    if not args.models:
-        parser.error("--models is required (use --list-models to see available models)")
+    # Handle model selection (either --models or --family)
+    if args.family:
+        available_families = get_available_families()
+        if args.family not in available_families:
+            parser.error(f"Family '{args.family}' not found. Available families: {', '.join(available_families)}")
+        
+        family_models = get_models_by_family(args.family)
+        if not family_models:
+            parser.error(f"No models found in family '{args.family}'")
+        
+        model_names = family_models
+        print(f"Evaluating all models in '{args.family}' family: {', '.join(model_names)}")
+    elif args.models:
+        model_names = args.models
+    else:
+        parser.error("Either --models or --family is required (use --list-models to see available models)")
     
     # Validate evaluation mode requirements
-    if args.mode in ["pairwise", "both"] and len(args.models) < 2:
+    if args.mode in ["pairwise", "both"] and len(model_names) < 2:
         parser.error("Pairwise comparison requires at least 2 models")
     
     # Check for API key
@@ -354,7 +385,7 @@ async def main() -> None:
         logger.info("Applied RTX 3060 optimizations")
         
         # Validate models
-        valid_models = validate_models(args.models, args.memory_limit)
+        valid_models = validate_models(model_names, args.memory_limit)
         logger.info(f"Validated models: {valid_models}")
         
         # Create output directory
@@ -370,7 +401,8 @@ async def main() -> None:
                 cache_dir=args.cache_dir,
                 memory_limit_gb=args.memory_limit,
                 max_questions=args.max_questions,
-                debug_judge=args.debug_judge
+                debug_judge=args.debug_judge,
+                turn1_only=args.turn1
             )
             
             logger.info(f"Starting single-mode MT-bench evaluation for {len(valid_models)} models")
