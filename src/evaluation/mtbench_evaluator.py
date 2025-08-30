@@ -202,6 +202,7 @@ class MTBenchEvaluator:
             model_config = get_model_config(model_name)
             
             self.memory_monitor.log_memory_usage(f"Loaded {model_name}", logger)
+            self.memory_monitor.check_memory_usage(f"Loaded {model_name}")
             
             # Generate responses for all questions
             sessions = await self._generate_model_responses(
@@ -304,6 +305,7 @@ class MTBenchEvaluator:
                 
                 generation_time = time.time() - start_time
                 memory_after = self.memory_monitor.get_gpu_memory_usage()
+                self.memory_monitor.check_memory_usage(f"Generated response for Q{question.question_id}")
                 
                 # Add turn to conversation
                 self.conversation_handler.add_turn_response(
