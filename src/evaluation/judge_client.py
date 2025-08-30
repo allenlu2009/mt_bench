@@ -105,7 +105,32 @@ class JudgeClient:
         self._configure_model_settings()
         self.request_timestamps = []
         
+        # Setup debug file logging if debug is enabled
+        self.debug_file = None
+        if self.debug:
+            import datetime
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            from pathlib import Path
+            debug_dir = Path("debug_logs")
+            debug_dir.mkdir(exist_ok=True)
+            self.debug_file = debug_dir / f"judge_debug_{self.model}_{timestamp}.log"
+            logger.info(f"Debug logging enabled, saving to: {self.debug_file}")
+        
         logger.info(f"JudgeClient initialized with model: {model} (rate limit: {self.max_requests_per_second}/s)")
+    
+    def _write_debug_log(self, content: str) -> None:
+        """
+        Write content to debug log file if debug mode is enabled.
+        
+        Args:
+            content: Content to write to debug log
+        """
+        if self.debug and self.debug_file:
+            try:
+                with open(self.debug_file, 'a', encoding='utf-8') as f:
+                    f.write(content + "\n")
+            except Exception as e:
+                logger.warning(f"Failed to write debug log: {e}")
     
     def _configure_model_settings(self) -> None:
         """
@@ -246,7 +271,7 @@ class JudgeClient:
             Formatted prompt string
         """
         # Use turn-aware template similar to examples
-        return f"""Please act as an impartial judge and evaluate the quality of the response provided by an AI assistant to the user question displayed below. Your evaluation should consider factors such as the helpfulness, relevance, accuracy, depth, creativity, and level of detail of the response. Begin your evaluation by providing a short explanation. Be as objective as possible. After providing your explanation, please rate the response on a scale of 1 to 10 by strictly following this format: "[[rating]]", for example: "Rating: [[5]]".
+        return f"""Please act as an impartial judge and evaluate the quality of the response provided by an AI assistant to the user question displayed below. Your evaluation should consider factors such as the helpfulness, relevance, accuracy, depth, creativity, and level of detail of the response. Begin your evaluation by providing a short explanation. Be as objective as possible. After providing your explanation, please rate the response on a scale of 1 to 10 by strictly following this format: "[[rating]]", for example: "Rating: [[5]]". Provide your evaluation directly without using reasoning mode.
 
 [Question (Turn {turn_num})]
 {question.strip()}
@@ -255,12 +280,19 @@ class JudgeClient:
 {answer.strip()}
 [The End of Assistant's Answer]"""
     
-    def _parse_judge_response(self, response_text: str) -> Dict[str, Any]:
+    def _parse_judge_response(self, response_text: str, question_id: int = None, 
+                            turn: int = None, model_name: str = None, 
+                            prompt_sent: str = None, answer: str = None, response_obj = None) -> Dict[str, Any]:
         """
         Parse judge response to extract score and reasoning.
         
         Args:
             response_text: Raw response from judge model
+            question_id: Question ID (for debug logging)
+            turn: Turn number (for debug logging)
+            model_name: Model name (for debug logging)
+            question: Original question (for debug logging)
+            answer: Model answer (for debug logging)
             
         Returns:
             Dictionary with 'score' and 'reasoning' keys
@@ -269,24 +301,34 @@ class JudgeClient:
             # Use the exact same parsing logic as examples/judge.py
             import re
             
-            # Look for [[rating]] pattern (including negative numbers)
-            match = re.search(r'\[\[(-?\d+(?:\.\d+)?)\]\]', response_text)
-            if match:
-                rating = float(match.group(1))
-                score = max(1.0, min(10.0, rating))  # Clamp to 1-10 range
-                
-                # Extract reasoning (everything before the rating)
-                rating_start = match.start()
-                reasoning = response_text[:rating_start].strip()
-                
-                # Clean up reasoning
-                reasoning = re.sub(r'^(Rating:|Explanation:|Reasoning:)\s*', '', reasoning, flags=re.IGNORECASE)
-                reasoning = reasoning.strip()
-                
-                return {
-                    "score": score,
-                    "reasoning": reasoning or "No reasoning provided"
-                }
+            # Try multiple patterns to handle gpt-5-nano variations
+            patterns = [
+                r'\[\[(\d+(?:\.\d+)?)\]\]',                    # [[5]]
+                r'\[\[rating\]\]\s*(\d+(?:\.\d+)?)',          # [[rating]] 4  
+                r'\[\[Rating\]\]\s*(\d+(?:\.\d+)?)',          # [[Rating]] 4
+                r'\[\[rating\s*(\d+(?:\.\d+)?)\]\]',          # [[rating 4]]
+                r'\[\[Rating\s*(\d+(?:\.\d+)?)\]\]',          # [[Rating 4]]
+                r'\[\[(\d+(?:\.\d+)?)\]\]\[\[/rating\]\]',    # [[4]][[/rating]]
+            ]
+            
+            for pattern in patterns:
+                match = re.search(pattern, response_text, re.IGNORECASE)
+                if match:
+                    rating = float(match.group(1))
+                    score = max(1.0, min(10.0, rating))  # Clamp to 1-10 range
+                    
+                    # Extract reasoning (everything before the rating)
+                    rating_start = match.start()
+                    reasoning = response_text[:rating_start].strip()
+                    
+                    # Clean up reasoning
+                    reasoning = re.sub(r'^(Rating:|Explanation:|Reasoning:)\s*', '', reasoning, flags=re.IGNORECASE)
+                    reasoning = reasoning.strip()
+                    
+                    return {
+                        "score": score,
+                        "reasoning": reasoning or "No reasoning provided"
+                    }
                 
             # Fallback: look for "Rating: X" pattern (including negative numbers)
             match = re.search(r'[Rr]ating:?\s*(-?\d+(?:\.\d+)?)', response_text)
@@ -317,6 +359,63 @@ class JudgeClient:
             
             # Log the full response for debugging (like examples)
             logger.warning(f"Could not extract rating from response: {response_text[:100]}...")
+            
+            # Save detailed debug information for failed parsing
+            if self.debug and question_id is not None:
+                import time
+                current_time = time.strftime("%H:%M:%S")
+                
+                # Get response metadata if available
+                response_meta = ""
+                if response_obj:
+                    try:
+                        choice = response_obj.choices[0] if response_obj.choices else None
+                        usage = getattr(response_obj, 'usage', None)
+                        response_meta = f"""
+🔍 RAW API RESPONSE STRUCTURE:
+Response object type: {type(response_obj)}
+Choices length: {len(response_obj.choices) if response_obj.choices else 0}
+Choice message type: {type(choice.message) if choice else 'N/A'}
+Message content type: {type(choice.message.content) if choice else 'N/A'}
+Finish reason: {choice.finish_reason if choice else 'N/A'}
+Token usage: {usage if usage else 'N/A'}
+"""
+                    except Exception:
+                        response_meta = "\n🔍 RAW API RESPONSE STRUCTURE: [Error accessing response metadata]"
+                
+                # Extract question text from prompt for length calculation
+                question_text = ""
+                if prompt_sent:
+                    # Extract question between [Question (Turn X)] and [The Start of Assistant's Answer]
+                    import re
+                    q_match = re.search(r'\[Question \(Turn \d+\)\]\s*(.*?)\s*\[The Start of Assistant\'s Answer\]', prompt_sent, re.DOTALL)
+                    if q_match:
+                        question_text = q_match.group(1).strip()
+                
+                debug_content = f"""
+{'='*80}
+📤 SENDING TO {self.model} - Turn {turn} (Q{question_id}) [{current_time}] - PARSING FAILED
+{'='*80}
+Prompt length: {len(prompt_sent) if prompt_sent else 0} characters
+Question length: {len(question_text)} characters  
+Answer length: {len(answer) if answer else 0} characters
+
+FULL PROMPT SENT TO JUDGE:
+{prompt_sent or 'N/A'}
+{'='*80}
+{response_meta}
+{'='*80}
+📥 RECEIVED FROM {self.model} - Turn {turn} (Q{question_id}) [{current_time}]
+{'='*80}
+Response length: {len(response_text)} characters
+
+FULL RESPONSE FROM JUDGE:
+{response_text if response_text else '[EMPTY RESPONSE]'}
+{'='*80}
+PARSING FAILED - Using default score 5.0
+{'='*80}
+"""
+                self._write_debug_log(debug_content)
             
             return {
                 "score": 5.0,  # Default like examples
@@ -368,9 +467,8 @@ class JudgeClient:
             
             # Use different parameters for GPT-5 models
             if "gpt-5" in self.model:
-                # Workaround for GPT-5 empty response issue
-                # Add explicit instructions to force a text response
-                enhanced_prompt = prompt + "\n\n[SYSTEM INSTRUCTION: You must provide a complete text response with your evaluation followed by a rating in the format [[rating]]. Do not use reasoning mode. Respond directly with your evaluation text.]"
+                # Use original prompt without conflicting system instruction
+                enhanced_prompt = prompt
                 
                 if self.debug:
                     print(f"🔧 GPT-5 workaround applied: {self.model}")
@@ -462,7 +560,7 @@ class JudgeClient:
                 print(f"{'='*80}")
             
             # Parse the response
-            parsed = self._parse_judge_response(response_text)
+            parsed = self._parse_judge_response(response_text, question_id, turn, model_name, prompt_to_send, answer, response)
             
             # Debug: Print parsing results
             if self.debug:

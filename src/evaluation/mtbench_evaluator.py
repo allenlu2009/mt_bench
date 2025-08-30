@@ -102,23 +102,21 @@ class MTBenchEvaluator:
         
         selected = []
         category_names = sorted(categories.keys())
+        category_index = {cat: 0 for cat in category_names}
         
-        # First pass: select one question from each category
-        for category in category_names:
-            if len(selected) < max_questions:
-                selected.append(categories[category][0])  # Take first question in category
-        
-        # Second pass: fill remaining slots with questions from categories with more questions
-        remaining_slots = max_questions - len(selected)
-        if remaining_slots > 0:
-            # Add more questions from categories that have multiple questions
+        # Single pass: cycle through categories and take next available question
+        while len(selected) < max_questions:
+            questions_added_this_round = 0
             for category in category_names:
-                category_questions = categories[category][1:]  # Skip first (already selected)
-                for q in category_questions:
-                    if len(selected) < max_questions:
-                        selected.append(q)
-                    else:
-                        break
+                if (len(selected) < max_questions and 
+                    category_index[category] < len(categories[category])):
+                    selected.append(categories[category][category_index[category]])
+                    category_index[category] += 1
+                    questions_added_this_round += 1
+            
+            # Break if no more questions available in any category
+            if questions_added_this_round == 0:
+                break
         
         # Sort by question_id to maintain consistent order
         selected.sort(key=lambda q: q.question_id)
