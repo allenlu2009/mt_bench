@@ -271,8 +271,8 @@ class TestModelConfigConsistency:
             assert isinstance(config.top_p, float)
             assert isinstance(config.estimated_memory_gb, float)
             
-            # Check reasonable ranges
-            assert 0 < config.temperature <= 1.0
+            # Check reasonable ranges (allow 0.0 for deterministic models like gemma3-270m)
+            assert 0.0 <= config.temperature <= 1.0
             assert 0 < config.top_p <= 1.0
             assert config.max_new_tokens > 0
             assert config.estimated_memory_gb > 0
