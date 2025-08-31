@@ -76,6 +76,9 @@ class MTBenchEvaluator:
             "turn1_only": turn1_only
         }
         
+        # Set up logger
+        self.logger = logger
+        
         logger.info(f"MTBenchEvaluator initialized for models: {model_names}")
     
     def _select_questions_by_category(self, questions: List[MTBenchQuestion], 
@@ -202,7 +205,7 @@ class MTBenchEvaluator:
             model_config = get_model_config(model_name)
             
             self.memory_monitor.log_memory_usage(f"Loaded {model_name}", logger)
-            self.memory_monitor.check_memory_usage(f"Loaded {model_name}")
+            # Memory usage already logged above
             
             # Generate responses for all questions
             sessions = await self._generate_model_responses(
@@ -305,7 +308,7 @@ class MTBenchEvaluator:
                 
                 generation_time = time.time() - start_time
                 memory_after = self.memory_monitor.get_gpu_memory_usage()
-                self.memory_monitor.check_memory_usage(f"Generated response for Q{question.question_id}")
+                self.memory_monitor.log_memory_usage(f"Generated response for Q{question.question_id}", self.logger)
                 
                 # Add turn to conversation
                 self.conversation_handler.add_turn_response(

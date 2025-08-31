@@ -146,6 +146,9 @@ class MemoryMonitor:
         """
         stats = self.get_comprehensive_stats()
         
+        # Update peak memory tracking
+        self.peak_memory = max(self.peak_memory, stats.gpu_allocated_gb)
+        
         # Calculate GPU percentage safely (avoid division by zero)
         gpu_percentage = (
             (stats.gpu_allocated_gb / stats.gpu_total_gb * 100) 
