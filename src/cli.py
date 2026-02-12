@@ -331,6 +331,13 @@ Examples:
     )
     
     parser.add_argument(
+        "--low-score",
+        type=float,
+        default=2.0,
+        help="Threshold for logging low score cases when --debug-judge is enabled (default: 2.0)"
+    )
+    
+    parser.add_argument(
         "--force-download",
         action="store_true",
         help="Force re-download of MT-bench data"
@@ -402,6 +409,7 @@ async def main() -> None:
                 memory_limit_gb=args.memory_limit,
                 max_questions=args.max_questions,
                 debug_judge=args.debug_judge,
+                low_score_threshold=args.low_score,
                 turn1_only=args.turn1
             )
             
@@ -419,7 +427,8 @@ async def main() -> None:
                 memory_limit_gb=args.memory_limit,
                 max_questions=args.max_questions,
                 disable_response_cache=args.disable_response_cache,
-                debug_judge=args.debug_judge
+                debug_judge=args.debug_judge,
+                low_score_threshold=args.low_score
             )
             
             logger.info(f"Starting {args.mode}-mode MT-bench evaluation for {len(valid_models)} models")

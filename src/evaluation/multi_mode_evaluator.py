@@ -34,7 +34,8 @@ class MultiModeEvaluator:
                  memory_limit_gb: float = 6.0,
                  max_questions: Optional[int] = None,
                  disable_response_cache: bool = False,
-                 debug_judge: bool = False):
+                 debug_judge: bool = False,
+                 low_score_threshold: float = 2.0):
         """
         Initialize multi-mode evaluator.
         
@@ -47,6 +48,8 @@ class MultiModeEvaluator:
             memory_limit_gb: GPU memory limit
             max_questions: Maximum questions to evaluate (for testing)
             disable_response_cache: Disable response caching
+            debug_judge: Enable debug output for judge prompts and responses
+            low_score_threshold: Threshold for logging low score cases (default: 2.0)
         """
         # Validate input
         if len(model_names) < 2:
@@ -65,7 +68,9 @@ class MultiModeEvaluator:
             judge_model=judge_model,
             cache_dir=cache_dir,
             memory_limit_gb=memory_limit_gb,
-            max_questions=max_questions
+            max_questions=max_questions,
+            debug_judge=debug_judge,
+            low_score_threshold=low_score_threshold
         )
         
         self.response_manager = ResponseManager(
@@ -74,7 +79,7 @@ class MultiModeEvaluator:
         )
         
         self.data_loader = DataLoader(cache_dir)
-        self.judge_client = JudgeClient(openai_api_key, judge_model, debug=debug_judge)
+        self.judge_client = JudgeClient(openai_api_key, judge_model, debug=debug_judge, low_score_threshold=low_score_threshold)
         
         # Track evaluation progress
         self.progress = {
@@ -84,6 +89,9 @@ class MultiModeEvaluator:
             "pairwise_judgments": 0,
             "peak_memory_gb": 0.0
         }
+        
+        # Track peak memory across all evaluators
+        self.peak_memory_gb = 0.0
         
         logger.info(f"MultiModeEvaluator initialized for {len(model_names)} models")
     
@@ -102,6 +110,11 @@ class MultiModeEvaluator:
             len(model_result.get("scores", []))
             for model_result in results.get("model_results", [])
         )
+        
+        # Update peak memory from single evaluator
+        if hasattr(self.single_evaluator, 'memory_monitor'):
+            self.peak_memory_gb = max(self.peak_memory_gb, self.single_evaluator.memory_monitor.peak_memory)
+            self.progress["peak_memory_gb"] = self.peak_memory_gb
         
         return results
     
@@ -284,6 +297,11 @@ class MultiModeEvaluator:
         pairwise_results = self._process_pairwise_results(judgments, model_pairs)
         
         self.progress["pairwise_judgments"] = len(judgments)
+        
+        # Update peak memory from model loading during pairwise evaluation
+        if hasattr(self.single_evaluator, 'memory_monitor'):
+            self.peak_memory_gb = max(self.peak_memory_gb, self.single_evaluator.memory_monitor.peak_memory)
+            self.progress["peak_memory_gb"] = self.peak_memory_gb
         
         return pairwise_results
     

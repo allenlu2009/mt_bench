@@ -37,6 +37,7 @@ class MTBenchEvaluator:
                  memory_limit_gb: float = 6.0,
                  max_questions: Optional[int] = None,
                  debug_judge: bool = False,
+                 low_score_threshold: float = 2.0,
                  turn1_only: bool = False):
         """
         Initialize MT-bench evaluator.
@@ -49,6 +50,7 @@ class MTBenchEvaluator:
             memory_limit_gb: GPU memory limit
             max_questions: Limit number of questions (for testing)
             debug_judge: Enable debug output for judge prompts and responses
+            low_score_threshold: Threshold for logging low score cases (default: 2.0)
             turn1_only: If True, evaluate only the first turn (single Q&A)
         """
         self.model_names = model_names
@@ -58,7 +60,7 @@ class MTBenchEvaluator:
         # Initialize components
         self.model_manager = ModelManager(memory_limit_gb=memory_limit_gb)
         self.data_loader = DataLoader(cache_dir=cache_dir)
-        self.judge_client = JudgeClient(api_key=openai_api_key, model=judge_model, debug=debug_judge)
+        self.judge_client = JudgeClient(api_key=openai_api_key, model=judge_model, debug=debug_judge, low_score_threshold=low_score_threshold)
         self.conversation_handler = ConversationHandler()
         self.results_analyzer = ResultsAnalyzer()
         self.memory_monitor = MemoryMonitor(memory_limit_gb)

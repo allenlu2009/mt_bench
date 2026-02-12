@@ -84,7 +84,7 @@ class JudgeClient:
 {answer_b}
 [The End of Assistant B's Answer]"""
 
-    def __init__(self, api_key: Optional[str] = None, model: str = "gpt-5-nano", debug: bool = False):
+    def __init__(self, api_key: Optional[str] = None, model: str = "gpt-5-nano", debug: bool = False, low_score_threshold: float = 2.0):
         """
         Initialize judge client.
         
@@ -92,6 +92,7 @@ class JudgeClient:
             api_key: OpenAI API key (uses OPENAI_API_KEY env var if None)
             model: Judge model to use
             debug: Enable debug output for prompts and responses
+            low_score_threshold: Threshold for logging low score cases (default: 2.0)
         """
         self.api_key = api_key or os.getenv("OPENAI_API_KEY")
         if not self.api_key:
@@ -99,6 +100,7 @@ class JudgeClient:
         
         self.model = model
         self.debug = debug
+        self.low_score_threshold = low_score_threshold
         self.client = AsyncOpenAI(api_key=self.api_key)
         
         # Set rate limiting and parameters based on model
@@ -131,6 +133,67 @@ class JudgeClient:
                     f.write(content + "\n")
             except Exception as e:
                 logger.warning(f"Failed to write debug log: {e}")
+    
+    def _save_low_score_debug(self, score: float, question_id: int, turn: int, model_name: str,
+                            prompt: str, answer: str, response_text: str, response_obj) -> None:
+        """
+        Save debug information for low score cases (score <= 2.0) to separate file.
+        
+        Args:
+            score: Parsed score from judge
+            question_id: Question ID
+            turn: Turn number
+            model_name: Model that generated the response
+            prompt: Full prompt sent to judge
+            answer: Model's response being judged
+            response_text: Judge's response text
+            response_obj: Raw API response object
+        """
+        if not self.debug:
+            return
+            
+        try:
+            import datetime
+            from pathlib import Path
+            
+            # Create low score debug directory and file
+            debug_dir = Path("debug_logs")
+            debug_dir.mkdir(exist_ok=True)
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            low_score_file = debug_dir / f"low_scores_{self.model}_{timestamp}.log"
+            
+            # Format debug content
+            current_time = datetime.datetime.now().strftime("%H:%M:%S")
+            debug_content = f"""
+================================================================================
+🔴 LOW SCORE ALERT - Score: {score}/10 - {model_name} Q{question_id}T{turn} [{current_time}]
+================================================================================
+
+📋 QUESTION & MODEL METADATA:
+Question ID: {question_id}
+Turn: {turn}
+Model: {model_name}
+Judge Model: {self.model}
+Score: {score}/10
+
+📤 COMPLETE PROMPT SENT TO JUDGE:
+{prompt}
+
+📝 MODEL'S ANSWER BEING JUDGED:
+{answer}
+
+📥 JUDGE'S COMPLETE RESPONSE:
+{response_text}
+
+================================================================================
+"""
+            
+            # Append to low score debug file
+            with open(low_score_file, 'a', encoding='utf-8') as f:
+                f.write(debug_content)
+                
+        except Exception as e:
+            logger.warning(f"Failed to save low score debug: {e}")
     
     def _configure_model_settings(self) -> None:
         """
@@ -569,6 +632,11 @@ PARSING FAILED - Using default score 5.0
                 print(f"Parsed score: {parsed['score']}")
                 print(f"Parse success: {parse_success}")
                 print(f"{'='*80}")
+                
+                # Save low score cases to separate debug file
+                if parsed["score"] <= self.low_score_threshold:
+                    self._save_low_score_debug(parsed["score"], question_id, turn, model_name, 
+                                             prompt_to_send, answer, response_text, response)
             
             
             return JudgeScore(

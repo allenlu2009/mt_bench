@@ -10,3 +10,11 @@ results
 cached_responses
 examples/
 tests/test_evaluation/
+*.log
+.claude/settings.local.json
+debug_*.py
+test_*.py
+analyze_*.py
+working_*.py
+error
+*.log
