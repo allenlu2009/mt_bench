@@ -259,4 +259,4 @@ def optimize_for_rtx3060() -> None:
         
         # Set CUDA allocator configuration for better memory management
         import os
-        os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:128"
+        os.environ["PYTORCH_ALLOC_CONF"] = "max_split_size_mb:128"
