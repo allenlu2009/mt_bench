@@ -92,7 +92,7 @@ class ModelManager:
             return {
                 "trust_remote_code": True,
                 "device_map": "auto",
-                "torch_dtype": torch.bfloat16
+                "dtype": torch.bfloat16
             }
         
         # Base memory optimization config for other models
@@ -212,7 +212,7 @@ class ModelManager:
                 else:
                     # Complex loading for other models
                     model_kwargs = {
-                        "torch_dtype": loading_config["torch_dtype"],
+                        "dtype": loading_config.get("dtype", loading_config.get("torch_dtype")),
                         "attn_implementation": loading_config.get("attn_implementation", "eager"),
                         "low_cpu_mem_usage": loading_config["low_cpu_mem_usage"],
                         "trust_remote_code": loading_config.get("trust_remote_code", False),

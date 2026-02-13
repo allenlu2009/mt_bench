@@ -175,7 +175,7 @@ class MemoryMonitor:
             Dictionary with optimization settings for model loading
         """
         config = {
-            "torch_dtype": torch.float16,  # Half precision for RTX 3060
+            "dtype": torch.float16,  # Half precision for RTX 3060
             "low_cpu_mem_usage": True,
         }
         

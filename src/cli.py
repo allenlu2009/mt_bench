@@ -35,6 +35,7 @@ def setup_logging(verbose: bool = False) -> None:
     # Reduce noise from some libraries
     logging.getLogger('urllib3').setLevel(logging.WARNING)
     logging.getLogger('transformers').setLevel(logging.WARNING)
+    logging.getLogger('httpx').setLevel(logging.WARNING)
 
 
 def validate_models(model_names: List[str], memory_limit_gb: float) -> List[str]:
