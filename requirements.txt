@@ -2,7 +2,7 @@
 # Optimized for RTX 3060 with Flash Attention 2
 
 # Core ML libraries
-torch>=2.0.0
+#torch>=2.0.0
 transformers>=4.36.0
 tokenizers>=0.15.0
 accelerate>=0.24.1
