@@ -21,12 +21,11 @@ logger = logging.getLogger(__name__)
 class ModelManager:
     """
     Manages model loading and inference with memory optimization for RTX 3060.
-    
+
     Key features:
     - Flash Attention 2 integration for 30% memory reduction
     - Automatic memory cleanup between model loads
-    - fp16 precision for memory efficiency
-    - Gradient checkpointing for reduced memory usage
+    - Auto dtype selection for optimal precision per model
     """
     
     def __init__(self, device: str = "cuda", memory_limit_gb: float = 8.0):
@@ -56,24 +55,21 @@ class ModelManager:
     def _cleanup_current_model(self) -> None:
         """
         Cleanup currently loaded model to free memory.
-        
+
         Critical for RTX 3060 memory management.
+        Avoids model.to('cpu') which can crash if CUDA is in an error state.
         """
         if self.current_model is not None:
             logger.info(f"Cleaning up model: {self.current_model_name}")
-            
-            # Move model to CPU to free GPU memory
-            if hasattr(self.current_model, 'to'):
-                self.current_model.to('cpu')
-            
-            # Delete references
+
+            # Delete references directly (don't move to CPU — risky if CUDA is in error state)
             del self.current_model
             del self.current_tokenizer
-            
+
             self.current_model = None
             self.current_tokenizer = None
             self.current_model_name = None
-            
+
             # Force GPU memory cleanup
             self.memory_monitor.cleanup_gpu_memory()
             
@@ -233,11 +229,10 @@ class ModelManager:
                 # Just set to eval mode, device_map="auto" handles device placement
                 model.eval()
             else:
-                # Enable gradient checkpointing if specified
-                if loading_config.get("gradient_checkpointing", False):
-                    model.gradient_checkpointing_enable()
-                    logger.info("Gradient checkpointing enabled")
-                
+                # Reason: Gradient checkpointing is skipped — it only helps during
+                # training by trading compute for memory, but in eval mode with
+                # torch.no_grad() it adds overhead with no benefit.
+
                 # Move model to the correct device and set to evaluation mode
                 # Handle meta tensors properly by using to_empty()
                 try:

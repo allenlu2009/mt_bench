@@ -106,8 +106,9 @@ class MemoryMonitor:
         """
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
+            torch.cuda.ipc_collect()
             torch.cuda.synchronize()
-        
+
         # Force garbage collection
         gc.collect()
     
@@ -175,7 +176,7 @@ class MemoryMonitor:
             Dictionary with optimization settings for model loading
         """
         config = {
-            "dtype": torch.float16,  # Half precision for RTX 3060
+            "dtype": "auto",  # Let HuggingFace pick optimal dtype per model
             "low_cpu_mem_usage": True,
         }
         

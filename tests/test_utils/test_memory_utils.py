@@ -42,13 +42,15 @@ class TestMemoryMonitor:
     
     @patch('torch.cuda.is_available', return_value=True)
     @patch('torch.cuda.empty_cache')
+    @patch('torch.cuda.ipc_collect')
     @patch('torch.cuda.synchronize')
-    def test_cleanup_gpu_memory(self, mock_sync, mock_empty, mock_available):
+    def test_cleanup_gpu_memory(self, mock_sync, mock_ipc, mock_empty, mock_available):
         """Test GPU memory cleanup."""
         monitor = MemoryMonitor()
         monitor.cleanup_gpu_memory()
-        
+
         mock_empty.assert_called_once()
+        mock_ipc.assert_called_once()
         mock_sync.assert_called_once()
     
     @patch('torch.cuda.is_available', return_value=True)
@@ -95,19 +97,19 @@ class TestMemoryMonitor:
         """Test memory optimization configuration."""
         monitor = MemoryMonitor(gpu_memory_limit_gb=6.0)
         config = monitor.get_memory_optimization_config()
-        
-        required_keys = ["torch_dtype", "low_cpu_mem_usage"]
+
+        required_keys = ["dtype", "low_cpu_mem_usage"]
         for key in required_keys:
             assert key in config
-        
+
         # CUDA-specific keys only present when CUDA is available
         if torch.cuda.is_available():
             cuda_keys = ["device_map", "max_memory"]
             for key in cuda_keys:
                 assert key in config
-        
-        assert config["torch_dtype"] == torch.float16
-        
+
+        assert config["dtype"] == "auto"
+
         # Only check CUDA-specific configs when CUDA is available
         if torch.cuda.is_available():
             assert config["max_memory"] == {0: "5.5GB"}  # 6.0 - 0.5
@@ -159,7 +161,7 @@ class TestRTXOptimization:
         optimize_for_rtx3060()
         
         mock_set_fraction.assert_called_once_with(0.95)
-        assert os.environ["PYTORCH_CUDA_ALLOC_CONF"] == "max_split_size_mb:128"
+        assert os.environ["PYTORCH_ALLOC_CONF"] == "max_split_size_mb:128"
     
     @patch('torch.cuda.is_available', return_value=False)
     def test_optimize_for_rtx3060_no_cuda(self, mock_cuda):
