@@ -87,8 +87,13 @@ class TestModelConfigRetrieval:
         assert "phi-3-mini" not in medium_models  # 7.1GB
         
         # Test with large limit - should include all models
-        all_models = get_models_within_memory_limit(20.0)
+        all_models = get_models_within_memory_limit(100.0)
         assert len(all_models) == len(AVAILABLE_MODELS)
+
+        # 32B models should be excluded at 20GB limit
+        medium_large_models = get_models_within_memory_limit(20.0)
+        assert "qwen2.5-32b" not in medium_large_models  # 64GB
+        assert "qwen3-32b" not in medium_large_models  # 64GB
         
         # Test with very small limit - should include gpt2 (0.5GB) and gemma3-270m (0.6GB)
         tiny_models = get_models_within_memory_limit(1.0)
@@ -285,8 +290,8 @@ class TestModelConfigConsistency:
     def test_memory_estimates_reasonable(self):
         """Test that memory estimates are reasonable."""
         for model_name, config in AVAILABLE_MODELS.items():
-            # Memory should be between 0.5GB and 20GB (reasonable range)
-            assert 0.5 <= config.estimated_memory_gb <= 20.0, f"Model {model_name} has unreasonable memory estimate"
+            # Memory should be between 0.5GB and 128GB (reasonable range, includes 32B+ models)
+            assert 0.5 <= config.estimated_memory_gb <= 128.0, f"Model {model_name} has unreasonable memory estimate"
 
 
 if __name__ == "__main__":

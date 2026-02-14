@@ -195,6 +195,32 @@ AVAILABLE_MODELS = {
         requires_system_prompt=False,
         chat_template_name="qwen",
         quantization_format="BF16"
+    ),
+
+    "qwen2.5-32b": ModelConfig(
+        model_path="Qwen/Qwen2.5-32B-Instruct",
+        model_family="qwen",
+        prompt_template="<|im_start|>user\n{instruction}<|im_end|>\n<|im_start|>assistant\n",
+        max_new_tokens=512,
+        temperature=0.7,
+        top_p=0.9,
+        estimated_memory_gb=64.0,  # 32B parameters in BF16
+        requires_system_prompt=False,
+        chat_template_name="qwen",
+        quantization_format="BF16"
+    ),
+
+    "qwen3-32b": ModelConfig(
+        model_path="Qwen/Qwen3-32B-Instruct-2507",
+        model_family="qwen",
+        prompt_template="<|im_start|>user\n{instruction}<|im_end|>\n<|im_start|>assistant\n",
+        max_new_tokens=512,
+        temperature=0.7,
+        top_p=0.9,
+        estimated_memory_gb=64.0,  # 32B parameters in BF16
+        requires_system_prompt=False,
+        chat_template_name="qwen",
+        quantization_format="BF16"
     )
 }
 
