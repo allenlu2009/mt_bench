@@ -19,6 +19,21 @@ class ModelConfig:
     quantization_format: str = "FP16"  # FP32, FP16, BF16, FP8, INT8, INT4
 
 
+@dataclass
+class FamilyBehavior:
+    """Behavior flags shared by all models in a family."""
+    use_chat_template_generation: bool = False
+    force_greedy_generation: bool = False
+
+
+FAMILY_BEHAVIORS: Dict[str, FamilyBehavior] = {
+    "gemma3": FamilyBehavior(
+        use_chat_template_generation=True,
+        force_greedy_generation=True,
+    )
+}
+
+
 # Supported models with their configurations
 AVAILABLE_MODELS = {
     "gpt2": ModelConfig(
@@ -347,29 +362,21 @@ def get_generation_config(model_config: ModelConfig) -> Dict[str, Any]:
         }
     elif model_config.model_family == "gemma":
         # Original Gemma models (2B, etc.)
-        if "gemma-3-270m" in model_config.model_path:
-            # This shouldn't happen anymore since we changed to gemma3 family
-            return {
-                "max_new_tokens": model_config.max_new_tokens,
-                "min_new_tokens": 20,  # Force at least 20 tokens to prevent empty responses
-                "do_sample": False,  # Disable sampling to avoid CUDA assertion errors
-                "pad_token_id": None,  # Will be set based on tokenizer
-                "eos_token_id": None,  # Will be set based on tokenizer
-                "repetition_penalty": 1.05,  # Minimal repetition penalty 
-                "no_repeat_ngram_size": 0,  # Disable to prevent blocking
-                # No temperature, top_p, or top_k since we're using greedy decoding
-            }
-        else:
-            # More conservative sampling for other Gemma models
-            base_config.update({
-                "temperature": max(0.1, model_config.temperature * 0.5),  # Reduce temperature
-                "top_p": 0.8,  # More conservative top_p
-                "top_k": 50,   # Add top_k filtering
-                "repetition_penalty": 1.05,  # Reduce repetition penalty
-                "do_sample": model_config.temperature > 0.0,  # Only sample if temperature > 0
-            })
+        # More conservative sampling for Gemma 2B-family models
+        base_config.update({
+            "temperature": max(0.1, model_config.temperature * 0.5),  # Reduce temperature
+            "top_p": 0.8,  # More conservative top_p
+            "top_k": 50,   # Add top_k filtering
+            "repetition_penalty": 1.05,  # Reduce repetition penalty
+            "do_sample": model_config.temperature > 0.0,  # Only sample if temperature > 0
+        })
     
     return base_config
+
+
+def get_family_behavior(model_config: ModelConfig) -> FamilyBehavior:
+    """Get behavior flags for a model family."""
+    return FAMILY_BEHAVIORS.get(model_config.model_family, FamilyBehavior())
 
 
 def format_prompt_for_model(instruction: str, model_config: ModelConfig, 

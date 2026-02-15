@@ -9,7 +9,7 @@ from typing import Optional, Dict, Any, Tuple
 import logging
 
 from ..runtime.model_runtime import ModelRuntime
-from .model_configs import get_model_config, get_generation_config
+from .model_configs import get_model_config, get_generation_config, get_family_behavior
 
 
 logger = logging.getLogger(__name__)
@@ -121,8 +121,10 @@ class ModelManager:
             # Get current model config for prompt formatting
             current_config = get_model_config(self.current_model_name)
             
-            # Format prompt based on model type (following phi_evaluator.py pattern)
-            if "gemma-3" in str(current_config.model_path):
+            family_behavior = get_family_behavior(current_config)
+
+            # Format prompt based on family behavior
+            if family_behavior.use_chat_template_generation:
                 # Use the exact same approach as the working minimal test
                 messages = [{"role": "user", "content": prompt}]
                 try:
@@ -217,8 +219,8 @@ class ModelManager:
                         **gen_config
                     )
             
-            # Decode response (remove input tokens) - only for non-gemma3 models
-            if "gemma-3" in str(current_config.model_path):
+            # Decode response (remove input tokens) - only for chat-template family path
+            if family_behavior.use_chat_template_generation:
                 # Response already handled above for gemma3
                 pass
             elif self.current_model_name in ["gpt2-large-conversational", "dialogpt-large"]:
