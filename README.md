@@ -104,6 +104,13 @@ python -m src.cli --list-models
 # Evaluate single model (quick test)
 python -m src.cli --models gpt2-large --max-questions 10
 
+# Explicitly select project (default is mt-bench)
+python -m src.cli --project mt-bench --models gpt2-large
+python -m src.cli --project perplexity --models gpt2-large
+
+# Perplexity evaluation example
+python -m src.cli --project perplexity --models gpt2 --perplexity-datasets wikitext2 --block-size 512 --stride-ratios 0.5 1.0
+
 # Evaluate multiple models
 python -m src.cli --models gpt2-large llama-3.2-1b phi-3-mini
 

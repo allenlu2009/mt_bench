@@ -1,4 +1,4 @@
-"""Command-line interface for MT-bench evaluation system."""
+"""Command-line interface for benchmark evaluation system."""
 
 import argparse
 import asyncio
@@ -10,6 +10,7 @@ from typing import List, Optional
 
 from .evaluation.mtbench_evaluator import MTBenchEvaluator
 from .evaluation.multi_mode_evaluator import MultiModeEvaluator
+from .evaluation.perplexity_evaluator import PerplexityEvaluator
 from .models.model_configs import get_available_models, get_models_within_memory_limit, get_models_by_family, get_available_families
 from .utils.memory_utils import optimize_for_rtx3060
 
@@ -200,10 +201,17 @@ def create_parser() -> argparse.ArgumentParser:
         Configured ArgumentParser
     """
     parser = argparse.ArgumentParser(
-        description="MT-bench Evaluation System - Evaluate language models using MT-bench",
+        description="Benchmark Evaluation System - MT-bench (default) with future-ready project routing",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
+  # Default project is mt-bench (same as --project mt-bench)
+  python -m src.cli --models gpt2-large
+  
+  # Explicitly select project
+  python -m src.cli --project mt-bench --models gpt2-large
+  python -m src.cli --project perplexity --models gpt2-large
+  
   # Evaluate single model (absolute scoring)
   python -m src.cli --models gpt2-large
   
@@ -237,6 +245,13 @@ Examples:
   # List available models
   python -m src.cli --list-models
         """
+    )
+    
+    parser.add_argument(
+        "--project",
+        choices=["mt-bench", "perplexity"],
+        default="mt-bench",
+        help="Evaluation project to run (default: mt-bench)"
     )
     
     parser.add_argument(
@@ -312,6 +327,59 @@ Examples:
         default="cached_responses",
         help="Directory for caching model responses (default: cached_responses)"
     )
+
+    parser.add_argument(
+        "--perplexity-datasets",
+        nargs="+",
+        default=["wikitext2"],
+        help="Datasets for perplexity project (default: wikitext2)"
+    )
+
+    parser.add_argument(
+        "--block-size",
+        type=int,
+        default=1024,
+        help="Block size in tokens for perplexity sliding-window evaluation (default: 1024)"
+    )
+
+    parser.add_argument(
+        "--stride-ratios",
+        nargs="+",
+        type=float,
+        default=[0.5, 1.0],
+        help="Stride ratios for perplexity evaluation (default: 0.5 1.0)"
+    )
+
+    parser.add_argument(
+        "--device",
+        choices=["auto", "cuda", "cpu"],
+        default="auto",
+        help="Compute device for perplexity project (default: auto)"
+    )
+
+    parser.add_argument(
+        "--max-samples",
+        type=int,
+        help="Maximum number of dataset lines/samples for perplexity project"
+    )
+
+    parser.add_argument(
+        "--max-tokens",
+        type=int,
+        help="Approximate token cap for perplexity project"
+    )
+
+    parser.add_argument(
+        "--use-all-tokens",
+        action="store_true",
+        help="Use all available dataset tokens for perplexity project"
+    )
+
+    parser.add_argument(
+        "--no-residue",
+        action="store_true",
+        help="Skip residue tokens that do not fill a complete chunk in perplexity project"
+    )
     
     parser.add_argument(
         "--disable-response-cache",
@@ -382,10 +450,10 @@ async def main() -> None:
     if args.mode in ["pairwise", "both"] and len(model_names) < 2:
         parser.error("Pairwise comparison requires at least 2 models")
     
-    # Check for API key
+    # MT-bench requires judge API key
     api_key = args.openai_api_key or os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        parser.error("OpenAI API key required. Set OPENAI_API_KEY env var or use --openai-api-key")
+    if args.project == "mt-bench" and not api_key:
+        parser.error("OpenAI API key required for mt-bench. Set OPENAI_API_KEY env var or use --openai-api-key")
     
     try:
         # Apply GPU optimizations
@@ -399,51 +467,74 @@ async def main() -> None:
         # Create output directory
         Path(args.output_dir).mkdir(exist_ok=True)
         
-        # Initialize appropriate evaluator based on mode
-        if args.mode == "single":
-            # Use original single-mode evaluator
-            evaluator = MTBenchEvaluator(
-                model_names=valid_models,
-                openai_api_key=api_key,
-                judge_model=args.judge_model,
-                cache_dir=args.cache_dir,
-                memory_limit_gb=args.memory_limit,
-                max_questions=args.max_questions,
-                debug_judge=args.debug_judge,
-                low_score_threshold=args.low_score,
-                turn1_only=args.turn1
-            )
-            
-            logger.info(f"Starting single-mode MT-bench evaluation for {len(valid_models)} models")
-            results = await evaluator.run_full_evaluation()
-            
-        else:
-            # Use multi-mode evaluator for pairwise and both modes
-            evaluator = MultiModeEvaluator(
-                model_names=valid_models,
-                openai_api_key=api_key,
-                judge_model=args.judge_model,
-                cache_dir=args.cache_dir,
-                response_cache_dir=args.response_cache_dir,
-                memory_limit_gb=args.memory_limit,
-                max_questions=args.max_questions,
-                disable_response_cache=args.disable_response_cache,
-                debug_judge=args.debug_judge,
-                low_score_threshold=args.low_score
-            )
-            
-            logger.info(f"Starting {args.mode}-mode MT-bench evaluation for {len(valid_models)} models")
-            
-            if args.max_questions:
-                logger.info(f"Limited to {args.max_questions} questions for testing")
-            
-            # Run appropriate evaluation mode
-            if args.mode == "pairwise":
-                results = await evaluator.run_pairwise_evaluation()
-            elif args.mode == "both":
-                results = await evaluator.run_both_evaluation()
+        if args.project == "mt-bench":
+            # Initialize appropriate evaluator based on mode
+            if args.mode == "single":
+                # Use original single-mode evaluator
+                evaluator = MTBenchEvaluator(
+                    model_names=valid_models,
+                    openai_api_key=api_key,
+                    judge_model=args.judge_model,
+                    cache_dir=args.cache_dir,
+                    memory_limit_gb=args.memory_limit,
+                    max_questions=args.max_questions,
+                    debug_judge=args.debug_judge,
+                    low_score_threshold=args.low_score,
+                    turn1_only=args.turn1
+                )
+                
+                logger.info(f"Starting single-mode MT-bench evaluation for {len(valid_models)} models")
+                results = await evaluator.run_full_evaluation()
+                
             else:
-                raise ValueError(f"Unknown evaluation mode: {args.mode}")
+                # Use multi-mode evaluator for pairwise and both modes
+                evaluator = MultiModeEvaluator(
+                    model_names=valid_models,
+                    openai_api_key=api_key,
+                    judge_model=args.judge_model,
+                    cache_dir=args.cache_dir,
+                    response_cache_dir=args.response_cache_dir,
+                    memory_limit_gb=args.memory_limit,
+                    max_questions=args.max_questions,
+                    disable_response_cache=args.disable_response_cache,
+                    debug_judge=args.debug_judge,
+                    low_score_threshold=args.low_score
+                )
+                
+                logger.info(f"Starting {args.mode}-mode MT-bench evaluation for {len(valid_models)} models")
+                
+                if args.max_questions:
+                    logger.info(f"Limited to {args.max_questions} questions for testing")
+                
+                # Run appropriate evaluation mode
+                if args.mode == "pairwise":
+                    results = await evaluator.run_pairwise_evaluation()
+                elif args.mode == "both":
+                    results = await evaluator.run_both_evaluation()
+                else:
+                    raise ValueError(f"Unknown evaluation mode: {args.mode}")
+        else:
+            if args.mode != "single":
+                parser.error("Perplexity project currently supports only --mode single")
+            
+            evaluator = PerplexityEvaluator(
+                model_names=valid_models,
+                cache_dir=args.cache_dir,
+                memory_limit_gb=args.memory_limit,
+                max_questions=args.max_questions,
+                output_dir=args.output_dir,
+                datasets=args.perplexity_datasets,
+                block_size=args.block_size,
+                stride_ratios=args.stride_ratios,
+                device=args.device,
+                max_samples=args.max_samples,
+                max_tokens=args.max_tokens,
+                use_all_tokens=args.use_all_tokens,
+                handle_residue=not args.no_residue
+            )
+            
+            logger.info(f"Starting perplexity evaluation for {len(valid_models)} models")
+            results = await evaluator.run_full_evaluation()
         
         # Export results
         evaluator.export_results(results, args.output_dir)
@@ -467,6 +558,9 @@ async def main() -> None:
         if 'total_scores' in progress:
             # MTBenchEvaluator
             print(f"  Total responses judged: {progress['total_scores']}")
+        elif 'total_tokens_evaluated' in progress:
+            # PerplexityEvaluator
+            print(f"  Total tokens evaluated: {progress['total_tokens_evaluated']}")
         else:
             # MultiModeEvaluator
             total_judgments = progress.get('single_scores', 0) + progress.get('pairwise_judgments', 0)
@@ -479,7 +573,8 @@ async def main() -> None:
         print(f"  Peak memory usage: {progress['peak_memory_gb']:.2f}GB")
         
         # Print detailed Q&A examples
-        print_qa_examples(results, args.max_questions or 80)
+        if args.project == "mt-bench":
+            print_qa_examples(results, args.max_questions or 80)
         
     except KeyboardInterrupt:
         logger.info("Evaluation interrupted by user")
