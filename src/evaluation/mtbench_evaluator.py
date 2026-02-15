@@ -14,6 +14,7 @@ from ..utils.memory_utils import MemoryMonitor
 from ..utils.results_analyzer import ResultsAnalyzer
 from .judge_client import JudgeClient, JudgeScore
 from .conversation_handler import ConversationHandler, ConversationSession
+from .response_generation import generate_question_session
 
 logger = logging.getLogger(__name__)
 
@@ -257,9 +258,22 @@ class MTBenchEvaluator:
         
         for question in pbar:
             try:
-                session = await self._process_single_question(
-                    model_name, question, model_config
+                session = await generate_question_session(
+                    model_name=model_name,
+                    question=question,
+                    model_config=model_config,
+                    conversation_handler=self.conversation_handler,
+                    model_manager=self.model_manager,
+                    memory_monitor=self.memory_monitor,
+                    logger=self.logger,
+                    turn1_only=self.turn1_only,
                 )
+
+                if not self.conversation_handler.validate_conversation_format(
+                    session, question, self.turn1_only
+                ):
+                    logger.warning(f"Invalid conversation format for question {question.question_id}")
+
                 sessions.append(session)
                 
                 # Update progress bar with memory info
@@ -272,70 +286,6 @@ class MTBenchEvaluator:
                 continue
         
         return sessions
-    
-    async def _process_single_question(self, model_name: str, 
-                                     question: MTBenchQuestion,
-                                     model_config) -> ConversationSession:
-        """
-        Process a single MT-bench question with multi-turn conversation.
-        
-        Args:
-            model_name: Name of the model
-            question: MT-bench question
-            model_config: Model configuration
-            
-        Returns:
-            Complete conversation session
-        """
-        # Start conversation
-        session_id = self.conversation_handler.start_conversation(question, model_name)
-        
-        try:
-            # Process turns (1 or 2 depending on turn1_only flag)
-            turns_to_process = [1] if self.turn1_only else [1, 2]
-            for turn_number in turns_to_process:
-                # Get current tokenizer for chat template support
-                tokenizer = self.model_manager.get_current_tokenizer()
-                
-                # Format prompt for this turn (with chat template support)
-                prompt = self.conversation_handler.format_turn_prompt(
-                    session_id, turn_number, question, model_config, tokenizer
-                )
-                
-                # Generate response
-                start_time = time.time()
-                memory_before = self.memory_monitor.get_gpu_memory_usage()
-                
-                response = self.model_manager.generate_response(prompt, model_name)
-                
-                generation_time = time.time() - start_time
-                memory_after = self.memory_monitor.get_gpu_memory_usage()
-                self.memory_monitor.log_memory_usage(f"Generated response for Q{question.question_id}", self.logger)
-                
-                # Add turn to conversation
-                self.conversation_handler.add_turn_response(
-                    session_id=session_id,
-                    turn_number=turn_number,
-                    question=question,
-                    response=response,
-                    generation_time=generation_time,
-                    memory_used_gb=memory_after
-                )
-            
-            # End conversation and return session
-            session = self.conversation_handler.end_conversation(session_id)
-            
-            # Validate conversation format
-            if not self.conversation_handler.validate_conversation_format(session, question, self.turn1_only):
-                logger.warning(f"Invalid conversation format for question {question.question_id}")
-            
-            return session
-            
-        except Exception as e:
-            logger.error(f"Error processing question {question.question_id}: {str(e)}")
-            # Cleanup session on error
-            self.conversation_handler.cleanup_session(session_id)
-            raise
     
     async def _judge_model_responses(self, model_name: str, 
                                    sessions: List[ConversationSession],

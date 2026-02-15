@@ -8,8 +8,9 @@ from pathlib import Path
 
 from .mtbench_evaluator import MTBenchEvaluator
 from .judge_client import JudgeClient, PairwiseJudgment
+from .response_generation import generate_question_session
 from ..utils.response_manager import ResponseManager
-from ..utils.data_loader import DataLoader
+from ..utils.data_loader import DataLoader, MTBenchQuestion
 from ..models.model_configs import get_model_config, get_generation_config
 
 logger = logging.getLogger(__name__)
@@ -169,7 +170,7 @@ class MultiModeEvaluator:
         
         return combined_results
     
-    async def _generate_all_responses(self, questions: List[Dict[str, Any]]) -> None:
+    async def _generate_all_responses(self, questions: List[MTBenchQuestion]) -> None:
         """Generate responses for all models, using caching."""
         logger.info(f"Generating responses for {len(self.model_names)} models")
         
@@ -190,41 +191,21 @@ class MultiModeEvaluator:
             
             # Generate responses
             model_responses = {}
+            model_config = get_model_config(model_name)
             for question in questions:
                 question_id = str(question.question_id)
-                
-                # Start conversation
-                session_id = self.single_evaluator.conversation_handler.start_conversation(question, model_name)
-                
+
                 try:
-                    # Process both turns
-                    for turn_number in [1, 2]:
-                        # Get model config for this model
-                        model_config = get_model_config(model_name)
-                        
-                        # Get current tokenizer for chat template support
-                        tokenizer = self.single_evaluator.model_manager.get_current_tokenizer()
-                        
-                        # Format prompt for this turn (with chat template support)
-                        prompt = self.single_evaluator.conversation_handler.format_turn_prompt(
-                            session_id, turn_number, question, model_config, tokenizer
-                        )
-                        
-                        # Generate response
-                        response = self.single_evaluator.model_manager.generate_response(prompt, model_name)
-                        
-                        # Add turn to conversation
-                        self.single_evaluator.conversation_handler.add_turn_response(
-                            session_id=session_id,
-                            turn_number=turn_number,
-                            question=question,
-                            response=response,
-                            generation_time=0.0,
-                            memory_used_gb=0.0
-                        )
-                    
-                    # End conversation and get session
-                    session = self.single_evaluator.conversation_handler.end_conversation(session_id)
+                    session = await generate_question_session(
+                        model_name=model_name,
+                        question=question,
+                        model_config=model_config,
+                        conversation_handler=self.single_evaluator.conversation_handler,
+                        model_manager=self.single_evaluator.model_manager,
+                        memory_monitor=self.single_evaluator.memory_monitor,
+                        logger=logger,
+                        turn1_only=False,
+                    )
                     
                     # Convert to cache format
                     turns = []
@@ -242,8 +223,6 @@ class MultiModeEvaluator:
                     
                 except Exception as e:
                     logger.error(f"Error processing question {question_id}: {str(e)}")
-                    # Cleanup session on error
-                    self.single_evaluator.conversation_handler.cleanup_session(session_id)
                     continue
             
             # Cache responses
