@@ -1,588 +1,138 @@
-"""Command-line interface for benchmark evaluation system."""
+"""Command-line interface entrypoint for benchmark evaluation."""
 
-import argparse
 import asyncio
 import logging
-import os
 import sys
 from pathlib import Path
-from typing import List, Optional
 
+from .cli_parts.common import (
+    print_available_models,
+    require_mtbench_api_key,
+    resolve_model_names,
+    setup_logging,
+    validate_models,
+)
+from .cli_parts.output import print_completion_summary, print_qa_examples
+from .cli_parts.parser import create_parser
 from .evaluation.mtbench_evaluator import MTBenchEvaluator
 from .evaluation.multi_mode_evaluator import MultiModeEvaluator
 from .evaluation.perplexity_evaluator import PerplexityEvaluator
-from .models.model_configs import get_available_models, get_models_within_memory_limit, get_models_by_family, get_available_families
 from .utils.memory_utils import optimize_for_rtx3060
 
 
-def setup_logging(verbose: bool = False) -> None:
-    """
-    Set up logging configuration.
-    
-    Args:
-        verbose: Enable verbose logging
-    """
-    level = logging.DEBUG if verbose else logging.INFO
-    
-    logging.basicConfig(
-        level=level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        handlers=[
-            logging.StreamHandler(sys.stdout),
-            logging.FileHandler('mtbench_evaluation.log')
-        ]
+async def _run_mtbench(args, valid_models, api_key, logger):
+    if args.mode == "single":
+        evaluator = MTBenchEvaluator(
+            model_names=valid_models,
+            openai_api_key=api_key,
+            judge_model=args.judge_model,
+            cache_dir=args.cache_dir,
+            memory_limit_gb=args.memory_limit,
+            max_questions=args.max_questions,
+            debug_judge=args.debug_judge,
+            low_score_threshold=args.low_score,
+            turn1_only=args.turn1,
+        )
+        logger.info("Starting single-mode MT-bench evaluation for %s models", len(valid_models))
+        results = await evaluator.run_full_evaluation()
+        return evaluator, results
+
+    evaluator = MultiModeEvaluator(
+        model_names=valid_models,
+        openai_api_key=api_key,
+        judge_model=args.judge_model,
+        cache_dir=args.cache_dir,
+        response_cache_dir=args.response_cache_dir,
+        memory_limit_gb=args.memory_limit,
+        max_questions=args.max_questions,
+        disable_response_cache=args.disable_response_cache,
+        debug_judge=args.debug_judge,
+        low_score_threshold=args.low_score,
     )
-    
-    # Reduce noise from some libraries
-    logging.getLogger('urllib3').setLevel(logging.WARNING)
-    logging.getLogger('transformers').setLevel(logging.WARNING)
-    logging.getLogger('httpx').setLevel(logging.WARNING)
+    logger.info("Starting %s-mode MT-bench evaluation for %s models", args.mode, len(valid_models))
+    if args.max_questions:
+        logger.info("Limited to %s questions for testing", args.max_questions)
+
+    if args.mode == "pairwise":
+        results = await evaluator.run_pairwise_evaluation()
+    elif args.mode == "both":
+        results = await evaluator.run_both_evaluation()
+    else:
+        raise ValueError(f"Unknown evaluation mode: {args.mode}")
+    return evaluator, results
 
 
-def validate_models(model_names: List[str], memory_limit_gb: float) -> List[str]:
-    """
-    Validate and filter model names.
-    
-    Args:
-        model_names: List of model names to validate
-        memory_limit_gb: Memory limit for filtering
-        
-    Returns:
-        List of valid model names
-        
-    Raises:
-        ValueError: If no valid models found
-    """
-    available_models = get_available_models()
-    memory_compatible_models = get_models_within_memory_limit(memory_limit_gb)
-    
-    valid_models = []
-    for model_name in model_names:
-        if model_name not in available_models:
-            print(f"Warning: Model '{model_name}' not available. Available models:")
-            for name in available_models.keys():
-                print(f"  - {name}")
-            continue
+async def _run_perplexity(args, valid_models, logger):
+    if args.mode != "single":
+        raise ValueError("Perplexity project currently supports only --mode single")
 
-        config = available_models[model_name]
-        if model_name not in memory_compatible_models:
-            print(f"Note: Model '{model_name}' requires {config.estimated_memory_gb:.1f}GB "
-                  f"(memory limit: {memory_limit_gb:.1f}GB). "
-                  f"Ensure your GPU has sufficient VRAM.")
-
-        valid_models.append(model_name)
-    
-    if not valid_models:
-        raise ValueError("No valid models found after filtering")
-    
-    return valid_models
-
-
-def print_available_models() -> None:
-    """Print all available models with their specifications."""
-    models = get_available_models()
-    
-    print("Available Models:")
-    print("-" * 100)
-    print(f"{'Model Name':<20} {'Family':<10} {'Memory (GB)':<12} {'Format':<8} {'Model Path'}")
-    print("-" * 100)
-    
-    for name, config in models.items():
-        print(f"{name:<20} {config.model_family:<10} {config.estimated_memory_gb:<12.1f} {config.quantization_format:<8} {config.model_path}")
-    
-    print(f"\nTotal models: {len(models)}")
-    print("\nFormat Legend:")
-    print("  FP32 = 32-bit floating point")
-    print("  FP16 = 16-bit floating point") 
-    print("  INT4 = 4-bit integer quantization")
-
-
-def print_qa_examples(results: dict, max_questions: int) -> None:
-    """
-    Print examples of questions, answers, and judgments.
-    
-    Args:
-        results: Complete evaluation results
-        max_questions: Maximum number of questions evaluated
-    """
-    if "model_results" not in results:
-        return
-        
-    print("\n" + "="*80)
-    print("DETAILED Q&A EXAMPLES")
-    print("="*80)
-    
-    # Extract judge model from evaluation metadata
-    judge_model = results.get("metadata", {}).get("judge_model", "gpt-5-mini")
-    
-    for model_result in results["model_results"]:
-        model_name = model_result["model_name"] 
-        print(f"\nModel: {model_name}")
-        print("-" * 50)
-        
-        if "detailed_responses" not in model_result:
-            print("No detailed responses available")
-            continue
-            
-        responses = model_result["detailed_responses"]
-        
-        if max_questions == 1:
-            # Show only the first question
-            if responses:
-                show_qa_detail(responses[0], 1, judge_model)
-        else:
-            # Show first and last questions
-            if len(responses) >= 1:
-                print(f"\n📝 FIRST QUESTION (Q{responses[0].get('question_id', '?')}):")
-                show_qa_detail(responses[0], 1, judge_model)
-                
-            if len(responses) >= 2:
-                print(f"\n📝 LAST QUESTION (Q{responses[-1].get('question_id', '?')}):")
-                show_qa_detail(responses[-1], len(responses), judge_model)
-
-
-def show_qa_detail(response_data: dict, question_num: int, judge_model: str = "gpt-5-mini") -> None:
-    """
-    Show detailed Q&A for a single question.
-    
-    Args:
-        response_data: Response data for a single question
-        question_num: Question number 
-        judge_model: Name of the judge model used
-    """
-    
-    # Question
-    question_text = response_data.get('question', 'Question text not available')
-    print(f"\n🔸 Question: {question_text}")
-    
-    # Category
-    category = response_data.get('category', 'Unknown')
-    print(f"🔸 Category: {category}")
-    
-    # Model responses
-    conversation = response_data.get('conversation', [])
-    if conversation:
-        print("\n💬 Conversation:")
-        for i, turn in enumerate(conversation, 1):
-            user_msg = turn.get('user_message', 'No user message')
-            assistant_msg = turn.get('content', 'No response')
-            
-            # Truncate very long messages
-            if len(user_msg) > 200:
-                user_msg = user_msg[:200] + "..."
-            if len(assistant_msg) > 300:
-                assistant_msg = assistant_msg[:300] + "..."
-                
-            print(f"  Turn {i}:")
-            print(f"    User: {user_msg}")
-            print(f"    Assistant: {assistant_msg}")
-    
-    # Judgments - use dynamic judge model name
-    scores = response_data.get('scores', [])
-    if scores:
-        print(f"\n⚖️  {judge_model} Judgments:")
-        for i, score_data in enumerate(scores, 1):
-            score = score_data.get('score', 'N/A')
-            reasoning = score_data.get('reasoning', 'No reasoning provided')
-            # Truncate long reasoning
-            if len(reasoning) > 200:
-                reasoning = reasoning[:200] + "..."
-            print(f"  Turn {i} Score: {score}/10")
-            print(f"  Reasoning: {reasoning}")
-    
-    print()
-
-
-def create_parser() -> argparse.ArgumentParser:
-    """
-    Create command-line argument parser.
-    
-    Returns:
-        Configured ArgumentParser
-    """
-    parser = argparse.ArgumentParser(
-        description="Benchmark Evaluation System - MT-bench (default) with future-ready project routing",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Default project is mt-bench (same as --project mt-bench)
-  python -m src.cli --models gpt2-large
-  
-  # Explicitly select project
-  python -m src.cli --project mt-bench --models gpt2-large
-  python -m src.cli --project perplexity --models gpt2-large
-  
-  # Evaluate single model (absolute scoring)
-  python -m src.cli --models gpt2-large
-  
-  # Evaluate multiple models (absolute scoring)
-  python -m src.cli --models gpt2-large llama-3.2-1b phi-3-mini
-  
-  # Pairwise comparison between two models
-  python -m src.cli --mode pairwise --models gpt2-large llama-3.2-1b
-  
-  # Both absolute scoring and pairwise comparison
-  python -m src.cli --mode both --models gpt2-large llama-3.2-1b phi-3-mini
-  
-  # Quick test with limited questions
-  python -m src.cli --models gpt2-large --max-questions 5
-  
-  # Use different judge models
-  python -m src.cli --models gpt2-large --judge-model gpt-5-mini
-  python -m src.cli --models gpt2-large --judge-model gpt-4o-mini
-  python -m src.cli --models gpt2-large --judge-model gpt-4.1-nano
-  
-  # Adjust memory limit for different GPUs
-  python -m src.cli --models llama-3.2-3b --memory-limit 8.0
-  
-  # Evaluate only first turn (single Q&A) for faster testing
-  python -m src.cli --models gemma3-270m --turn1 --max-questions 5
-  
-  # Evaluate all models in a family
-  python -m src.cli --family gemma3 --max-questions 2
-  python -m src.cli --family llama --turn1
-  
-  # List available models
-  python -m src.cli --list-models
-        """
+    evaluator = PerplexityEvaluator(
+        model_names=valid_models,
+        cache_dir=args.cache_dir,
+        memory_limit_gb=args.memory_limit,
+        max_questions=args.max_questions,
+        output_dir=args.output_dir,
+        datasets=args.perplexity_datasets,
+        block_size=args.block_size,
+        stride_ratios=args.stride_ratios,
+        device=args.device,
+        max_samples=args.max_samples,
+        max_tokens=args.max_tokens,
+        use_all_tokens=args.use_all_tokens,
+        handle_residue=not args.no_residue,
     )
-    
-    parser.add_argument(
-        "--project",
-        choices=["mt-bench", "perplexity"],
-        default="mt-bench",
-        help="Evaluation project to run (default: mt-bench)"
-    )
-    
-    parser.add_argument(
-        "--models",
-        nargs="+",
-        help="Model names to evaluate (use --list-models to see available models)"
-    )
-    
-    parser.add_argument(
-        "--family",
-        help="Evaluate all models in a specific family (e.g., 'gemma', 'llama', 'phi', 'qwen', 'gemma3', 'gpt2')"
-    )
-    
-    parser.add_argument(
-        "--mode",
-        choices=["single", "pairwise", "both"],
-        default="single",
-        help="Evaluation mode: single (absolute scoring), pairwise (head-to-head comparison), or both (default: single)"
-    )
-    
-    parser.add_argument(
-        "--list-models",
-        action="store_true",
-        help="List all available models and exit"
-    )
-    
-    parser.add_argument(
-        "--openai-api-key",
-        help="OpenAI API key for judge (uses OPENAI_API_KEY env var if not provided)"
-    )
-    
-    parser.add_argument(
-        "--judge-model",
-        choices=["gpt-5-mini", "gpt-5-nano", "gpt-4o-mini", "gpt-4o-mini-2024-07-18", "gpt-4.1-nano", 
-                 "gpt-4-turbo", "gpt-4-turbo-2024-04-09", "gpt-4o-2024-05-13"],
-        default="gpt-5-nano",
-        help="Judge model to use (default: gpt-5-nano)"
-    )
-    
-    parser.add_argument(
-        "--memory-limit",
-        type=float,
-        default=8.0,
-        help="GPU memory limit in GB (default: 8.0 for RTX 3060)"
-    )
-    
-    parser.add_argument(
-        "--max-questions",
-        type=int,
-        help="Maximum number of questions to evaluate (for testing)"
-    )
-    
-    parser.add_argument(
-        "--turn1",
-        action="store_true",
-        help="Evaluate only the first turn (single Q&A) instead of full multi-turn conversations"
-    )
-    
-    parser.add_argument(
-        "--cache-dir",
-        default="data",
-        help="Directory for caching data (default: data)"
-    )
-    
-    parser.add_argument(
-        "--output-dir",
-        default="results",
-        help="Directory for output files (default: results)"
-    )
-    
-    parser.add_argument(
-        "--response-cache-dir",
-        default="cached_responses",
-        help="Directory for caching model responses (default: cached_responses)"
-    )
-
-    parser.add_argument(
-        "--perplexity-datasets",
-        nargs="+",
-        default=["wikitext2"],
-        help="Datasets for perplexity project (default: wikitext2)"
-    )
-
-    parser.add_argument(
-        "--block-size",
-        type=int,
-        default=1024,
-        help="Block size in tokens for perplexity sliding-window evaluation (default: 1024)"
-    )
-
-    parser.add_argument(
-        "--stride-ratios",
-        nargs="+",
-        type=float,
-        default=[0.5, 1.0],
-        help="Stride ratios for perplexity evaluation (default: 0.5 1.0)"
-    )
-
-    parser.add_argument(
-        "--device",
-        choices=["auto", "cuda", "cpu"],
-        default="auto",
-        help="Compute device for perplexity project (default: auto)"
-    )
-
-    parser.add_argument(
-        "--max-samples",
-        type=int,
-        help="Maximum number of dataset lines/samples for perplexity project"
-    )
-
-    parser.add_argument(
-        "--max-tokens",
-        type=int,
-        help="Approximate token cap for perplexity project"
-    )
-
-    parser.add_argument(
-        "--use-all-tokens",
-        action="store_true",
-        help="Use all available dataset tokens for perplexity project"
-    )
-
-    parser.add_argument(
-        "--no-residue",
-        action="store_true",
-        help="Skip residue tokens that do not fill a complete chunk in perplexity project"
-    )
-    
-    parser.add_argument(
-        "--disable-response-cache",
-        action="store_true",
-        help="Disable response caching (always generate fresh responses)"
-    )
-    
-    parser.add_argument(
-        "--verbose", "-v",
-        action="store_true",
-        help="Enable verbose logging"
-    )
-    
-    parser.add_argument(
-        "--debug-judge",
-        action="store_true",
-        help="Print judge model prompts and responses for debugging"
-    )
-    
-    parser.add_argument(
-        "--low-score",
-        type=float,
-        default=2.0,
-        help="Threshold for logging low score cases when --debug-judge is enabled (default: 2.0)"
-    )
-    
-    parser.add_argument(
-        "--force-download",
-        action="store_true",
-        help="Force re-download of MT-bench data"
-    )
-    
-    return parser
+    logger.info("Starting perplexity evaluation for %s models", len(valid_models))
+    results = await evaluator.run_full_evaluation()
+    return evaluator, results
 
 
 async def main() -> None:
     """Main CLI entry point."""
     parser = create_parser()
     args = parser.parse_args()
-    
-    # Set up logging
+
     setup_logging(args.verbose)
     logger = logging.getLogger(__name__)
-    
-    # List models and exit if requested
+
     if args.list_models:
         print_available_models()
         return
-    
-    # Handle model selection (either --models or --family)
-    if args.family:
-        available_families = get_available_families()
-        if args.family not in available_families:
-            parser.error(f"Family '{args.family}' not found. Available families: {', '.join(available_families)}")
-        
-        family_models = get_models_by_family(args.family)
-        if not family_models:
-            parser.error(f"No models found in family '{args.family}'")
-        
-        model_names = family_models
-        print(f"Evaluating all models in '{args.family}' family: {', '.join(model_names)}")
-    elif args.models:
-        model_names = args.models
-    else:
-        parser.error("Either --models or --family is required (use --list-models to see available models)")
-    
-    # Validate evaluation mode requirements
+
+    model_names = resolve_model_names(args, parser)
     if args.mode in ["pairwise", "both"] and len(model_names) < 2:
         parser.error("Pairwise comparison requires at least 2 models")
-    
-    # MT-bench requires judge API key
-    api_key = args.openai_api_key or os.getenv("OPENAI_API_KEY")
-    if args.project == "mt-bench" and not api_key:
-        parser.error("OpenAI API key required for mt-bench. Set OPENAI_API_KEY env var or use --openai-api-key")
-    
+
+    api_key = require_mtbench_api_key(args, parser)
+
     try:
-        # Apply GPU optimizations
         optimize_for_rtx3060()
         logger.info("Applied RTX 3060 optimizations")
-        
-        # Validate models
         valid_models = validate_models(model_names, args.memory_limit)
-        logger.info(f"Validated models: {valid_models}")
-        
-        # Create output directory
+        logger.info("Validated models: %s", valid_models)
         Path(args.output_dir).mkdir(exist_ok=True)
-        
+
         if args.project == "mt-bench":
-            # Initialize appropriate evaluator based on mode
-            if args.mode == "single":
-                # Use original single-mode evaluator
-                evaluator = MTBenchEvaluator(
-                    model_names=valid_models,
-                    openai_api_key=api_key,
-                    judge_model=args.judge_model,
-                    cache_dir=args.cache_dir,
-                    memory_limit_gb=args.memory_limit,
-                    max_questions=args.max_questions,
-                    debug_judge=args.debug_judge,
-                    low_score_threshold=args.low_score,
-                    turn1_only=args.turn1
-                )
-                
-                logger.info(f"Starting single-mode MT-bench evaluation for {len(valid_models)} models")
-                results = await evaluator.run_full_evaluation()
-                
-            else:
-                # Use multi-mode evaluator for pairwise and both modes
-                evaluator = MultiModeEvaluator(
-                    model_names=valid_models,
-                    openai_api_key=api_key,
-                    judge_model=args.judge_model,
-                    cache_dir=args.cache_dir,
-                    response_cache_dir=args.response_cache_dir,
-                    memory_limit_gb=args.memory_limit,
-                    max_questions=args.max_questions,
-                    disable_response_cache=args.disable_response_cache,
-                    debug_judge=args.debug_judge,
-                    low_score_threshold=args.low_score
-                )
-                
-                logger.info(f"Starting {args.mode}-mode MT-bench evaluation for {len(valid_models)} models")
-                
-                if args.max_questions:
-                    logger.info(f"Limited to {args.max_questions} questions for testing")
-                
-                # Run appropriate evaluation mode
-                if args.mode == "pairwise":
-                    results = await evaluator.run_pairwise_evaluation()
-                elif args.mode == "both":
-                    results = await evaluator.run_both_evaluation()
-                else:
-                    raise ValueError(f"Unknown evaluation mode: {args.mode}")
+            evaluator, results = await _run_mtbench(args, valid_models, api_key, logger)
         else:
-            if args.mode != "single":
-                parser.error("Perplexity project currently supports only --mode single")
-            
-            evaluator = PerplexityEvaluator(
-                model_names=valid_models,
-                cache_dir=args.cache_dir,
-                memory_limit_gb=args.memory_limit,
-                max_questions=args.max_questions,
-                output_dir=args.output_dir,
-                datasets=args.perplexity_datasets,
-                block_size=args.block_size,
-                stride_ratios=args.stride_ratios,
-                device=args.device,
-                max_samples=args.max_samples,
-                max_tokens=args.max_tokens,
-                use_all_tokens=args.use_all_tokens,
-                handle_residue=not args.no_residue
-            )
-            
-            logger.info(f"Starting perplexity evaluation for {len(valid_models)} models")
-            results = await evaluator.run_full_evaluation()
-        
-        # Export results
+            try:
+                evaluator, results = await _run_perplexity(args, valid_models, logger)
+            except ValueError as e:
+                parser.error(str(e))
+                return
+
         evaluator.export_results(results, args.output_dir)
-        
-        # Print summary
-        print("\n" + "="*80)
-        print("EVALUATION COMPLETED SUCCESSFULLY")
-        print("="*80)
-        
-        if "summary_report" in results:
-            print(results["summary_report"])
-        
-        print(f"\nResults saved to: {args.output_dir}")
-        
-        # Print progress stats
         progress = evaluator.get_evaluation_progress()
-        print(f"\nEvaluation Statistics:")
-        print(f"  Models evaluated: {progress['models_completed']}/{progress['total_models']}")
-        
-        # Handle different evaluator types
-        if 'total_scores' in progress:
-            # MTBenchEvaluator
-            print(f"  Total responses judged: {progress['total_scores']}")
-        elif 'total_tokens_evaluated' in progress:
-            # PerplexityEvaluator
-            print(f"  Total tokens evaluated: {progress['total_tokens_evaluated']}")
-        else:
-            # MultiModeEvaluator
-            total_judgments = progress.get('single_scores', 0) + progress.get('pairwise_judgments', 0)
-            print(f"  Total judgments made: {total_judgments}")
-            if progress.get('pairwise_judgments', 0) > 0:
-                print(f"    - Pairwise comparisons: {progress['pairwise_judgments']}")
-            if progress.get('single_scores', 0) > 0:
-                print(f"    - Single evaluations: {progress['single_scores']}")
-        
-        print(f"  Peak memory usage: {progress['peak_memory_gb']:.2f}GB")
-        
-        # Print detailed Q&A examples
+        print_completion_summary(results, progress, args.output_dir)
+
         if args.project == "mt-bench":
             print_qa_examples(results, args.max_questions or 80)
-        
+
     except KeyboardInterrupt:
         logger.info("Evaluation interrupted by user")
         print("\nEvaluation interrupted by user")
         sys.exit(1)
-        
     except Exception as e:
-        logger.error(f"Evaluation failed: {str(e)}")
+        logger.error("Evaluation failed: %s", str(e))
         print(f"\nError: {str(e)}")
         sys.exit(1)
 
@@ -594,3 +144,4 @@ def cli_entry_point() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
