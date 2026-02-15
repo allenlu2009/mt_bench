@@ -108,11 +108,15 @@ class ModelManager:
             logger.info("Using 4-bit quantization for large model")
             config["quantization_config"] = BitsAndBytesConfig(
                 load_in_4bit=True,
-                bnb_4bit_compute_dtype=torch.float16,
+                bnb_4bit_compute_dtype=torch.bfloat16,
                 bnb_4bit_use_double_quant=True,
                 bnb_4bit_quant_type="nf4"
             )
-        
+            # Reason: BitsAndBytes quantization is incompatible with explicit dtype
+            # and requires device_map="auto" for automatic device placement.
+            config.pop("dtype", None)
+            config["device_map"] = "auto"
+
         return config
         
     def load_model(self, model_name: str) -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
@@ -206,19 +210,25 @@ class ModelManager:
                         **loading_config  # Uses the minimal config from _get_model_loading_config
                     )
                 else:
-                    # Complex loading for other models
+                    # Build model kwargs from loading config
                     model_kwargs = {
-                        "dtype": loading_config.get("dtype", loading_config.get("torch_dtype")),
                         "attn_implementation": loading_config.get("attn_implementation", "eager"),
                         "low_cpu_mem_usage": loading_config["low_cpu_mem_usage"],
                         "trust_remote_code": loading_config.get("trust_remote_code", False),
                         "use_cache": loading_config.get("use_cache", True)
                     }
-                    
-                    # Add quantization_config if present (for large models)
+
+                    # Add dtype only if not using quantization (BnB is incompatible with explicit dtype)
                     if "quantization_config" in loading_config:
                         model_kwargs["quantization_config"] = loading_config["quantization_config"]
-                    
+                        model_kwargs["device_map"] = "auto"
+                    else:
+                        model_kwargs["dtype"] = loading_config.get("dtype", loading_config.get("torch_dtype"))
+
+                    # Add device_map if present in loading config
+                    if "device_map" in loading_config and "device_map" not in model_kwargs:
+                        model_kwargs["device_map"] = loading_config["device_map"]
+
                     model = AutoModelForCausalLM.from_pretrained(
                         model_config.model_path,
                         **model_kwargs
@@ -233,25 +243,26 @@ class ModelManager:
                 # training by trading compute for memory, but in eval mode with
                 # torch.no_grad() it adds overhead with no benefit.
 
-                # Move model to the correct device and set to evaluation mode
-                # Handle meta tensors properly by using to_empty()
-                try:
-                    # Check if any parameter is a meta tensor
-                    has_meta_tensors = any(p.is_meta for p in model.parameters())
-                    if has_meta_tensors:
-                        logger.info("Model has meta tensors, using to_empty()")
-                        model = model.to_empty(device=self.device)
-                    else:
-                        model = model.to(self.device)
-                except Exception as e:
-                    # If to_empty() fails or we can't detect meta tensors, try the alternative approach
-                    logger.warning(f"Standard device move failed: {e}, trying to_empty()")
+                # Skip manual device placement if device_map="auto" handled it
+                # (quantized models and auto-mapped models are already on device)
+                if "device_map" not in loading_config:
+                    # Move model to the correct device
+                    # Handle meta tensors properly by using to_empty()
                     try:
-                        model = model.to_empty(device=self.device)
-                    except Exception as e2:
-                        logger.error(f"to_empty() also failed: {e2}")
-                        raise e
-                
+                        has_meta_tensors = any(p.is_meta for p in model.parameters())
+                        if has_meta_tensors:
+                            logger.info("Model has meta tensors, using to_empty()")
+                            model = model.to_empty(device=self.device)
+                        else:
+                            model = model.to(self.device)
+                    except Exception as e:
+                        logger.warning(f"Standard device move failed: {e}, trying to_empty()")
+                        try:
+                            model = model.to_empty(device=self.device)
+                        except Exception as e2:
+                            logger.error(f"to_empty() also failed: {e2}")
+                            raise e
+
                 model.eval()
             
             # Resize token embeddings if we added special tokens

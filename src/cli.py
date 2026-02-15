@@ -62,13 +62,24 @@ def validate_models(model_names: List[str], memory_limit_gb: float) -> List[str]
             for name in available_models.keys():
                 print(f"  - {name}")
             continue
-        
+
+        config = available_models[model_name]
         if model_name not in memory_compatible_models:
-            config = available_models[model_name]
-            print(f"Warning: Model '{model_name}' requires {config.estimated_memory_gb:.1f}GB "
-                  f"but limit is {memory_limit_gb:.1f}GB. Skipping.")
-            continue
-        
+            # Large models (>10GB) will use 4-bit quantization, reducing memory ~4x
+            if config.estimated_memory_gb > 10.0:
+                quantized_estimate = config.estimated_memory_gb / 4.0
+                if quantized_estimate <= memory_limit_gb:
+                    print(f"Note: Model '{model_name}' ({config.estimated_memory_gb:.1f}GB) "
+                          f"will use 4-bit quantization (~{quantized_estimate:.1f}GB)")
+                else:
+                    print(f"Warning: Model '{model_name}' requires ~{quantized_estimate:.1f}GB "
+                          f"even with 4-bit quantization (limit: {memory_limit_gb:.1f}GB). Skipping.")
+                    continue
+            else:
+                print(f"Warning: Model '{model_name}' requires {config.estimated_memory_gb:.1f}GB "
+                      f"but limit is {memory_limit_gb:.1f}GB. Skipping.")
+                continue
+
         valid_models.append(model_name)
     
     if not valid_models:
