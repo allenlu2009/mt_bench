@@ -2,10 +2,9 @@
 
 import torch
 from transformers import (
-    AutoTokenizer, 
+    AutoTokenizer,
     AutoModelForCausalLM,
     GenerationConfig,
-    BitsAndBytesConfig
 )
 from typing import Optional, Dict, Any, Tuple
 import logging
@@ -102,21 +101,6 @@ class ModelManager:
         opt_config = get_optimization_config(model_config)
         config.update(opt_config)
         
-        # Add 4-bit quantization for larger models if needed
-        # Only quantize models that would exceed reasonable GPU memory limits (>10GB)
-        if model_config.estimated_memory_gb > 10.0:
-            logger.info("Using 4-bit quantization for large model")
-            config["quantization_config"] = BitsAndBytesConfig(
-                load_in_4bit=True,
-                bnb_4bit_compute_dtype=torch.bfloat16,
-                bnb_4bit_use_double_quant=True,
-                bnb_4bit_quant_type="nf4"
-            )
-            # Reason: BitsAndBytes quantization is incompatible with explicit dtype
-            # and requires device_map="auto" for automatic device placement.
-            config.pop("dtype", None)
-            config["device_map"] = "auto"
-
         return config
         
     def load_model(self, model_name: str) -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
@@ -212,21 +196,15 @@ class ModelManager:
                 else:
                     # Build model kwargs from loading config
                     model_kwargs = {
+                        "dtype": loading_config.get("dtype", loading_config.get("torch_dtype")),
                         "attn_implementation": loading_config.get("attn_implementation", "eager"),
                         "low_cpu_mem_usage": loading_config["low_cpu_mem_usage"],
                         "trust_remote_code": loading_config.get("trust_remote_code", False),
                         "use_cache": loading_config.get("use_cache", True)
                     }
 
-                    # Add dtype only if not using quantization (BnB is incompatible with explicit dtype)
-                    if "quantization_config" in loading_config:
-                        model_kwargs["quantization_config"] = loading_config["quantization_config"]
-                        model_kwargs["device_map"] = "auto"
-                    else:
-                        model_kwargs["dtype"] = loading_config.get("dtype", loading_config.get("torch_dtype"))
-
                     # Add device_map if present in loading config
-                    if "device_map" in loading_config and "device_map" not in model_kwargs:
+                    if "device_map" in loading_config:
                         model_kwargs["device_map"] = loading_config["device_map"]
 
                     model = AutoModelForCausalLM.from_pretrained(
