@@ -4,14 +4,12 @@ import torch
 from transformers import (
     AutoTokenizer,
     AutoModelForCausalLM,
-    GenerationConfig,
 )
 from typing import Optional, Dict, Any, Tuple
 import logging
-import warnings
 
-from ..utils.memory_utils import MemoryMonitor, get_flash_attention_config, optimize_for_rtx3060
-from .model_configs import ModelConfig, get_model_config, get_generation_config, get_optimization_config
+from ..runtime.model_runtime import ModelRuntime
+from .model_configs import get_model_config, get_generation_config
 
 
 logger = logging.getLogger(__name__)
@@ -35,21 +33,19 @@ class ModelManager:
             device: Device to use ('cuda' or 'cpu')
             memory_limit_gb: GPU memory limit in GB (default: 8.0 for RTX 3060)
         """
-        # Force CPU on macOS to avoid MPS memory issues
-        if torch.cuda.is_available():
-            self.device = device
-        else:
-            self.device = "cpu"
-        self.memory_monitor = MemoryMonitor(gpu_memory_limit_gb=memory_limit_gb)
+        self.runtime = ModelRuntime(device=device, memory_limit_gb=memory_limit_gb)
+        self.device = self.runtime.device
+        self.memory_monitor = self.runtime.memory_monitor
         self.current_model = None
         self.current_tokenizer = None
         self.current_model_name = None
-        
-        # Apply RTX 3060 optimizations
-        if self.device == "cuda":
-            optimize_for_rtx3060()
-            
-        logger.info(f"ModelManager initialized on {self.device}")
+
+        logger.info("ModelManager initialized on %s", self.device)
+
+    def _sync_runtime_state(self) -> None:
+        self.current_model = self.runtime.current_model
+        self.current_tokenizer = self.runtime.current_tokenizer
+        self.current_model_name = self.runtime.current_model_name
         
     def _cleanup_current_model(self) -> None:
         """
@@ -58,50 +54,8 @@ class ModelManager:
         Critical for RTX 3060 memory management.
         Avoids model.to('cpu') which can crash if CUDA is in an error state.
         """
-        if self.current_model is not None:
-            logger.info(f"Cleaning up model: {self.current_model_name}")
-
-            # Delete references directly (don't move to CPU — risky if CUDA is in error state)
-            del self.current_model
-            del self.current_tokenizer
-
-            self.current_model = None
-            self.current_tokenizer = None
-            self.current_model_name = None
-
-            # Force GPU memory cleanup
-            self.memory_monitor.cleanup_gpu_memory()
-            
-    def _get_model_loading_config(self, model_config: ModelConfig) -> Dict[str, Any]:
-        """
-        Get optimized loading configuration for the model.
-        
-        Args:
-            model_config: Model configuration
-            
-        Returns:
-            Dictionary with loading parameters
-        """
-        # Use minimal config for gemma3 models (copy exact working approach)
-        if model_config.model_family == "gemma3":
-            return {
-                "trust_remote_code": True,
-                "device_map": "cuda",
-                "dtype": torch.bfloat16
-            }
-        
-        # Base memory optimization config for other models
-        config = self.memory_monitor.get_memory_optimization_config()
-        
-        # Add Flash Attention config for non-gemma3 models
-        flash_config = get_flash_attention_config()
-        config.update(flash_config)
-        
-        # Add model-specific optimizations
-        opt_config = get_optimization_config(model_config)
-        config.update(opt_config)
-        
-        return config
+        self.runtime.unload_model()
+        self._sync_runtime_state()
         
     def load_model(self, model_name: str) -> Tuple[AutoModelForCausalLM, AutoTokenizer]:
         """
@@ -117,157 +71,9 @@ class ModelManager:
             ValueError: If model is not supported
             RuntimeError: If model exceeds memory limits
         """
-        # Check if model is already loaded
-        if self.current_model_name == model_name:
-            logger.info(f"Model {model_name} already loaded")
-            return self.current_model, self.current_tokenizer
-            
-        # Get model configuration
-        model_config = get_model_config(model_name)
-        
-        # Check memory constraints
-        if not self.memory_monitor.can_load_model(model_name):
-            raise RuntimeError(
-                f"Model {model_name} estimated memory "
-                f"({model_config.estimated_memory_gb:.1f}GB) exceeds limit "
-                f"({self.memory_monitor.gpu_memory_limit:.1f}GB)"
-            )
-        
-        # Cleanup current model
-        self._cleanup_current_model()
-        
-        logger.info(f"Loading model: {model_name} ({model_config.model_path})")
-        self.memory_monitor.log_memory_usage("Before model loading", logger)
-        
-        try:
-            # Get optimized loading configuration
-            loading_config = self._get_model_loading_config(model_config)
-            
-            # Load tokenizer first (minimal memory impact)
-            if model_config.model_family == "gemma3":
-                # Use exact tokenizer loading from working example
-                tokenizer = AutoTokenizer.from_pretrained(
-                    model_config.model_path,
-                    trust_remote_code=True
-                )
-                
-                # Add pad token exactly like working example
-                if tokenizer.pad_token is None:
-                    if hasattr(tokenizer, 'unk_token') and tokenizer.unk_token:
-                        tokenizer.pad_token = tokenizer.unk_token
-                    else:
-                        tokenizer.add_special_tokens({'pad_token': '<pad>'})
-            else:
-                # Standard tokenizer loading for other models
-                tokenizer = AutoTokenizer.from_pretrained(
-                    model_config.model_path,
-                    trust_remote_code=loading_config.get("trust_remote_code", False),
-                    padding_side="left"  # For batch inference
-                )
-                
-                # Set padding token if not present
-                if tokenizer.pad_token is None:
-                    tokenizer.pad_token = tokenizer.eos_token
-                
-            # Add special tokens for conversational models if needed
-            if "conversational" in model_name.lower() and model_config.chat_template_name == "gpt2_conversational":
-                special_tokens = ["<|USER|>", "<|ASSISTANT|>"]
-                vocab = tokenizer.get_vocab()
-                new_tokens = [token for token in special_tokens if token not in vocab]
-                if new_tokens:
-                    logger.info(f"Adding special tokens: {new_tokens}")
-                    num_added = tokenizer.add_tokens(new_tokens)
-                    logger.info(f"Added {num_added} new tokens")
-                else:
-                    logger.info(f"Special tokens already in vocabulary: {[vocab.get(token, 'NOT_FOUND') for token in special_tokens]}")
-                
-            logger.info(f"Tokenizer loaded, vocab size: {len(tokenizer)}")
-            
-            # Load model with optimizations
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", category=UserWarning)
-                
-                # Use simple loading for gemma3 models (copy exact working approach)
-                if model_config.model_family == "gemma3":
-                    model = AutoModelForCausalLM.from_pretrained(
-                        model_config.model_path,
-                        **loading_config  # Uses the minimal config from _get_model_loading_config
-                    )
-                else:
-                    # Build model kwargs from loading config
-                    model_kwargs = {
-                        "dtype": loading_config.get("dtype", loading_config.get("torch_dtype")),
-                        "attn_implementation": loading_config.get("attn_implementation", "eager"),
-                        "low_cpu_mem_usage": loading_config["low_cpu_mem_usage"],
-                        "trust_remote_code": loading_config.get("trust_remote_code", False),
-                        "use_cache": loading_config.get("use_cache", True)
-                    }
-
-                    # Add device_map if present in loading config
-                    if "device_map" in loading_config:
-                        model_kwargs["device_map"] = loading_config["device_map"]
-
-                    model = AutoModelForCausalLM.from_pretrained(
-                        model_config.model_path,
-                        **model_kwargs
-                    )
-            
-            # Simple setup for gemma3 models (copy exact working approach)
-            if model_config.model_family == "gemma3":
-                # Just set to eval mode, device_map="auto" handles device placement
-                model.eval()
-            else:
-                # Reason: Gradient checkpointing is skipped — it only helps during
-                # training by trading compute for memory, but in eval mode with
-                # torch.no_grad() it adds overhead with no benefit.
-
-                # Skip manual device placement if device_map="auto" handled it
-                # (quantized models and auto-mapped models are already on device)
-                if "device_map" not in loading_config:
-                    # Move model to the correct device
-                    # Handle meta tensors properly by using to_empty()
-                    try:
-                        has_meta_tensors = any(p.is_meta for p in model.parameters())
-                        if has_meta_tensors:
-                            logger.info("Model has meta tensors, using to_empty()")
-                            model = model.to_empty(device=self.device)
-                        else:
-                            model = model.to(self.device)
-                    except Exception as e:
-                        logger.warning(f"Standard device move failed: {e}, trying to_empty()")
-                        try:
-                            model = model.to_empty(device=self.device)
-                        except Exception as e2:
-                            logger.error(f"to_empty() also failed: {e2}")
-                            raise e
-
-                model.eval()
-            
-            # Resize token embeddings if we added special tokens
-            if "conversational" in model_name.lower() and model_config.chat_template_name == "gpt2_conversational":
-                special_tokens = ["<|USER|>", "<|ASSISTANT|>"]
-                new_tokens = [token for token in special_tokens if token not in tokenizer.get_vocab()]
-                if new_tokens:
-                    logger.info(f"Resizing token embeddings for {len(new_tokens)} new tokens")
-                    model.resize_token_embeddings(len(tokenizer))
-            
-            # Store references
-            self.current_model = model
-            self.current_tokenizer = tokenizer
-            self.current_model_name = model_name
-            
-            # Check memory usage
-            self.memory_monitor.check_memory_limit(f"loading {model_name}")
-            self.memory_monitor.log_memory_usage("After model loading", logger)
-            
-            logger.info(f"Successfully loaded {model_name}")
-            return model, tokenizer
-            
-        except Exception as e:
-            logger.error(f"Failed to load model {model_name}: {str(e)}")
-            # Cleanup on failure
-            self._cleanup_current_model()
-            raise
+        model, tokenizer = self.runtime.load_model(model_name)
+        self._sync_runtime_state()
+        return model, tokenizer
     
     def generate_response(self, prompt: str, model_name: Optional[str] = None,
                          **generation_kwargs) -> str:
@@ -469,26 +275,15 @@ class ModelManager:
         if self.current_model is None:
             return {"status": "no_model_loaded"}
         
-        config = get_model_config(self.current_model_name)
-        memory_stats = self.memory_monitor.get_comprehensive_stats()
-        
-        return {
-            "model_name": self.current_model_name,
-            "model_path": config.model_path,
-            "model_family": config.model_family,
-            "estimated_memory_gb": config.estimated_memory_gb,
-            "actual_memory_gb": memory_stats.gpu_allocated_gb,
-            "device": self.device,
-            "vocab_size": len(self.current_tokenizer) if self.current_tokenizer else None,
-            "memory_stats": memory_stats
-        }
+        return self.runtime.get_model_info()
     
     def cleanup(self) -> None:
         """
         Cleanup all resources and free memory.
         """
         logger.info("Cleaning up ModelManager")
-        self._cleanup_current_model()
+        self.runtime.unload_model()
+        self._sync_runtime_state()
         
     def __del__(self):
         """Destructor to ensure cleanup."""

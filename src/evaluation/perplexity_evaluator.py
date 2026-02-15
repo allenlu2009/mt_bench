@@ -12,10 +12,8 @@ from typing import Any, Dict, List, Optional, Tuple
 import requests
 import torch
 from datasets import load_dataset
-from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from ..models.model_configs import get_model_config
-from ..utils.memory_utils import MemoryMonitor
+from ..runtime.model_runtime import ModelRuntime
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +51,8 @@ class PerplexityEvaluator:
         self.max_tokens = max_tokens
         self.use_all_tokens = use_all_tokens
         self.handle_residue = handle_residue
-        self.memory_monitor = MemoryMonitor(gpu_memory_limit_gb=memory_limit_gb)
+        self.runtime = ModelRuntime(device=self.device, memory_limit_gb=memory_limit_gb)
+        self.memory_monitor = self.runtime.memory_monitor
         self._progress = {
             "models_completed": 0,
             "total_models": len(model_names),
@@ -68,7 +67,7 @@ class PerplexityEvaluator:
 
         for model_name in self.model_names:
             logger.info("Perplexity evaluating model: %s", model_name)
-            model, tokenizer = self._load_model_and_tokenizer(model_name)
+            model, tokenizer = self.runtime.load_model(model_name)
             max_length = self._get_model_max_length(model, tokenizer)
             adjusted_block_size = min(self.block_size, max_length) if max_length else self.block_size
 
@@ -88,7 +87,7 @@ class PerplexityEvaluator:
                     all_results.append(result)
                     self._progress["total_tokens_evaluated"] += result["num_tokens"]
 
-            self._unload_model(model, tokenizer)
+            self.runtime.unload_model()
             self._progress["models_completed"] += 1
             self._progress["peak_memory_gb"] = max(
                 self._progress["peak_memory_gb"],
@@ -135,34 +134,6 @@ class PerplexityEvaluator:
         if device == "auto":
             return "cuda" if torch.cuda.is_available() else "cpu"
         return device
-
-    def _load_model_and_tokenizer(self, model_name: str) -> Tuple[Any, Any]:
-        model_cfg = get_model_config(model_name)
-        model_path = model_cfg.model_path
-        logger.info("Loading perplexity model with direct loader: %s (%s)", model_name, model_path)
-
-        tokenizer = AutoTokenizer.from_pretrained(model_path, trust_remote_code=True)
-        if tokenizer.pad_token is None:
-            tokenizer.pad_token = tokenizer.eos_token
-
-        model_kwargs: Dict[str, Any] = {
-            "trust_remote_code": True,
-            "dtype": "auto",
-            "low_cpu_mem_usage": True,
-            "attn_implementation": "eager",
-        }
-        if self.device == "cuda":
-            model_kwargs["device_map"] = "cuda"
-
-        model = AutoModelForCausalLM.from_pretrained(model_path, **model_kwargs)
-        model.eval()
-        self.memory_monitor.log_memory_usage(f"Loaded {model_name}", logger)
-        return model, tokenizer
-
-    def _unload_model(self, model: Any, tokenizer: Any) -> None:
-        del tokenizer
-        del model
-        self.memory_monitor.cleanup_gpu_memory()
 
     def _get_model_max_length(self, model: Any, tokenizer: Any) -> Optional[int]:
         max_length = getattr(getattr(model, "config", None), "max_position_embeddings", None)
