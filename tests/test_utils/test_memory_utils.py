@@ -104,15 +104,10 @@ class TestMemoryMonitor:
 
         # CUDA-specific keys only present when CUDA is available
         if torch.cuda.is_available():
-            cuda_keys = ["device_map", "max_memory"]
-            for key in cuda_keys:
-                assert key in config
+            assert "device_map" in config
+            assert config["device_map"] == "cuda"
 
         assert config["dtype"] == "auto"
-
-        # Only check CUDA-specific configs when CUDA is available
-        if torch.cuda.is_available():
-            assert config["max_memory"] == {0: "5.5GB"}  # 6.0 - 0.5
 
 
 class TestFlashAttentionConfig:

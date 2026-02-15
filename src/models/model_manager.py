@@ -86,7 +86,7 @@ class ModelManager:
         if model_config.model_family == "gemma3":
             return {
                 "trust_remote_code": True,
-                "device_map": "auto",
+                "device_map": "cuda",
                 "dtype": torch.bfloat16
             }
         

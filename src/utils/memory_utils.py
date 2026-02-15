@@ -182,8 +182,7 @@ class MemoryMonitor:
         
         # Only add CUDA-specific optimizations for CUDA devices
         if torch.cuda.is_available():
-            config["device_map"] = "auto"
-            config["max_memory"] = {0: f"{self.gpu_memory_limit-0.5:.1f}GB"}  # Reserve 0.5GB
+            config["device_map"] = "cuda"
             
         return config
     
