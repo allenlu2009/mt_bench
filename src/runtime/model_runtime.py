@@ -52,6 +52,19 @@ class ModelRuntime:
         config = self.memory_monitor.get_memory_optimization_config()
         config.update(get_flash_attention_config())
         config.update(get_optimization_config(model_config))
+
+        # Large models on high-VRAM single-GPU systems can get killed during
+        # HF accelerate auto-sharding due to extra host-memory pressure while
+        # assigning shards. Prefer direct CUDA placement in that case.
+        if self.device == "cuda" and model_config.estimated_memory_gb >= 24:
+            config["device_map"] = "cuda"
+            config.pop("max_memory", None)
+            config["dtype"] = torch.bfloat16
+            logger.info(
+                "Using direct CUDA placement for large model '%s' (estimated %.1fGB)",
+                model_config.model_path,
+                model_config.estimated_memory_gb,
+            )
         return config
 
     def load_model(self, model_name: str) -> Tuple[Any, Any]:
