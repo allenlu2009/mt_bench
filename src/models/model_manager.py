@@ -9,7 +9,12 @@ from typing import Optional, Dict, Any, Tuple
 import logging
 
 from ..runtime.model_runtime import ModelRuntime
-from .model_configs import get_model_config, get_generation_config, get_family_behavior
+from .model_configs import (
+    get_model_config,
+    get_generation_config,
+    get_family_behavior,
+    get_generation_behavior,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -122,6 +127,7 @@ class ModelManager:
             current_config = get_model_config(self.current_model_name)
             
             family_behavior = get_family_behavior(current_config)
+            generation_behavior = get_generation_behavior(current_config)
 
             # Format prompt based on family behavior
             if family_behavior.use_chat_template_generation:
@@ -162,7 +168,7 @@ class ModelManager:
                     response = response.replace(pattern, "")
                 response = response.strip()
                 
-            elif self.current_model_name in ["gpt2-large-conversational", "dialogpt-large"]:
+            elif generation_behavior.use_legacy_encode_generation:
                 # Use the exact tokenization approach from the example
                 input_ids = self.current_tokenizer.encode(
                     prompt, 
@@ -223,21 +229,19 @@ class ModelManager:
             if family_behavior.use_chat_template_generation:
                 # Response already handled above for gemma3
                 pass
-            elif self.current_model_name in ["gpt2-large-conversational", "dialogpt-large"]:
+            elif generation_behavior.use_legacy_encode_generation:
                 input_length = input_ids.shape[1]
                 
-                if self.current_model_name == "gpt2-large-conversational":
-                    # For gpt2-conversational model, decode the full output and extract the response part
+                if generation_behavior.decode_with_assistant_marker:
+                    # Decode full output and extract assistant segment if marker is present.
                     full_output = self.current_tokenizer.decode(outputs[0], skip_special_tokens=False)
-                    # Extract only the assistant's response after <|ASSISTANT|>
-                    if "<|ASSISTANT|>" in full_output:
-                        response = full_output.split("<|ASSISTANT|>")[-1].strip()
+                    marker = generation_behavior.assistant_marker
+                    if marker in full_output:
+                        response = full_output.split(marker)[-1].strip()
                     else:
-                        # Fallback: remove input tokens
                         response_tokens = outputs[0][input_length:]
                         response = self.current_tokenizer.decode(response_tokens, skip_special_tokens=True).strip()
-                else:  # dialogpt-large
-                    # For DialoGPT, just remove input tokens
+                else:
                     response_tokens = outputs[0][input_length:]
                     response = self.current_tokenizer.decode(response_tokens, skip_special_tokens=True).strip()
             else:

@@ -118,7 +118,7 @@ class ModelRuntime:
             if tokenizer.pad_token is None:
                 tokenizer.pad_token = tokenizer.eos_token
 
-        if "conversational" in model_name.lower() and model_config.chat_template_name == "gpt2_conversational":
+        if model_config.chat_template_name == "gpt2_conversational":
             special_tokens = ["<|USER|>", "<|ASSISTANT|>"]
             vocab = tokenizer.get_vocab()
             new_tokens = [token for token in special_tokens if token not in vocab]

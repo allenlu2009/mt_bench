@@ -26,11 +26,31 @@ class FamilyBehavior:
     force_greedy_generation: bool = False
 
 
+@dataclass
+class GenerationBehavior:
+    """Generation-path behavior overrides for specific chat template styles."""
+    use_legacy_encode_generation: bool = False
+    decode_with_assistant_marker: bool = False
+    assistant_marker: str = "<|ASSISTANT|>"
+
+
 FAMILY_BEHAVIORS: Dict[str, FamilyBehavior] = {
     "gemma3": FamilyBehavior(
         use_chat_template_generation=True,
         force_greedy_generation=True,
     )
+}
+
+GENERATION_BEHAVIORS: Dict[str, GenerationBehavior] = {
+    "gpt2_conversational": GenerationBehavior(
+        use_legacy_encode_generation=True,
+        decode_with_assistant_marker=True,
+        assistant_marker="<|ASSISTANT|>",
+    ),
+    "dialogpt": GenerationBehavior(
+        use_legacy_encode_generation=True,
+        decode_with_assistant_marker=False,
+    ),
 }
 
 
@@ -377,6 +397,14 @@ def get_generation_config(model_config: ModelConfig) -> Dict[str, Any]:
 def get_family_behavior(model_config: ModelConfig) -> FamilyBehavior:
     """Get behavior flags for a model family."""
     return FAMILY_BEHAVIORS.get(model_config.model_family, FamilyBehavior())
+
+
+def get_generation_behavior(model_config: ModelConfig) -> GenerationBehavior:
+    """Get generation-path behavior for the model's chat template style."""
+    key = model_config.chat_template_name
+    if key is None:
+        return GenerationBehavior()
+    return GENERATION_BEHAVIORS.get(key, GenerationBehavior())
 
 
 def format_prompt_for_model(instruction: str, model_config: ModelConfig, 
