@@ -16,6 +16,14 @@ from ..models.model_configs import get_model_config, get_generation_config
 logger = logging.getLogger(__name__)
 
 
+def _safe_float(value: Any, default: float = 0.0) -> float:
+    """Best-effort float conversion for mocked or missing numeric values."""
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
 class MultiModeEvaluator:
     """
     MT-bench evaluator supporting multiple evaluation modes.
@@ -114,7 +122,8 @@ class MultiModeEvaluator:
         
         # Update peak memory from single evaluator
         if hasattr(self.single_evaluator, 'memory_monitor'):
-            self.peak_memory_gb = max(self.peak_memory_gb, self.single_evaluator.memory_monitor.peak_memory)
+            single_peak = _safe_float(getattr(self.single_evaluator.memory_monitor, "peak_memory", 0.0))
+            self.peak_memory_gb = max(self.peak_memory_gb, single_peak)
             self.progress["peak_memory_gb"] = self.peak_memory_gb
         
         return results
@@ -279,7 +288,8 @@ class MultiModeEvaluator:
         
         # Update peak memory from model loading during pairwise evaluation
         if hasattr(self.single_evaluator, 'memory_monitor'):
-            self.peak_memory_gb = max(self.peak_memory_gb, self.single_evaluator.memory_monitor.peak_memory)
+            single_peak = _safe_float(getattr(self.single_evaluator.memory_monitor, "peak_memory", 0.0))
+            self.peak_memory_gb = max(self.peak_memory_gb, single_peak)
             self.progress["peak_memory_gb"] = self.peak_memory_gb
         
         return pairwise_results

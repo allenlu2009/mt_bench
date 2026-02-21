@@ -3,7 +3,7 @@
 import torch
 import psutil
 import gc
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 from dataclasses import dataclass
 
 
@@ -168,7 +168,7 @@ class MemoryMonitor:
         else:
             print(message)
     
-    def get_memory_optimization_config(self) -> Dict[str, any]:
+    def get_memory_optimization_config(self) -> Dict[str, Any]:
         """
         Get recommended memory optimization configuration for transformers.
         
@@ -186,29 +186,6 @@ class MemoryMonitor:
             
         return config
     
-    def estimate_model_memory(self, model_name: str) -> float:
-        """
-        Estimate memory requirements for different models.
-        
-        Args:
-            model_name: Name of the model
-            
-        Returns:
-            Estimated memory usage in GB
-        """
-        # Rough estimates based on model parameters and fp16 precision
-        memory_estimates = {
-            "gpt2-large": 1.5,     # 774M parameters
-            "llama-3.2-1b": 2.0,   # 1B parameters  
-            "llama-3.2-3b": 6.0,   # 3B parameters (close to limit)
-            "phi-3-mini": 2.5,     # 3.8B parameters but optimized
-            "qwen2.5-3b": 6.0,     # 3B parameters
-            "gemma-7b": 14.0,      # 7B parameters (exceeds RTX 3060)
-        }
-        
-        # Default estimate if model not found
-        return memory_estimates.get(model_name.lower(), 4.0)
-    
     def can_load_model(self, model_name: str) -> bool:
         """
         Check if model can be loaded within memory constraints.
@@ -219,13 +196,15 @@ class MemoryMonitor:
         Returns:
             True if model can be loaded, False otherwise
         """
-        estimated_memory = self.estimate_model_memory(model_name)
+        from ..models.model_configs import get_model_config
+
+        estimated_memory = get_model_config(model_name).estimated_memory_gb
         current_usage = self.get_gpu_memory_usage()
         
         return (current_usage + estimated_memory) <= self.gpu_memory_limit
 
 
-def get_flash_attention_config() -> Dict[str, any]:
+def get_flash_attention_config() -> Dict[str, Any]:
     """
     Get Flash Attention 2 configuration for memory optimization.
     
