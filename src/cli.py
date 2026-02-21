@@ -13,7 +13,7 @@ from .cli_parts.common import (
     validate_models,
 )
 from .cli_parts.output import print_completion_summary, print_qa_examples
-from .cli_parts.parser import create_parser
+from .cli_parts.parser import create_parser, normalize_cli_argv
 from .evaluation.mtbench_evaluator import MTBenchEvaluator
 from .evaluation.multi_mode_evaluator import MultiModeEvaluator
 from .evaluation.perplexity_evaluator import PerplexityEvaluator
@@ -89,7 +89,7 @@ async def _run_perplexity(args, valid_models, logger):
 async def main() -> None:
     """Main CLI entry point."""
     parser = create_parser()
-    args = parser.parse_args()
+    args = parser.parse_args(normalize_cli_argv(sys.argv[1:]))
 
     setup_logging(args.verbose)
     logger = logging.getLogger(__name__)
@@ -144,4 +144,3 @@ def cli_entry_point() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
-

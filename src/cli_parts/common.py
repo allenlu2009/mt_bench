@@ -100,7 +100,7 @@ def resolve_model_names(args: argparse.Namespace, parser: argparse.ArgumentParse
 
 def require_mtbench_api_key(args: argparse.Namespace, parser: argparse.ArgumentParser) -> str:
     """Validate and return API key for MT-bench project."""
-    api_key = args.openai_api_key or os.getenv("OPENAI_API_KEY")
+    api_key = getattr(args, "openai_api_key", None) or os.getenv("OPENAI_API_KEY")
     if args.project == "mt-bench" and not api_key:
         parser.error("OpenAI API key required for mt-bench. Set OPENAI_API_KEY env var or use --openai-api-key")
     return api_key
