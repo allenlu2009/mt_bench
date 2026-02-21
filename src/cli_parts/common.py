@@ -11,6 +11,7 @@ from ..models.model_configs import (
     get_available_models,
     get_models_by_family,
     get_models_within_memory_limit,
+    normalize_model_name,
 )
 
 
@@ -33,7 +34,8 @@ def validate_models(model_names: List[str], memory_limit_gb: float) -> List[str]
     memory_compatible_models = get_models_within_memory_limit(memory_limit_gb)
 
     valid_models: List[str] = []
-    for model_name in model_names:
+    for requested_name in model_names:
+        model_name = normalize_model_name(requested_name)
         if model_name not in available_models:
             print(f"Warning: Model '{model_name}' not available. Available models:")
             for name in available_models.keys():
@@ -46,7 +48,8 @@ def validate_models(model_names: List[str], memory_limit_gb: float) -> List[str]
                 f"Note: Model '{model_name}' requires {config.estimated_memory_gb:.1f}GB "
                 f"(memory limit: {memory_limit_gb:.1f}GB). Ensure your GPU has sufficient VRAM."
             )
-        valid_models.append(model_name)
+        if model_name not in valid_models:
+            valid_models.append(model_name)
 
     if not valid_models:
         raise ValueError("No valid models found after filtering")
@@ -101,4 +104,3 @@ def require_mtbench_api_key(args: argparse.Namespace, parser: argparse.ArgumentP
     if args.project == "mt-bench" and not api_key:
         parser.error("OpenAI API key required for mt-bench. Set OPENAI_API_KEY env var or use --openai-api-key")
     return api_key
-

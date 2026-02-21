@@ -18,6 +18,7 @@ class ModelConfig:
     requires_system_prompt: bool = False
     chat_template_name: Optional[str] = None
     quantization_format: str = "FP16"  # FP32, FP16, BF16, FP8, INT8, INT4
+    load_in_4bit: bool = False
 
 
 @dataclass

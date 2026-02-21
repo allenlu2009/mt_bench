@@ -52,6 +52,9 @@ class ModelRuntime:
         config = self.memory_monitor.get_memory_optimization_config()
         config.update(get_flash_attention_config())
         config.update(get_optimization_config(model_config))
+        if model_config.load_in_4bit:
+            config["load_in_4bit"] = True
+            config["dtype"] = torch.float16
 
         # Large models on high-VRAM single-GPU systems can get killed during
         # HF accelerate auto-sharding due to extra host-memory pressure while
@@ -141,6 +144,8 @@ class ModelRuntime:
                     "trust_remote_code": loading_config.get("trust_remote_code", False),
                     "use_cache": loading_config.get("use_cache", True),
                 }
+                if loading_config.get("load_in_4bit"):
+                    model_kwargs["load_in_4bit"] = True
                 if "device_map" in loading_config:
                     model_kwargs["device_map"] = loading_config["device_map"]
                 model = AutoModelForCausalLM.from_pretrained(model_config.model_path, **model_kwargs)

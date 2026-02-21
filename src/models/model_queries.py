@@ -2,18 +2,25 @@
 
 from typing import Any, Dict, List, Optional
 
-from .model_registry import AVAILABLE_MODELS
+from .model_registry import AVAILABLE_MODELS, MODEL_ALIASES
 from .model_types import ModelConfig
+
+
+def normalize_model_name(model_name: str) -> str:
+    """Normalize model name to a canonical registry key."""
+    lowered = model_name.strip().lower()
+    return MODEL_ALIASES.get(lowered, lowered)
 
 
 def get_model_config(model_name: str) -> ModelConfig:
     """Get configuration for a specific model."""
-    if model_name not in AVAILABLE_MODELS:
+    canonical_name = normalize_model_name(model_name)
+    if canonical_name not in AVAILABLE_MODELS:
         raise ValueError(
             f"Model {model_name} not supported. "
             f"Available models: {list(AVAILABLE_MODELS.keys())}"
         )
-    return AVAILABLE_MODELS[model_name]
+    return AVAILABLE_MODELS[canonical_name]
 
 
 def get_available_models() -> Dict[str, ModelConfig]:

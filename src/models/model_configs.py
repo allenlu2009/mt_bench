@@ -17,12 +17,14 @@ from .model_queries import (
     get_models_by_family,
     get_models_within_memory_limit,
     get_system_message,
+    normalize_model_name,
 )
-from .model_registry import AVAILABLE_MODELS
+from .model_registry import AVAILABLE_MODELS, MODEL_ALIASES
 from .model_types import FamilyBehavior, GenerationBehavior, ModelConfig
 
 __all__ = [
     "AVAILABLE_MODELS",
+    "MODEL_ALIASES",
     "FAMILY_BEHAVIORS",
     "GENERATION_BEHAVIORS",
     "OPTIMIZATION_CONFIGS",
@@ -40,4 +42,5 @@ __all__ = [
     "get_models_within_memory_limit",
     "get_optimization_config",
     "get_system_message",
+    "normalize_model_name",
 ]

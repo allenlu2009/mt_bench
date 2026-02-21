@@ -144,29 +144,42 @@ AVAILABLE_MODELS: Dict[str, ModelConfig] = {
         chat_template_name="gemma",
         quantization_format="BF16",
     ),
-    "qwen3-4b-fp8": ModelConfig(
+    "qwen3-4b-instruct-fp8": ModelConfig(
         model_path="Qwen/Qwen3-4B-Instruct-2507-FP8",
         model_family="qwen",
         prompt_template="<|im_start|>user\n{instruction}<|im_end|>\n<|im_start|>assistant\n",
         max_new_tokens=512,
         temperature=0.7,
         top_p=0.9,
-        estimated_memory_gb=4.0,
+        estimated_memory_gb=5.0,
         requires_system_prompt=False,
         chat_template_name="qwen",
         quantization_format="FP8",
     ),
-    "qwen3-4b": ModelConfig(
+    "qwen3-4b-instruct": ModelConfig(
         model_path="Qwen/Qwen3-4B-Instruct-2507",
         model_family="qwen",
         prompt_template="<|im_start|>user\n{instruction}<|im_end|>\n<|im_start|>assistant\n",
         max_new_tokens=512,
         temperature=0.7,
         top_p=0.9,
-        estimated_memory_gb=8.0,
+        estimated_memory_gb=8.8,
         requires_system_prompt=False,
         chat_template_name="qwen",
         quantization_format="BF16",
+    ),
+    "qwen3-4b-instruct-4bit": ModelConfig(
+        model_path="Qwen/Qwen3-4B-Instruct-2507",
+        model_family="qwen",
+        prompt_template="<|im_start|>user\n{instruction}<|im_end|>\n<|im_start|>assistant\n",
+        max_new_tokens=512,
+        temperature=0.7,
+        top_p=0.9,
+        estimated_memory_gb=3.5,
+        requires_system_prompt=False,
+        chat_template_name="qwen",
+        quantization_format="INT4",
+        load_in_4bit=True,
     ),
     "qwen2.5-32b": ModelConfig(
         model_path="Qwen/Qwen2.5-32B-Instruct",
@@ -288,4 +301,17 @@ AVAILABLE_MODELS: Dict[str, ModelConfig] = {
         chat_template_name="qwen",
         quantization_format="BF16",
     ),
+}
+
+
+MODEL_ALIASES: Dict[str, str] = {
+    # Backward compatibility with prior mt_bench names
+    "qwen3-4b": "qwen3-4b-instruct",
+    "qwen3-4b-fp8": "qwen3-4b-instruct-fp8",
+    # Perplexity-style aliases
+    "llama3.2-1b": "llama-3.2-1b",
+    "llama3.2-3b": "llama-3.2-3b",
+    "phi3-mini-4k": "phi-3-mini",
+    "qwen3-4b-instruct-2507": "qwen3-4b-instruct",
+    "qwen3-4b-instruct-2507-fp8": "qwen3-4b-instruct-fp8",
 }

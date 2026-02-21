@@ -10,6 +10,7 @@ from src.models.model_configs import (
     format_prompt_for_model,
     get_system_message,
     get_optimization_config,
+    normalize_model_name,
     AVAILABLE_MODELS
 )
 
@@ -53,6 +54,13 @@ class TestModelConfigRetrieval:
         """Test retrieving configuration for invalid model."""
         with pytest.raises(ValueError, match="Model nonexistent-model not supported"):
             get_model_config("nonexistent-model")
+
+    def test_get_model_config_alias(self):
+        """Test alias normalization resolves to canonical model config."""
+        canonical = get_model_config("qwen3-4b-instruct")
+        alias = get_model_config("qwen3-4b")
+        assert alias.model_path == canonical.model_path
+        assert alias.quantization_format == canonical.quantization_format
     
     def test_get_available_models(self):
         """Test getting all available models."""
@@ -292,6 +300,15 @@ class TestModelConfigConsistency:
         for model_name, config in AVAILABLE_MODELS.items():
             # Memory should be between 0.5GB and 128GB (reasonable range, includes 32B+ models)
             assert 0.5 <= config.estimated_memory_gb <= 128.0, f"Model {model_name} has unreasonable memory estimate"
+
+
+class TestModelNameNormalization:
+    """Test cases for canonical model-name normalization."""
+
+    def test_normalize_model_name(self):
+        assert normalize_model_name("Qwen3-4B") == "qwen3-4b-instruct"
+        assert normalize_model_name("llama3.2-1B") == "llama-3.2-1b"
+        assert normalize_model_name("phi3-mini-4k") == "phi-3-mini"
 
 
 if __name__ == "__main__":
