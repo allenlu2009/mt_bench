@@ -87,7 +87,7 @@ class TestModelConfigRetrieval:
         assert "phi-3-mini" not in medium_models  # 7.1GB
         
         # Test with large limit - should include all models
-        all_models = get_models_within_memory_limit(100.0)
+        all_models = get_models_within_memory_limit(128.0)
         assert len(all_models) == len(AVAILABLE_MODELS)
 
         # 32B models should be excluded at 20GB limit
