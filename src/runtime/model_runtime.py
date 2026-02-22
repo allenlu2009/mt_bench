@@ -1,6 +1,7 @@
 """Shared model runtime for loading, unloading, and memory management."""
 
 import logging
+import time
 import warnings
 from typing import Any, Dict, Optional, Tuple
 
@@ -38,6 +39,11 @@ class ModelRuntime:
             self.current_tokenizer = None
             self.current_model_name = None
             self.memory_monitor.cleanup_gpu_memory()
+
+    def _sync_cuda(self) -> None:
+        """Synchronize CUDA for more accurate timing when available."""
+        if self.device == "cuda" and torch.cuda.is_available():
+            torch.cuda.synchronize()
 
     def _get_model_loading_config(self, model_config: ModelConfig) -> Dict[str, Any]:
         if model_config.model_family == "gemma3":
@@ -88,9 +94,13 @@ class ModelRuntime:
         logger.info("Loading model: %s (%s)", model_name, model_config.model_path)
 
         try:
+            total_start = time.perf_counter()
             loading_config = self._get_model_loading_config(model_config)
+            tokenizer_start = time.perf_counter()
             tokenizer = self._load_tokenizer(model_name, model_config, loading_config)
-            model = self._load_model(model_config, loading_config)
+            tokenizer_secs = time.perf_counter() - tokenizer_start
+
+            model, model_timing = self._load_model(model_config, loading_config)
 
             self.current_model = model
             self.current_tokenizer = tokenizer
@@ -98,6 +108,15 @@ class ModelRuntime:
 
             self.memory_monitor.check_memory_limit(f"loading {model_name}")
             self.memory_monitor.log_memory_usage("After model loading", logger)
+            total_secs = time.perf_counter() - total_start
+            logger.info(
+                "Load timing [%s]: total=%.2fs tokenizer=%.2fs from_pretrained=%.2fs device_transfer=%.2fs",
+                model_name,
+                total_secs,
+                tokenizer_secs,
+                model_timing["from_pretrained_secs"],
+                model_timing["device_transfer_secs"],
+            )
             logger.info("Successfully loaded %s", model_name)
             return model, tokenizer
         except Exception:
@@ -131,7 +150,9 @@ class ModelRuntime:
         logger.info("Tokenizer loaded, vocab size: %s", len(tokenizer))
         return tokenizer
 
-    def _load_model(self, model_config: ModelConfig, loading_config: Dict[str, Any]) -> Any:
+    def _load_model(self, model_config: ModelConfig, loading_config: Dict[str, Any]) -> Tuple[Any, Dict[str, float]]:
+        self._sync_cuda()
+        from_pretrained_start = time.perf_counter()
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=UserWarning)
             if model_config.model_family == "gemma3":
@@ -149,7 +170,11 @@ class ModelRuntime:
                 if "device_map" in loading_config:
                     model_kwargs["device_map"] = loading_config["device_map"]
                 model = AutoModelForCausalLM.from_pretrained(model_config.model_path, **model_kwargs)
+        self._sync_cuda()
+        from_pretrained_secs = time.perf_counter() - from_pretrained_start
 
+        self._sync_cuda()
+        transfer_start = time.perf_counter()
         if model_config.model_family != "gemma3" and "device_map" not in loading_config:
             try:
                 has_meta_tensors = any(p.is_meta for p in model.parameters())
@@ -159,9 +184,14 @@ class ModelRuntime:
                     model = model.to(self.device)
             except Exception:
                 model = model.to_empty(device=self.device)
+        self._sync_cuda()
+        device_transfer_secs = time.perf_counter() - transfer_start
 
         model.eval()
-        return model
+        return model, {
+            "from_pretrained_secs": from_pretrained_secs,
+            "device_transfer_secs": device_transfer_secs,
+        }
 
     def get_model_info(self) -> Dict[str, Any]:
         if self.current_model is None:
