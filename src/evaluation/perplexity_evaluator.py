@@ -45,7 +45,7 @@ class PerplexityEvaluator:
         self.output_dir = output_dir
         self.datasets = datasets or ["wikitext2"]
         self.block_size = max(2, block_size)
-        self.stride_ratios = stride_ratios or [0.5, 1.0]
+        self.stride_ratios = stride_ratios or [0.5]
         self.device = self._resolve_device(device)
         self.max_samples = max_samples if max_samples is not None else max_questions
         self.max_tokens = max_tokens
@@ -97,6 +97,7 @@ class PerplexityEvaluator:
         duration_seconds = int((datetime.now() - start_time).total_seconds())
         finite_ppls = [r["perplexity"] for r in all_results if math.isfinite(r["perplexity"])]
         avg_ppl = (sum(finite_ppls) / len(finite_ppls)) if finite_ppls else float("inf")
+        avg_nll = math.log(avg_ppl) if math.isfinite(avg_ppl) and avg_ppl > 0 else float("inf")
 
         summary_report = self._build_summary(all_results, avg_ppl, duration_seconds)
         return {
@@ -109,6 +110,7 @@ class PerplexityEvaluator:
                 "total_models": len(self.model_names),
                 "total_datasets": len(self.datasets),
                 "total_runs": len(all_results),
+                "average_nll": round(avg_nll, 4) if math.isfinite(avg_nll) else float("inf"),
                 "average_perplexity": round(avg_ppl, 4) if math.isfinite(avg_ppl) else float("inf"),
             },
             "summary_report": summary_report,
@@ -356,11 +358,15 @@ class PerplexityEvaluator:
         ) from last_error
 
     def _build_summary(self, all_results: List[Dict[str, Any]], avg_ppl: float, duration_seconds: int) -> str:
+        avg_nll = math.log(avg_ppl) if math.isfinite(avg_ppl) and avg_ppl > 0 else float("inf")
         lines = [
             "PERPLEXITY EVALUATION RESULTS",
             "=" * 50,
             f"Total runs: {len(all_results)}",
             f"Average perplexity: {avg_ppl:.4f}" if math.isfinite(avg_ppl) else "Average perplexity: inf",
+            f"Average NLL: {avg_nll:.4f} (perplexity = exp(NLL))"
+            if math.isfinite(avg_nll)
+            else "Average NLL: inf (perplexity = exp(NLL))",
             f"Total time: {duration_seconds}s",
             "",
         ]
@@ -368,6 +374,7 @@ class PerplexityEvaluator:
         for result in all_results:
             lines.append(
                 f"{result['model_name']} | {result['dataset_name']} | "
+                f"nll={result['avg_nll']:.4f} | "
                 f"ppl={result['perplexity']:.4f} | "
                 f"tokens={result['num_tokens']} | "
                 f"block={result['block_size']} stride_ratio={result['stride_ratio']:.2f}"
