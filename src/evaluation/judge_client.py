@@ -1,4 +1,4 @@
-"""OpenAI judge client for MT-bench evaluation with multi-model support."""
+"""Judge client for MT-bench evaluation with multi-provider model support."""
 
 import asyncio
 import json
@@ -89,22 +89,33 @@ class JudgeClient:
         Initialize judge client.
         
         Args:
-            api_key: OpenAI API key (uses OPENAI_API_KEY env var if None)
+            api_key: Provider API key (uses provider env var if None)
             model: Judge model to use
             debug: Enable debug output for prompts and responses
             low_score_threshold: Threshold for logging low score cases (default: 2.0)
         """
-        self.api_key = api_key or os.getenv("OPENAI_API_KEY")
-        if not self.api_key:
-            raise ValueError("OpenAI API key not provided. Set OPENAI_API_KEY environment variable.")
-        
         self.model = model
         self.debug = debug
         self.low_score_threshold = low_score_threshold
-        self.client = AsyncOpenAI(api_key=self.api_key)
-        
+
+        # Determine provider and key source based on judge model.
+        if model in {"deepseek-chat", "deepseek-reasoner"}:
+            env_var = "DEEPSEEK_API_KEY"
+        elif model in {"minimax-mini", "minimax-text-01"}:
+            env_var = "MINIMAX_API_KEY"
+        else:
+            env_var = "OPENAI_API_KEY"
+
+        self.api_key = api_key or os.getenv(env_var)
+        if not self.api_key:
+            raise ValueError(f"API key not provided. Set {env_var} environment variable.")
+
         # Set rate limiting and parameters based on model
         self._configure_model_settings()
+        if self.base_url:
+            self.client = AsyncOpenAI(api_key=self.api_key, base_url=self.base_url)
+        else:
+            self.client = AsyncOpenAI(api_key=self.api_key)
         self.request_timestamps = []
         
         # Setup debug file logging if debug is enabled
@@ -249,6 +260,38 @@ Score: {score}/10
                 "use_max_completion_tokens": False,
                 "temperature": 0.2,
                 "supports_system_message": True
+            },
+            "deepseek-chat": {
+                "max_requests_per_second": 10,
+                "use_max_completion_tokens": False,
+                "temperature": 0.2,
+                "supports_system_message": True,
+                "base_url": "https://api.deepseek.com",
+                "api_model_name": "deepseek-chat",
+            },
+            "deepseek-reasoner": {
+                "max_requests_per_second": 5,
+                "use_max_completion_tokens": False,
+                "temperature": 0.2,
+                "supports_system_message": True,
+                "base_url": "https://api.deepseek.com",
+                "api_model_name": "deepseek-reasoner",
+            },
+            "minimax-mini": {
+                "max_requests_per_second": 10,
+                "use_max_completion_tokens": False,
+                "temperature": 0.2,
+                "supports_system_message": True,
+                "base_url": "https://api.minimax.chat/v1",
+                "api_model_name": "MiniMax-Text-01",
+            },
+            "minimax-text-01": {
+                "max_requests_per_second": 10,
+                "use_max_completion_tokens": False,
+                "temperature": 0.2,
+                "supports_system_message": True,
+                "base_url": "https://api.minimax.chat/v1",
+                "api_model_name": "MiniMax-Text-01",
             }
         }
         
@@ -266,6 +309,8 @@ Score: {score}/10
         self.supports_system_message = config["supports_system_message"]
         self.model_max_completion_tokens = config.get("max_completion_tokens", 1000)
         self.reasoning_effort = config.get("reasoning_effort", None)
+        self.base_url = config.get("base_url", "")
+        self.api_model_name = config.get("api_model_name", self.model)
     
     def _get_api_parameters(self, max_tokens: int = 1000) -> Dict[str, Any]:
         """
@@ -278,7 +323,7 @@ Score: {score}/10
             Dictionary of API parameters
         """
         params = {
-            "model": self.model,
+            "model": self.api_model_name,
             "temperature": self.default_temperature,
             "top_p": 1.0
         }

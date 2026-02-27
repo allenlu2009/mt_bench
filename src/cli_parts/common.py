@@ -100,7 +100,26 @@ def resolve_model_names(args: argparse.Namespace, parser: argparse.ArgumentParse
 
 def require_mtbench_api_key(args: argparse.Namespace, parser: argparse.ArgumentParser) -> str:
     """Validate and return API key for MT-bench project."""
+    if args.project != "mt-bench":
+        return ""
+
+    judge_model = getattr(args, "judge_model", "gpt-5-nano")
+    is_deepseek = judge_model in {"deepseek-chat", "deepseek-reasoner"}
+    is_minimax = judge_model in {"minimax-mini", "minimax-text-01"}
+
+    if is_deepseek:
+        key = os.getenv("DEEPSEEK_API_KEY")
+        if not key:
+            parser.error(f"{judge_model} requires DEEPSEEK_API_KEY in environment")
+        return key
+
+    if is_minimax:
+        key = os.getenv("MINIMAX_API_KEY")
+        if not key:
+            parser.error(f"{judge_model} requires MINIMAX_API_KEY in environment")
+        return key
+
     api_key = getattr(args, "openai_api_key", None) or os.getenv("OPENAI_API_KEY")
-    if args.project == "mt-bench" and not api_key:
+    if not api_key:
         parser.error("OpenAI API key required for mt-bench. Set OPENAI_API_KEY env var or use --openai-api-key")
     return api_key

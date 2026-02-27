@@ -77,6 +77,10 @@ def _add_mtbench_args(parser: argparse.ArgumentParser) -> None:
             "gpt-4-turbo",
             "gpt-4-turbo-2024-04-09",
             "gpt-4o-2024-05-13",
+            "deepseek-chat",
+            "deepseek-reasoner",
+            "minimax-mini",
+            "minimax-text-01",
         ],
         default="gpt-5-nano",
     )
