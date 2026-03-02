@@ -95,6 +95,11 @@ def _add_perplexity_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--mode", choices=["single"], default="single")
     parser.add_argument("--perplexity-datasets", nargs="+", default=["wikitext2"])
     parser.add_argument("--block-size", type=int, default=1024)
+    parser.add_argument(
+        "--allow-block-size-over-max-length",
+        action="store_true",
+        help="Allow perplexity block size to exceed the model's reported max context length",
+    )
     parser.add_argument("--stride-ratios", nargs="+", type=float, default=[0.5])
     parser.add_argument("--device", choices=["auto", "cuda", "cpu"], default="auto")
     parser.add_argument("--max-samples", type=int)

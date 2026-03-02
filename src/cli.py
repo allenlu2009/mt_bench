@@ -80,6 +80,7 @@ async def _run_perplexity(args, valid_models, logger):
         max_tokens=args.max_tokens,
         use_all_tokens=args.use_all_tokens,
         handle_residue=not args.no_residue,
+        allow_block_size_over_max_length=args.allow_block_size_over_max_length,
     )
     logger.info("Starting perplexity evaluation for %s models", len(valid_models))
     results = await evaluator.run_full_evaluation()

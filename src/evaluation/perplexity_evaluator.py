@@ -3,6 +3,7 @@
 import json
 import logging
 import math
+import time
 import urllib.request
 import warnings
 from datetime import datetime
@@ -36,6 +37,7 @@ class PerplexityEvaluator:
         max_tokens: Optional[int] = None,
         use_all_tokens: bool = False,
         handle_residue: bool = True,
+        allow_block_size_over_max_length: bool = False,
     ):
         self.model_names = model_names
         self.cache_dir = Path(cache_dir)
@@ -51,6 +53,7 @@ class PerplexityEvaluator:
         self.max_tokens = max_tokens
         self.use_all_tokens = use_all_tokens
         self.handle_residue = handle_residue
+        self.allow_block_size_over_max_length = allow_block_size_over_max_length
         self.runtime = ModelRuntime(device=self.device, memory_limit_gb=memory_limit_gb)
         self.memory_monitor = self.runtime.memory_monitor
         self._progress = {
@@ -69,7 +72,21 @@ class PerplexityEvaluator:
             logger.info("Perplexity evaluating model: %s", model_name)
             model, tokenizer = self.runtime.load_model(model_name)
             max_length = self._get_model_max_length(model, tokenizer)
-            adjusted_block_size = min(self.block_size, max_length) if max_length else self.block_size
+            adjusted_block_size = self.block_size
+            if max_length and self.block_size > max_length:
+                if self.allow_block_size_over_max_length:
+                    logger.info(
+                        "Requested block_size %d exceeds model's reported max_length %d. Proceeding because override is enabled.",
+                        self.block_size,
+                        max_length,
+                    )
+                else:
+                    adjusted_block_size = max_length
+                    logger.info(
+                        "Requested block_size %d exceeds model's reported max_length %d. Clamping to reported max_length.",
+                        self.block_size,
+                        max_length,
+                    )
 
             for dataset_name in self.datasets:
                 text = self._load_dataset_text(dataset_name)
@@ -336,6 +353,7 @@ class PerplexityEvaluator:
                     dataset_name,
                 )
                 self.memory_monitor.cleanup_gpu_memory()
+                time.sleep(1.0)
                 block_size //= 2
             except RuntimeError as e:
                 if "out of memory" in str(e).lower() and self.device == "cuda":
@@ -347,6 +365,7 @@ class PerplexityEvaluator:
                         dataset_name,
                     )
                     self.memory_monitor.cleanup_gpu_memory()
+                    time.sleep(1.0)
                     block_size //= 2
                 else:
                     raise
