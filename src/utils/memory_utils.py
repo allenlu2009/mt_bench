@@ -1,10 +1,13 @@
 """GPU memory monitoring and optimization utilities."""
 
+import logging
 import torch
 import psutil
 import gc
 from typing import Dict, Optional, Any
 from dataclasses import dataclass
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -217,12 +220,13 @@ def get_flash_attention_config() -> Dict[str, Any]:
     # Check if Flash Attention 2 is available
     try:
         import flash_attn
+        logger.debug("Flash Attention 2 detected and activated.")
         return {
             "attn_implementation": "flash_attention_2",
             "use_cache": True,
         }
     except ImportError:
-        print("Warning: Flash Attention 2 not available, using default attention")
+        logger.warning("Flash Attention 2 not available, using default attention")
         return {"attn_implementation": "eager"}
 
 

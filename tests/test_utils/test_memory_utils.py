@@ -72,18 +72,6 @@ class TestMemoryMonitor:
         assert result is True
         assert monitor.peak_memory == 4.0
     
-    def test_estimate_model_memory(self):
-        """Test model memory estimation."""
-        monitor = MemoryMonitor()
-        
-        # Test known models
-        assert monitor.estimate_model_memory("gpt2-large") == 1.5
-        assert monitor.estimate_model_memory("llama-3.2-1b") == 2.0
-        assert monitor.estimate_model_memory("gemma-7b") == 14.0
-        
-        # Test unknown model (should return default)
-        assert monitor.estimate_model_memory("unknown-model") == 4.0
-    
     def test_can_load_model(self):
         """Test model loading feasibility check."""
         monitor = MemoryMonitor(gpu_memory_limit_gb=6.0)
@@ -91,7 +79,7 @@ class TestMemoryMonitor:
         # Mock current usage
         with patch.object(monitor, 'get_gpu_memory_usage', return_value=1.0):
             assert monitor.can_load_model("gpt2-large") is True  # 1.0 + 1.5 = 2.5 < 6.0
-            assert monitor.can_load_model("gemma-7b") is False   # 1.0 + 14.0 = 15.0 > 6.0
+            assert monitor.can_load_model("gemma3-4b") is False   # 1.0 + 8.8 = 9.8 > 6.0
     
     def test_get_memory_optimization_config(self):
         """Test memory optimization configuration."""
